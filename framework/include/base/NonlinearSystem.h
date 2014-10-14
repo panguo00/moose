@@ -331,6 +331,8 @@ public:
    */
   unsigned int nNonlinearIterations() { return _n_iters; }
 
+  Real initialResidual(){ return _initial_residual; }
+
   /**
    * Returns the current nonlinear iteration number.  In libmesh, this is
    * updated during the nonlinear solve, so it should be up-to-date.
