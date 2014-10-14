@@ -35,6 +35,12 @@ public:
    * This will return the degrees of freedom in the system.
    */
   virtual Real getValue();
+
+protected:
+  FEProblem & _feproblem;
+  bool _accumulate_over_step;
+  Real _time;
+  unsigned int _num_iters;
 };
 
 #endif // NUMNONLINEARITERATIONS_H
