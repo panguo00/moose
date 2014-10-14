@@ -81,9 +81,21 @@ MultiAppPostprocessorTransfer::execute()
           break;
       }
 
+      NumericVector<Real> *multi_app_pp_values = NumericVector<Real>::build(_multi_app->numGlobalApps());
       for (unsigned int i=0; i<_multi_app->numGlobalApps(); i++)
         if (_multi_app->hasLocalApp(i))
         {
+          multi_app_pp_values.set(i,_multi_app->appProblem(i)->getPostprocessorValue(_from_pp_name));
+        }
+      multi_app_pp_values.close();
+      for (unsigned int i=0; i<_multi_app->numGlobalApps(); i++)
+        std::cout<<"BWS val("<<i<<") = " multi_app_pp_values(i)<<std::endl;
+
+      std::cout<<"BWS master rank: "<<_communicator.rank()<<std::endl;
+      for (unsigned int i=0; i<_multi_app->numGlobalApps(); i++)
+        if (_multi_app->hasLocalApp(i))
+        {
+          std::cout<<"BWS has local: "<<i<<std::endl;//" rank: "<<_multi_app->comm()->rank()<<std::endl;
           ++pp_count;
           Real this_pp_value = _multi_app->appProblem(i)->getPostprocessorValue(_from_pp_name);
           switch (_reduction_type)
@@ -100,6 +112,8 @@ MultiAppPostprocessorTransfer::execute()
               break;
           }
         }
+        else
+          std::cout<<"BWS non local: "<<i<<std::endl;//" rank: "<<_multi_app->comm()->rank()<<std::endl;
 
       if (_reduction_type == AVERAGE)
         pp_value /= (double) pp_count;
