@@ -526,6 +526,8 @@ public:
    */
   void execMultiApps(ExecFlagType type, bool auto_advance = true);
 
+  bool allMultiAppsInitialConverged(ExecFlagType type);
+
   /**
    * Advance the MultiApps associated with the ExecFlagType
    */

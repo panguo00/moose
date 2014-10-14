@@ -88,6 +88,8 @@ public:
    */
   virtual bool lastSolveConverged();
 
+  virtual bool initialResidualConverged();
+
   virtual void preExecute();
 
   virtual void postExecute();
@@ -286,6 +288,7 @@ protected:
   Real _solution_change_norm;
 
   void setupTimeIntegrator();
+  bool _step_took_work;
 };
 
 #endif //TRANSIENTEXECUTIONER_H

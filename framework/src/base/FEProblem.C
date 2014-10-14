@@ -2742,6 +2742,16 @@ FEProblem::execMultiApps(ExecFlagType type, bool auto_advance)
   }
 }
 
+bool
+FEProblem::allMultiAppsInitialConverged(ExecFlagType type)
+{
+  bool converged = true;
+  std::vector<MultiApp *> multi_apps = _multi_apps(type)[0].all();
+  for (unsigned int i=0; i<multi_apps.size(); i++)
+    converged &= multi_apps[i]->allInitialConverged();
+  return converged;
+}
+
 void
 FEProblem::advanceMultiApps(ExecFlagType type)
 {

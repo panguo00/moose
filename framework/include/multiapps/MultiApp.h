@@ -175,6 +175,8 @@ public:
    */
   virtual void resetApp(unsigned int global_app, Real time = 0.0);
 
+  virtual bool allInitialConverged(){return false;}
+
   /**
    * Move the global_app to Point p.
    *

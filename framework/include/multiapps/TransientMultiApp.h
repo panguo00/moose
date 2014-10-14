@@ -78,6 +78,8 @@ public:
    */
   virtual void resetApp(unsigned int global_app, Real time);
 
+  virtual bool allInitialConverged() { return _all_initial_converged; }
+
 private:
   /**
    * Setup the executioner for the local app.
@@ -118,6 +120,8 @@ private:
   bool _auto_advance;
 
   std::set<unsigned int> _reset;
+
+  bool _all_initial_converged;
 };
 
 #endif // TRANSIENTMULTIAPP_H

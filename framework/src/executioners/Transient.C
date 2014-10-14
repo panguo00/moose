@@ -115,7 +115,8 @@ Transient::Transient(const std::string & name, InputParameters parameters) :
     _picard_initial_norm(0.0),
     _picard_rel_tol(getParam<Real>("picard_rel_tol")),
     _picard_abs_tol(getParam<Real>("picard_abs_tol")),
-    _verbose(getParam<bool>("verbose"))
+    _verbose(getParam<bool>("verbose")),
+    _step_took_work(false)
 {
   _problem.getNonlinearSystem().setDecomposition(_splitting);
   _t_step = 0;
@@ -282,13 +283,15 @@ void
 Transient::takeStep(Real input_dt)
 {
   _picard_it = 0;
+  _step_took_work = false;
   while (_picard_it<_picard_max_its && _picard_converged == false)
   {
     if (_picard_max_its > 1)
       _console << "Beginning Picard Iteration " << _picard_it << "\n" << std::endl;
 
     solveStep(input_dt);
-    ++_picard_it;
+    if (_step_took_work)
+      ++_picard_it;
   }
 }
 
@@ -327,20 +330,21 @@ Transient::solveStep(Real input_dt)
   _problem.computeUserObjects(EXEC_TIMESTEP_BEGIN, UserObjectWarehouse::POST_AUX);
 
 
-  if (_picard_max_its > 1)
+  if (_picard_max_its > 1 && _picard_it > 0)
   {
-    Real current_norm = _problem.computeResidualL2Norm();
-    if (_picard_it == 0) // First Picard iteration - need to save off the initial nonlinear residual
-    {
-      _picard_initial_norm = current_norm;
-      _console << "Initial Picard Norm: " << _picard_initial_norm << '\n';
-    }
-    else
-      _console << "Current Picard Norm: " << current_norm << '\n';
+//    Real current_norm = _problem.computeResidualL2Norm();
+//    if (_picard_it == 0) // First Picard iteration - need to save off the initial nonlinear residual
+//    {
+//      _picard_initial_norm = current_norm;
+//      _console << "Initial Picard Norm: " << _picard_initial_norm << '\n';
+//    }
+//    else
+//      _console << "Current Picard Norm: " << current_norm << '\n';
+//
+//    Real relative_drop = current_norm / _picard_initial_norm;
 
-    Real relative_drop = current_norm / _picard_initial_norm;
-
-    if (current_norm < _picard_abs_tol || relative_drop < _picard_rel_tol)
+//    if (current_norm < _picard_abs_tol || relative_drop < _picard_rel_tol)
+    if (_problem.allMultiAppsInitialConverged(EXEC_TIMESTEP_BEGIN))
     {
       _console << "Picard converged!" << std::endl;
 
@@ -349,6 +353,7 @@ Transient::solveStep(Real input_dt)
       return;
     }
   }
+  _step_took_work = true;
 
   _time_stepper->step();
 
@@ -359,6 +364,15 @@ Transient::solveStep(Real input_dt)
 
     if (_picard_max_its <= 1)
       _time_stepper->acceptStep();
+    else
+    {
+      if (initialResidualConverged())
+      {
+        _console << "Picard converged!" << std::endl;
+        _picard_converged = true;
+        _time_stepper->acceptStep();
+      }
+    }
 
     _solution_change_norm = _problem.solutionChangeNorm();
 
@@ -615,6 +629,12 @@ bool
 Transient::lastSolveConverged()
 {
   return _time_stepper->converged();
+}
+
+bool
+Transient::initialResidualConverged()
+{
+  return _problem.getNonlinearSystem().initialResidualConverged();
 }
 
 void

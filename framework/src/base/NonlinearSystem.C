@@ -47,6 +47,7 @@
 #include "MooseMesh.h"
 #include "MooseUtils.h"
 #include "MooseApp.h"
+#include "ConsoleStreamInterface.h"
 
 // libMesh
 #include "libmesh/nonlinear_solver.h"
@@ -138,7 +139,8 @@ NonlinearSystem::NonlinearSystem(FEProblem & fe_problem, const std::string & nam
     _n_residual_evaluations(0),
     _final_residual(0.),
     _computing_initial_residual(false),
-    _print_all_var_norms(false)
+    _print_all_var_norms(false),
+    _initial_residual_converged(false)
 {
   _sys.nonlinear_solver->residual      = Moose::compute_residual;
   _sys.nonlinear_solver->jacobian      = Moose::compute_jacobian;
@@ -191,6 +193,8 @@ NonlinearSystem::init()
     _residual_copy.init(_sys.n_dofs(), false, SERIAL);
     Moose::setup_perf_log.pop("Init residual_copy","Setup");
   }
+  _nl_rel_tol = _sys.get_equation_systems().parameters.get<Real>("nonlinear solver relative residual tolerance");
+  _nl_abs_tol = _sys.get_equation_systems().parameters.get<Real>("nonlinear solver absolute residual tolerance");
 }
 
 void
@@ -204,9 +208,35 @@ NonlinearSystem::solve()
       //residual
       _computing_initial_residual = true;
       _fe_problem.computeResidual(_sys, *_current_solution, *_sys.rhs);
+
+      {
+        _initial_residual = _sys.rhs->l2_norm();
+        std::string msg;
+        const int it = 1;
+        const Real xnorm = 0.0;
+        const Real snorm = std::numeric_limits<Real>::max();
+        const Real fnorm = _initial_residual;
+        const Real rtol = _nl_rel_tol;
+        const Real stol = 0.0;
+        const Real abstol = _nl_abs_tol;
+        const int nfuncs = 0;
+        const int max_funcs = std::numeric_limits<int>::max();
+        const Real ref_resid = _initial_residual;                         //BWS this won't work with the regular problem, but won't matter for Refresidprob
+        const Real div_threshold = std::numeric_limits<Real>::max();
+        MooseNonlinearConvergenceReason reason =
+          _fe_problem.checkNonlinearConvergence(msg,it,xnorm,snorm,fnorm,rtol,stol,abstol,nfuncs,max_funcs,ref_resid,div_threshold);
+        if (reason > 0)
+        {
+          _initial_residual_converged = true;
+          std::cout<<"Initial solution converged"<<std::endl;
+        }
+      }
+
       _computing_initial_residual = false;
       _sys.rhs->close();
-      _initial_residual = _sys.rhs->l2_norm();
+//      _initial_residual = _sys.rhs->l2_norm();
+      if (_initial_residual_converged)
+        return;
     }
   }
   catch (MooseException & e)
@@ -298,6 +328,7 @@ NonlinearSystem::timestepSetup()
     _constraints[i].timestepSetup();
     if (_doing_dg) _dg_kernels[i].timestepSetup();
   }
+  _initial_residual_converged = false;
 }
 
 

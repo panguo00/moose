@@ -63,7 +63,8 @@ TransientMultiApp::TransientMultiApp(const std::string & name, InputParameters p
     _catch_up(getParam<bool>("catch_up")),
     _max_catch_up_steps(getParam<Real>("max_catch_up_steps")),
     _first(declareRestartableData<bool>("first", true)),
-    _auto_advance(false)
+    _auto_advance(false),
+    _all_initial_converged(false)
 {
   // Transfer interpolation only makes sense for sub-cycling solves
   if (_interpolate_transfers && !_sub_cycling)
@@ -135,6 +136,7 @@ TransientMultiApp::solveStep(Real dt, Real target_time, bool auto_advance)
     return;
 
   _auto_advance = auto_advance;
+  _all_initial_converged = true;
 
   _console << "Solving MultiApp " << _name << std::endl;
 
@@ -360,6 +362,8 @@ TransientMultiApp::solveStep(Real dt, Real target_time, bool auto_advance)
         }
       }
     }
+    bool initial_converged = ex->initialResidualConverged();
+    _all_initial_converged &= initial_converged;
   }
 
   _first = false;

@@ -496,6 +496,7 @@ public:
   /// Constraints for each thread
   std::vector<ConstraintWarehouse> _constraints;
 
+  bool initialResidualConverged(){ return _initial_residual_converged; }
 
 protected:
   /// increment vector
@@ -553,6 +554,10 @@ protected:
   bool _computing_initial_residual;
 
   bool _print_all_var_norms;
+
+  bool _initial_residual_converged;
+  Real _nl_rel_tol;
+  Real _nl_abs_tol;
 
 };
 
