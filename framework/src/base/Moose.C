@@ -285,6 +285,7 @@
 #include "MultiAppMeshFunctionTransfer.h"
 #include "MultiAppUserObjectTransfer.h"
 #include "MultiAppNearestNodeTransfer.h"
+#include "MultiAppCopyTransfer.h"
 #include "MultiAppInterpolationTransfer.h"
 #include "MultiAppPostprocessorTransfer.h"
 #include "MultiAppProjectionTransfer.h"
@@ -635,6 +636,7 @@ registerObjects(Factory & factory)
   registerTransfer(MultiAppMeshFunctionTransfer);
   registerTransfer(MultiAppUserObjectTransfer);
   registerTransfer(MultiAppNearestNodeTransfer);
+  registerTransfer(MultiAppCopyTransfer);
   registerTransfer(MultiAppInterpolationTransfer);
   registerTransfer(MultiAppPostprocessorTransfer);
   registerTransfer(MultiAppProjectionTransfer);
