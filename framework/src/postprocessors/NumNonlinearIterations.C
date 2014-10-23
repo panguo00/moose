@@ -43,7 +43,8 @@ NumNonlinearIterations::getValue()
       _num_iters = 0;
       _time = _feproblem.time();
     }
-    _num_iters += _subproblem.nNonlinearIterations();
+    if (!_feproblem.getNonlinearSystem().initialResidualConverged())
+      _num_iters += _subproblem.nNonlinearIterations();
   }
   else
     _num_iters = _subproblem.nNonlinearIterations();
