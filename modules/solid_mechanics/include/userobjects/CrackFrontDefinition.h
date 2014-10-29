@@ -99,9 +99,10 @@ protected:
   unsigned int maxNodeCoor(std::vector<Node *>& nodes, unsigned int dir0=0);
   void updateCrackFrontGeometry();
   void updateDataForCrackDirection();
-  RealVectorValue calculateCrackFrontDirection(const Node* crack_front_node,
-                                               const RealVectorValue& tangent_direction,
-                                               const CRACK_NODE_TYPE ntype) const;
+  void calculateCrackFrontDirections(const Node* crack_front_node,
+                                     RealVectorValue& crack_direction,
+                                     RealVectorValue& tangent_direction,
+                                     const CRACK_NODE_TYPE ntype) const;
 
 };
 

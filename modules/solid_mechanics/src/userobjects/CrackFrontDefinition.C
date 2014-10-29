@@ -566,10 +566,10 @@ CrackFrontDefinition::updateCrackFrontGeometry()
     RealVectorValue tangent_direction;
     RealVectorValue crack_direction;
     tangent_direction(_axis_2d) = 1.0;
-    _tangent_directions.push_back(tangent_direction);
     const Node* crack_front_node = _mesh.nodePtr(_ordered_crack_front_nodes[0]);
-    crack_direction = calculateCrackFrontDirection(crack_front_node,tangent_direction,MIDDLE_NODE);
+    calculateCrackFrontDirections(crack_front_node,crack_direction,tangent_direction,MIDDLE_NODE);
     _crack_directions.push_back(crack_direction);
+    _tangent_directions.push_back(tangent_direction);
     _crack_plane_normal = crack_direction.cross(tangent_direction);
     ColumnMajorMatrix rot_mat;
     rot_mat(0,0) = crack_direction(0);
@@ -642,8 +642,10 @@ CrackFrontDefinition::updateCrackFrontGeometry()
 
       RealVectorValue tangent_direction = back_segment + forward_segment;
       tangent_direction = tangent_direction / tangent_direction.size();
+      RealVectorValue crack_direction;
+      calculateCrackFrontDirections(crack_front_nodes[i],crack_direction,tangent_direction,ntype);
+      _crack_directions.push_back(crack_direction);
       _tangent_directions.push_back(tangent_direction);
-      _crack_directions.push_back(calculateCrackFrontDirection(crack_front_nodes[i],tangent_direction,ntype));
 
 
       back_segment = forward_segment;
@@ -777,36 +779,37 @@ CrackFrontDefinition::updateDataForCrackDirection()
   }
 }
 
-RealVectorValue
-CrackFrontDefinition::calculateCrackFrontDirection(const Node* crack_front_node,
-                                                   const RealVectorValue& tangent_direction,
-                                                   const CRACK_NODE_TYPE ntype) const
+void
+CrackFrontDefinition::calculateCrackFrontDirections(const Node* crack_front_node,
+                                                    RealVectorValue& crack_direction,
+                                                    RealVectorValue& tangent_direction,
+                                                    const CRACK_NODE_TYPE ntype) const
 {
-  RealVectorValue crack_dir;
   RealVectorValue zero_vec(0.0);
 
-  bool calc_dir = true;
+  bool calc_crack_dir = true;
   if (_end_direction_method == END_CRACK_DIRECTION_VECTOR)
   {
     if (ntype == END_1_NODE)
     {
-      crack_dir = _crack_direction_vector_end_1;
-      calc_dir = false;
+      crack_direction = _crack_direction_vector_end_1;
+      calc_crack_dir = false;
     }
     else if (ntype == END_2_NODE)
     {
-      crack_dir = _crack_direction_vector_end_2;
-      calc_dir = false;
+      crack_direction = _crack_direction_vector_end_2;
+      calc_crack_dir = false;
     }
   }
-
-  if (calc_dir)
+  if (_direction_method == CRACK_DIRECTION_VECTOR)
   {
-    if (_direction_method == CRACK_DIRECTION_VECTOR)
-    {
-      crack_dir = _crack_direction_vector;
-    }
-    else if (_direction_method == CRACK_MOUTH)
+    crack_direction = _crack_direction_vector;
+    calc_crack_dir = false;
+  }
+
+  if (calc_crack_dir)
+  {
+    if (_direction_method == CRACK_MOUTH)
     {
       if (_crack_mouth_coordinates.absolute_fuzzy_equals(*crack_front_node,1.e-15))
       {
@@ -820,21 +823,25 @@ CrackFrontDefinition::calculateCrackFrontDirection(const Node* crack_front_node,
         mooseError("Vector from crack mouth to crack front node is collinear with crack front segment");
       }
 
-      crack_dir = tangent_direction.cross(crack_plane_normal);
-      Real dotprod = crack_dir*mouth_to_front;
+      crack_direction = tangent_direction.cross(crack_plane_normal);
+      Real dotprod = crack_direction*mouth_to_front;
       if (dotprod < 0)
       {
-        crack_dir = -crack_dir;
+        crack_direction = -crack_direction;
       }
     }
     else if (_direction_method == CURVED_CRACK_FRONT)
     {
-      crack_dir = tangent_direction.cross(_crack_plane_normal);
+      crack_direction = tangent_direction.cross(_crack_plane_normal);
     }
+    crack_direction = crack_direction.unit();
   }
-  crack_dir = crack_dir.unit();
-
-  return crack_dir;
+  else
+  {
+    RealVectorValue crack_plane_normal = crack_direction.cross(tangent_direction);
+    tangent_direction = crack_plane_normal.cross(crack_direction);
+    tangent_direction = tangent_direction.unit();
+  }
 }
 
 const Node *
