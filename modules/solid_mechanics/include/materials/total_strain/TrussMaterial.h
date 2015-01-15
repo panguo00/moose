@@ -22,10 +22,9 @@ public:
 
 protected:
 
-  MooseVariable * _disp_x_var;
-  MooseVariable * _disp_y_var;
-  MooseVariable * _disp_z_var;
-
+  VariableValue & _disp_x_nodal_val;
+  VariableValue & _disp_y_nodal_val;
+  VariableValue & _disp_z_nodal_val;
 
   virtual void computeProperties();
 

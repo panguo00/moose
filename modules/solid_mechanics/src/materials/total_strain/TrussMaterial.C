@@ -9,9 +9,9 @@ template<>
 InputParameters validParams<TrussMaterial>()
 {
   InputParameters params = validParams<Material>();
-  params.addRequiredParam<NonlinearVariableName>("disp_x","Variable containing the x displacement");
-  params.addParam<NonlinearVariableName>        ("disp_y","Variable containing the y displacement");
-  params.addParam<NonlinearVariableName>        ("disp_z","Variable containing the z displacement");
+  params.addRequiredCoupledVar("disp_x", "Variable containing the x displacement");
+  params.addCoupledVar("disp_y", 0.0, "Variable containing the y displacement");
+  params.addCoupledVar("disp_z", 0.0, "Variable containing the z displacement");
   params.addParam<Real>("youngs_modulus", "Young's Modulus");
   params.addCoupledVar("youngs_modulus_var","Variable containing Young's modulus");
   params.addParam<Real>("t_ref", 0.0, "The reference temperature at which this material has zero strain.");
@@ -23,6 +23,9 @@ InputParameters validParams<TrussMaterial>()
 TrussMaterial::TrussMaterial(const std::string  & name,
                              InputParameters parameters)
   :Material(name, parameters),
+   _disp_x_nodal_val(coupledValue("disp_x")),
+   _disp_y_nodal_val(coupledValue("disp_y")),
+   _disp_z_nodal_val(coupledValue("disp_z")),
    _axial_stress(declareProperty<Real>("axial_stress")),
    _e_over_l(declareProperty<Real>("e_over_l")),
    _youngs_modulus(isParamValid("youngs_modulus") ? getParam<Real>("youngs_modulus") : 0),
@@ -39,40 +42,22 @@ TrussMaterial::TrussMaterial(const std::string  & name,
 //  unsigned int dim = _subproblem.mesh().dimension();
 
 
-// This won't work for multiple threads because computeProperties will get called for
-// all of the threads.
-  NonlinearVariableName disp_x = parameters.get<NonlinearVariableName>("disp_x");
-  _disp_x_var = &_fe_problem.getVariable(_tid,disp_x);
-  _disp_y_var = NULL;
-  _disp_z_var = NULL;
-
-  if (parameters.isParamValid("disp_y"))
+  if (isCoupled("disp_y"))
   {
-    NonlinearVariableName disp_y = parameters.get<NonlinearVariableName>("disp_y");
-    _disp_y_var = &_fe_problem.getVariable(_tid,disp_y);
     _dim = 2;
-
-    if (parameters.isParamValid("disp_z"))
-    {
-      NonlinearVariableName disp_z = parameters.get<NonlinearVariableName>("disp_z");
-      _disp_z_var = &_fe_problem.getVariable(_tid,disp_z);
+    if (isCoupled("disp_z"))
       _dim = 3;
-    }
   }
 
   if (parameters.isParamValid("youngs_modulus"))
   {
     if (_youngs_modulus_coupled)
-    {
       mooseError("Cannot specify both youngs_modulus and youngs_modulus_var");
-    }
   }
   else
   {
     if (!_youngs_modulus_coupled)
-    {
       mooseError("Must specify either youngs_modulus or youngs_modulus_var");
-    }
   }
 }
 
@@ -93,30 +78,15 @@ TrussMaterial::computeProperties()
   {
     dy=(*node1)(1)-(*node0)(1);
     if (_dim > 2)
-    {
       dz=(*node1)(2)-(*node0)(2);
-    }
   }
   Real orig_length=std::sqrt( dx*dx + dy*dy + dz*dz );
 
-  NonlinearSystem & nonlinear_sys = _fe_problem.getNonlinearSystem();
-  const NumericVector<Number>& ghosted_solution = *nonlinear_sys.currentSolution();
-
-  VectorValue<unsigned int> disp_dofs0(node0->dof_number(nonlinear_sys.number(), _disp_x_var->number(), 0),
-                                       (_disp_y_var ? node0->dof_number(nonlinear_sys.number(), _disp_y_var->number(), 0) : 0),
-                                       (_disp_z_var ? node0->dof_number(nonlinear_sys.number(), _disp_z_var->number(), 0) : 0));
-  VectorValue<unsigned int> disp_dofs1(node1->dof_number(nonlinear_sys.number(), _disp_x_var->number(), 0),
-                                       (_disp_y_var ? node1->dof_number(nonlinear_sys.number(), _disp_y_var->number(), 0) : 0),
-                                       (_disp_z_var ? node1->dof_number(nonlinear_sys.number(), _disp_z_var->number(), 0) : 0));
-
-  RealVectorValue disp_vec0;
-  RealVectorValue disp_vec1;
-
-  for (unsigned int i=0; i<_dim; ++i)
-  {
-    disp_vec0(i) = ghosted_solution(disp_dofs0(i));
-    disp_vec1(i) = ghosted_solution(disp_dofs1(i));
-  }
+  RealVectorValue disp_vec0(_disp_x_nodal_val[0], _disp_y_nodal_val[0], _disp_z_nodal_val[0]);
+  RealVectorValue disp_vec1(_disp_x_nodal_val[1], _disp_y_nodal_val[1], _disp_z_nodal_val[1]);
+  std::cout<<"BWS dim: "<<_dim<<std::endl;
+  std::cout<<"BWS disp_vec0: "<<disp_vec0(0)<<" "<<disp_vec0(1)<<" "<<disp_vec0(2)<<std::endl;
+  std::cout<<"BWS disp_vec1: "<<disp_vec1(0)<<" "<<disp_vec1(1)<<" "<<disp_vec1(2)<<std::endl;
 
   Real ddx=dx+disp_vec1(0)-disp_vec0(0);
   Real ddy=0;
