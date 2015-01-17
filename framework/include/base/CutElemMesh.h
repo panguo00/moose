@@ -73,6 +73,8 @@ class CutElemMesh
 
     bool equivalent(const edge_t & other) const;
 
+    bool containsEdge(const edge_t & other) const;
+
 //    bool operator < (const edge_t & other) const;
 
     void add_intersection(double position, node_t * embedded_node_tmp, node_t * from_node);
@@ -93,6 +95,8 @@ class CutElemMesh
 
     void switchNode(node_t *new_node, node_t *old_node);
 
+    bool containsNode(node_t *node);
+
     private:
     node_t * edge_node1;
     node_t * edge_node2;
@@ -103,20 +107,32 @@ class CutElemMesh
   class fragment_t
   {
     public:
-    fragment_t(element_t * host)
-    {
-      host_elem = host;
-    };
+    fragment_t(element_t * host,
+               bool create_boundary_edges,
+               unsigned int host_fragment_copy_index = std::numeric_limits<unsigned int>::max());
 
     //Construct a fragment from another fragment.  If convert_to_local is true,
     //convert the nodes to local nodes, otherwise convert them to global nodes.
-    fragment_t(const fragment_t & other_frag, element_t * host, bool convert_to_local);
+    fragment_t(const fragment_t & other_frag,
+               element_t * host,
+               bool convert_to_local);
 
     //The destructor must delete any local nodes
     ~fragment_t();
 
+    void switchNode(node_t *new_node, node_t *old_node);
+
+    bool containsNode(node_t *node);
+
+    bool isConnected(fragment_t &other_fragment);
+
+    std::vector<fragment_t*> split();
+
     std::vector< node_t*> boundary_nodes;
+
+    private:
     element_t * host_elem;
+    std::vector< edge_t*> boundary_edges;
   };
 
   class element_t

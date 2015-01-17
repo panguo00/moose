@@ -391,15 +391,7 @@ void XFEM::build_efa_mesh()
       if (cemit != _cut_elem_map.end())
       {
         XFEMCutElem *xfce = cemit->second;
-        std::vector<std::pair<CutElemMesh::N_CATEGORY, unsigned int> > interior_link;
-        for (unsigned int iil=0; iil<xfce->_interior_link.size(); ++iil)
-        {
-          interior_link.push_back(std::make_pair(xfce->_interior_link[iil].get_category(),
-                                                 xfce->_interior_link[iil].get_index()));
-        }
         CutElemMesh::element_t * CEMElem = _efa_mesh.getElemByID(elem->id());
-        //_efa_mesh.restoreFragmentInfo(CEMElem,
-        //                              interior_link);
         _efa_mesh.restoreFragmentInfo(CEMElem, xfce->getFragment());
       }
     }
