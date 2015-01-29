@@ -92,6 +92,7 @@ public:
 protected:
 
   Real nodalArea(PenetrationInfo & pinfo);
+  RealVectorValue contactForce(PenetrationInfo & pinfo);
   Real getPenalty(PenetrationInfo & pinfo);
 
   const unsigned int _component;
@@ -117,6 +118,9 @@ protected:
   RealVectorValue _vars;
 
   MooseVariable * _nodal_area_var;
+  MooseVariable * _contact_force_x_var;
+  MooseVariable * _contact_force_y_var;
+  MooseVariable * _contact_force_z_var;
   SystemBase & _aux_system;
   const NumericVector<Number> * _aux_solution;
 

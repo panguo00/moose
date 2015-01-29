@@ -70,6 +70,9 @@ MechanicalContactConstraint::MechanicalContactConstraint(const std::string & nam
     _mesh_dimension(_mesh.dimension()),
     _vars(_x_var, _y_var, _z_var),
     _nodal_area_var(getVar("nodal_area", 0)),
+    _contact_force_x_var(getVar("contact_force_x", 0)),
+    _contact_force_y_var(_y_var != libMesh::invalid_uint ? getVar("contact_force_y", 0) : NULL),
+    _contact_force_z_var(_z_var != libMesh::invalid_uint ? getVar("contact_force_z", 0) : NULL),
     _aux_system(_nodal_area_var->sys()),
     _aux_solution(_aux_system.currentSolution()),
     _master_slave_jacobian(getParam<bool>("master_slave_jacobian")),
@@ -160,12 +163,13 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
 
     const Node * node = pinfo->_node;
     const Real area = nodalArea(*pinfo);
+    const RealVectorValue contact_force = contactForce(*pinfo);
 
     if ((_model == CM_FRICTIONLESS && _formulation == CF_DEFAULT) ||
         (_model == CM_COULOMB && _formulation == CF_DEFAULT))
     {
 
-      Real resid( -(pinfo->_normal * pinfo->_contact_force) / area );
+      Real resid( -(pinfo->_normal * contact_force) / area );
 
       // Moose::out << locked_this_step[slave_node_num] << " " << pinfo->_distance << std::endl;
       const Real distance( pinfo->_normal * (pinfo->_closest_point - _mesh.node(node->id())));
@@ -743,6 +747,29 @@ MechanicalContactConstraint::nodalArea(PenetrationInfo & pinfo)
     }
   }
   return area;
+}
+
+RealVectorValue
+MechanicalContactConstraint::contactForce(PenetrationInfo & pinfo)
+{
+  const Node * node = pinfo._node;
+
+  RealVectorValue contact_force;
+
+  dof_id_type x_dof = node->dof_number(_aux_system.number(), _contact_force_x_var->number(), 0);
+  contact_force(0) = (*_aux_solution)( x_dof );
+  if (_contact_force_y_var)
+  {
+    dof_id_type y_dof = node->dof_number(_aux_system.number(), _contact_force_y_var->number(), 0);
+    contact_force(1) = (*_aux_solution)( y_dof );
+  }
+  if (_contact_force_z_var)
+  {
+    dof_id_type z_dof = node->dof_number(_aux_system.number(), _contact_force_z_var->number(), 0);
+    contact_force(2) = (*_aux_solution)( z_dof );
+  }
+
+  return contact_force;
 }
 
 Real

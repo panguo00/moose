@@ -32,5 +32,14 @@ ContactPenetrationVarAction::act()
   _problem->addAuxVariable("penetration",
                            FEType(Utility::string_to_enum<Order>(getParam<MooseEnum>("order")),
                                   Utility::string_to_enum<FEFamily>("LAGRANGE")));
+  _problem->addAuxVariable("contact_force_x",
+                           FEType(Utility::string_to_enum<Order>(getParam<MooseEnum>("order")),
+                                  Utility::string_to_enum<FEFamily>("LAGRANGE")));
+  _problem->addAuxVariable("contact_force_y",
+                           FEType(Utility::string_to_enum<Order>(getParam<MooseEnum>("order")),
+                                  Utility::string_to_enum<FEFamily>("LAGRANGE")));
+  _problem->addAuxVariable("contact_force_z",
+                           FEType(Utility::string_to_enum<Order>(getParam<MooseEnum>("order")),
+                                  Utility::string_to_enum<FEFamily>("LAGRANGE")));
 
 }
