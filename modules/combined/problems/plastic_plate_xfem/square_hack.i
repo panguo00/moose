@@ -14,8 +14,8 @@
 [Mesh]
   type = GeneratedMesh
   dim = 2
-  nx = 25
-  ny = 25
+  nx = 5
+  ny = 5
   xmin = 0.0
   xmax = 25.0
   ymin = 0.0
@@ -252,13 +252,13 @@
 # time control
   start_time = 0.0
   dt = 0.02
-  end_time = 1.0
+  end_time = 0.6
   num_steps = 5000
 []
 
 
 [Outputs]
-  file_base = square_out
+  file_base = square_hack_out
   output_initial = true
   exodus = true
 #  vtk = true
