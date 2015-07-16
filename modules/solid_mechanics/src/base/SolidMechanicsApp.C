@@ -32,6 +32,7 @@
 #include "MacroElastic.h"
 #include "Mass.h"
 #include "JIntegral.h"
+#include "JIntegralSurfaceTerm.h"
 #include "CrackFrontData.h"
 #include "CrackFrontDefinition.h"
 #include "InteractionIntegral.h"
@@ -174,6 +175,7 @@ SolidMechanicsApp::registerObjects(Factory & factory)
   registerPostprocessor(HomogenizedElasticConstants);
   registerPostprocessor(Mass);
   registerPostprocessor(JIntegral);
+  registerPostprocessor(JIntegralSurfaceTerm);
   registerPostprocessor(CrackFrontData);
   registerPostprocessor(InteractionIntegral);
   registerPostprocessor(CavityPressurePostprocessor);

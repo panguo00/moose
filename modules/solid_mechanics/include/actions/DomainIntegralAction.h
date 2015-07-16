@@ -72,6 +72,9 @@ protected:
   bool _convert_J_to_K;
   bool _has_symmetry_plane;
   unsigned int _symmetry_plane;
+  bool _has_face_pressure;
+  FunctionName _pressure_function_name;
+  std::vector<BoundaryName> _crack_face_boundary_names;
   MooseEnum _position_type;
   MooseEnum _q_function_type;
   bool _get_equivalent_k;

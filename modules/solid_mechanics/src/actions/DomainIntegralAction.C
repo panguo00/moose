@@ -36,6 +36,8 @@ InputParameters validParams<DomainIntegralAction>()
   params.addParam<VariableName>("disp_x", "", "The x displacement");
   params.addParam<VariableName>("disp_y", "", "The y displacement");
   params.addParam<VariableName>("disp_z", "", "The z displacement");
+  params.addParam<FunctionName>("pressure_function","The function describing the pressure on the crack surface");
+  params.addParam<std::vector<BoundaryName> >("crack_face_boundary", "The list of boundary IDs defining the crack face");
   MooseEnum position_type("Angle Distance","Distance");
   params.addParam<MooseEnum>("position_type", position_type, "The method used to calculate position along crack front.  Options are: "+position_type.getRawNames());
   MooseEnum q_function_type("Geometry Topology","Geometry");
@@ -59,6 +61,7 @@ DomainIntegralAction::DomainIntegralAction(const std::string & name, InputParame
   _convert_J_to_K(false),
   _has_symmetry_plane(isParamValid("symmetry_plane")),
   _symmetry_plane(_has_symmetry_plane ? getParam<unsigned int>("symmetry_plane") : std::numeric_limits<unsigned int>::max()),
+  _has_face_pressure(false),
   _position_type(getParam<MooseEnum>("position_type")),
   _q_function_type(getParam<MooseEnum>("q_function_type")),
   _get_equivalent_k(getParam<bool>("equivalent_k")),
@@ -110,6 +113,23 @@ DomainIntegralAction::DomainIntegralAction(const std::string & name, InputParame
     _crack_direction_vector_end_2 = getParam<RealVectorValue>("crack_direction_vector_end_2");
     _have_crack_direction_vector_end_2 = true;
   }
+
+  if (isParamValid("pressure_function"))
+  {
+    _pressure_function_name = getParam<FunctionName>("pressure_function");
+    if (isParamValid("crack_face_boundary"))
+      _crack_face_boundary_names = getParam<std::vector<BoundaryName> >("crack_face_boundary");
+    else
+      mooseError("If 'pressure_function' is specified, 'crack_face_boundary' must also be specified");
+    _disp_x = getParam<VariableName>("disp_x");
+    _disp_y = getParam<VariableName>("disp_y");
+    _disp_z = getParam<VariableName>("disp_z");
+    _has_face_pressure = true;
+  }
+  else
+    if (isParamValid("crack_face_boundary"))
+      mooseError("If 'crack_face_boundary' is specified, 'pressure_function' must also be specified");
+
   if (isParamValid("crack_mouth_boundary"))
     _crack_mouth_boundary_names = getParam<std::vector<BoundaryName> >("crack_mouth_boundary");
   if (isParamValid("intersecting_boundary"))
@@ -325,14 +345,40 @@ DomainIntegralAction::act()
       params.set<MultiMooseEnum>("execute_on") = "timestep_end";
       params.set<UserObjectName>("crack_front_definition") = uo_name;
       params.set<bool>("convert_J_to_K") = _convert_J_to_K;
+
+      const std::string surf_pp_type_name("JIntegralSurfaceTerm");
+      InputParameters params_surf = _factory.getValidParams(surf_pp_type_name);
+      if (_has_face_pressure)
+      {
+        params_surf.set<MultiMooseEnum>("execute_on") = "timestep_end";
+        params_surf.set<UserObjectName>("crack_front_definition") = uo_name;
+        params_surf.set<bool>("convert_J_to_K") = _convert_J_to_K;
+        params_surf.set<std::vector<VariableName> >("disp_x") = std::vector<VariableName>(1,_disp_x);
+        params_surf.set<std::vector<VariableName> >("disp_y") = std::vector<VariableName>(1,_disp_y);
+        if (_disp_z !="")
+          params_surf.set<std::vector<VariableName> >("disp_z") = std::vector<VariableName>(1,_disp_z);
+        params_surf.set<FunctionName>("pressure_function") = _pressure_function_name;
+        params_surf.set<std::vector<BoundaryName> >("boundary") = _crack_face_boundary_names;
+      }
       if (_convert_J_to_K)
       {
         params.set<Real>("youngs_modulus") = _youngs_modulus;
         params.set<Real>("poissons_ratio") = _poissons_ratio;
+        if (_has_face_pressure)
+        {
+          params_surf.set<Real>("youngs_modulus") = _youngs_modulus;
+          params_surf.set<Real>("poissons_ratio") = _poissons_ratio;
+        }
       }
       if (_has_symmetry_plane)
+      {
         params.set<unsigned int>("symmetry_plane") = _symmetry_plane;
+        if (_has_face_pressure)
+          params_surf.set<unsigned int>("symmetry_plane") = _symmetry_plane;
+      }
       params.set<bool>("use_displaced_mesh") = _use_displaced_mesh;
+      if (_has_face_pressure)
+        params_surf.set<bool>("use_displaced_mesh") = _use_displaced_mesh;
       for (unsigned int ring_index=0; ring_index<_ring_vec.size(); ++ring_index)
       {
         if (_treat_as_2d)
@@ -345,6 +391,13 @@ DomainIntegralAction::act()
           qvars.push_back(av_name_stream.str());
           params.set<std::vector<VariableName> >("q") = qvars;
           _problem->addPostprocessor(pp_type_name,pp_name_stream.str(),params);
+          if (_has_face_pressure)
+          {
+            std::ostringstream surf_pp_name_stream;
+            surf_pp_name_stream<<pp_base_name<<"_surf_"<<_ring_vec[ring_index];
+            params_surf.set<std::vector<VariableName> >("q") = qvars;
+            _problem->addPostprocessor(surf_pp_type_name,surf_pp_name_stream.str(),params_surf);
+          }
         }
         else
         {
@@ -359,6 +412,14 @@ DomainIntegralAction::act()
             params.set<std::vector<VariableName> >("q") = qvars;
             params.set<unsigned int>("crack_front_point_index") = cfp_index;
             _problem->addPostprocessor(pp_type_name,pp_name_stream.str(),params);
+            if (_has_face_pressure)
+            {
+              std::ostringstream surf_pp_name_stream;
+              surf_pp_name_stream<<pp_base_name<<"_surf_"<<cfp_index+1<<"_"<<_ring_vec[ring_index];
+              params_surf.set<std::vector<VariableName> >("q") = qvars;
+              params_surf.set<unsigned int>("crack_front_point_index") = cfp_index;
+              _problem->addPostprocessor(surf_pp_type_name,surf_pp_name_stream.str(),params_surf);
+            }
           }
         }
       }
