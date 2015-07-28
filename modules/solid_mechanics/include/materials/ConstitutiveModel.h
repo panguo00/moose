@@ -49,6 +49,7 @@ protected:
   Function * const _alpha_function;
   const bool _has_stress_free_temp;
   const Real _stress_free_temp;
+  Real _ref_temp;
 
 private:
   using Material::computeProperties;

@@ -30,6 +30,7 @@ InputParameters validParams<SolidModel>()
   params.addParam<FunctionName>("youngs_modulus_function", "", "Young's modulus as a function of temperature.");
   params.addParam<Real>("thermal_expansion", "The thermal expansion coefficient.");
   params.addParam<FunctionName>("thermal_expansion_function", "Thermal expansion coefficient as a function of temperature.");
+  params.addParam<Real>("thermal_expansion_reference_temperature", "Reference temperature for mean thermal expansion function.");
   params.addCoupledVar("temp", "Coupled Temperature");
   params.addParam<Real>("stress_free_temperature", "The stress-free temperature.  If not specified, the initial temperature is used.");
   params.addParam<std::vector<Real> >("initial_stress", "The initial stress tensor (xx, yy, zz, xy, yz, zx)");
