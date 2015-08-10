@@ -82,8 +82,8 @@ MechanicalContactConstraint::MechanicalContactConstraint(const InputParameters &
   if (parameters.isParamValid("normal_smoothing_method"))
     _penetration_locator.setNormalSmoothingMethod(parameters.get<std::string>("normal_smoothing_method"));
 
-  if (_model == CM_GLUED ||
-      (_model == CM_COULOMB && _formulation == CF_KINEMATIC))
+  if (_model == CM_GLUED ) //  ||
+//      (_model == CM_COULOMB && _formulation == CF_KINEMATIC))
     _penetration_locator.setUpdate(false);
 
   if (_friction_coefficient < 0)
@@ -229,8 +229,28 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
       switch (_formulation)
       {
         case CF_KINEMATIC:
-          pinfo->_contact_force =  -res_vec;
+        {
+
+          // Frictional capacity
+          const Real kin_capacity( _friction_coefficient * (res_vec * pinfo->_normal > 0 ? res_vec * pinfo->_normal : 0) );
+
+          // Elastic predictor
+          pinfo->_contact_force = -res_vec ;
+          RealVectorValue contact_force_normal( (pinfo->_contact_force*pinfo->_normal) * pinfo->_normal );
+          RealVectorValue contact_force_tangential( pinfo->_contact_force - contact_force_normal );
+
+          // Tangential magnitude of elastic predictor
+          const Real kin_tan_mag( contact_force_tangential.size() );
+
+          if ( kin_tan_mag > kin_capacity )
+          {
+            pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
+            pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+          }
+          else
+            pinfo->_mech_status=PenetrationInfo::MS_STICKING;
           break;
+        }
         case CF_PENALTY:
         {
           distance_vec = pinfo->_incremental_slip + (pinfo->_normal * (_mesh.node(node->id()) - pinfo->_closest_point)) * pinfo->_normal;
