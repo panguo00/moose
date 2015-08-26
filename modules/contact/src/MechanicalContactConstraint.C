@@ -242,13 +242,19 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           // Tangential magnitude of elastic predictor
           const Real kin_tan_mag( contact_force_tangential.size() );
 
-          if ( kin_tan_mag > kin_capacity )
+          std::cout<<"BWS kin_tan_mag: "<<kin_tan_mag<<" kin_cap: "<<kin_capacity<<std::endl;
+          if ( pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+               ( kin_tan_mag >= kin_capacity && kin_capacity > 0))
           {
             pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
             pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+            std::cout<<"BWS slip"<<std::endl;
           }
           else
+          {
             pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+            std::cout<<"BWS stick"<<std::endl;
+          }
           break;
         }
         case CF_PENALTY:
@@ -267,6 +273,7 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 
           // Tangential magnitude of elastic predictor
           const Real tan_mag( contact_force_tangential.size() );
+          distance_vec = distance_vec - pinfo->_incremental_slip;
 
           if ( tan_mag > capacity )
           {
@@ -323,6 +330,7 @@ MechanicalContactConstraint::computeQpResidual(Moose::ConstraintType type)
   PenetrationInfo * pinfo = _penetration_locator._penetration_info[_current_node->id()];
   Real resid = pinfo->_contact_force(_component);
 
+
   switch (type)
   {
     case Moose::Slave:
@@ -336,9 +344,14 @@ MechanicalContactConstraint::computeQpResidual(Moose::ConstraintType type)
           resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
 
         else if (_model == CM_COULOMB)
-          resid += pen_force(_component);
-//          resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
-
+        {
+          distance_vec = distance_vec - pinfo->_incremental_slip;
+          pen_force = penalty * distance_vec;
+          if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+            resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
+          else
+            resid += pen_force(_component);
+        }
         else if (_model == CM_GLUED)
           resid += pen_force(_component);
 
