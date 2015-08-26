@@ -335,7 +335,11 @@ MechanicalContactConstraint::computeQpResidual(Moose::ConstraintType type)
         if (_model == CM_FRICTIONLESS)
           resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
 
-        else if (_model == CM_GLUED || _model == CM_COULOMB)
+        else if (_model == CM_COULOMB)
+          resid += pen_force(_component);
+//          resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
+
+        else if (_model == CM_GLUED)
           resid += pen_force(_component);
 
       }
