@@ -234,19 +234,26 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           // Frictional capacity
           const Real kin_capacity( _friction_coefficient * (res_vec * pinfo->_normal > 0 ? res_vec * pinfo->_normal : 0) );
 
-          // Elastic predictor
+          // Normal and tangential components of predictor force
           pinfo->_contact_force = -res_vec ;
           RealVectorValue contact_force_normal( (pinfo->_contact_force*pinfo->_normal) * pinfo->_normal );
           RealVectorValue contact_force_tangential( pinfo->_contact_force - contact_force_normal );
 
-          // Tangential magnitude of elastic predictor
+          // Magnitude of tangential predictor force
           const Real kin_tan_mag( contact_force_tangential.size() );
+          const Real inc_slip_mag = pinfo->_incremental_slip.size();
 
-          std::cout<<"BWS kin_tan_mag: "<<kin_tan_mag<<" kin_cap: "<<kin_capacity<<std::endl;
-          if ( pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
-               ( kin_tan_mag >= kin_capacity && kin_capacity > 0))
+          std::cout<<"BWS kin_tan_mag: "<<kin_tan_mag<<" kin_cap: "<<kin_capacity<<" inc_slip_mag: "<<inc_slip_mag << " ktm/pen: "<<kin_tan_mag/penalty<< std::endl;
+          if (( inc_slip_mag > kin_tan_mag/penalty ||
+                kin_tan_mag >= kin_capacity) &&
+              kin_capacity > 0)
           {
-            pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
+            RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
+            Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential / inc_slip_mag;
+            if (slip_dot_tang_force < 0) //kin_capacity?? // slipped too far
+              pinfo->_contact_force = contact_force_normal - kin_capacity * contact_force_tangential / kin_tan_mag;
+            else
+              pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
             pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
             std::cout<<"BWS slip"<<std::endl;
           }
