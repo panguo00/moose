@@ -181,7 +181,8 @@ MechanicalContactConstraint::shouldApply()
 
       // This does the contact force once per constraint, rather than once per quad point and for
       // both master and slave cases.
-      computeContactForce(pinfo);
+      if (_component == 0)
+        computeContactForce(pinfo);
     }
   }
 
@@ -242,25 +243,64 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           // Magnitude of tangential predictor force
           const Real kin_tan_mag( contact_force_tangential.size() );
           const Real inc_slip_mag = pinfo->_incremental_slip.size();
+          const Real slip_tol = kin_tan_mag/penalty;
 
-          std::cout<<"BWS kin_tan_mag: "<<kin_tan_mag<<" kin_cap: "<<kin_capacity<<" inc_slip_mag: "<<inc_slip_mag << " ktm/pen: "<<kin_tan_mag/penalty<< std::endl;
-          if (( inc_slip_mag > kin_tan_mag/penalty ||
+//          std::cout<<"BWS node: "<<node->id()<<" kin_tan_mag: "<<kin_tan_mag<<" kin_cap: "<<kin_capacity<<" inc_slip_mag: "<<inc_slip_mag << " ktm/pen: "<<kin_tan_mag/penalty<< std::endl;
+//          std::cout<<"BWS ftan: "<<contact_force_tangential<<std::endl;
+//          std::cout<<"BWS islp: "<<pinfo->_incremental_slip<<std::endl;
+          if (( inc_slip_mag > slip_tol ||
                 kin_tan_mag >= kin_capacity) &&
-              kin_capacity > 0)
+              true)
           {
-            RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
-            Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential / inc_slip_mag;
-            if (slip_dot_tang_force < 0) //kin_capacity?? // slipped too far
-              pinfo->_contact_force = contact_force_normal - kin_capacity * contact_force_tangential / kin_tan_mag;
+            if (inc_slip_mag > slip_tol)
+            {
+              RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
+              Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
+//              std::cout<<"BWS sdtf: "<<slip_dot_tang_force<<std::endl;
+              if (slip_dot_tang_force < kin_capacity)
+              {
+                if ((inc_slip_mag < slip_tol ||
+                    slip_dot_tang_force < -kin_capacity) &&
+//                    slip_dot_tang_force <= 0) &&
+                    kin_capacity > 0)
+                {
+                  pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+//                  std::cout<<"BWS re-sticking"<<std::endl;
+                }
+                else
+                {
+//                  pinfo->_contact_force = contact_force_normal + (kin_capacity + kin_tan_mag) * contact_force_tangential / kin_tan_mag;
+                  pinfo->_contact_force = contact_force_normal + kin_capacity * slip_inc_direction;
+                  //pinfo->_contact_force = contact_force_normal + (kin_capacity - slip_dot_tang_force) * contact_force_tangential / kin_tan_mag;
+                  //pinfo->_contact_force = contact_force_normal + slip_dot_tang_force * contact_force_tangential / kin_tan_mag;
+                  pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+//                  std::cout<<"BWS slip too far"<<std::endl;
+                }
+              }
+              else
+              {
+                if (kin_tan_mag > 0)
+                  pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
+                else
+                  pinfo->_contact_force = contact_force_normal;
+                pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+//                std::cout<<"BWS slip"<<std::endl;
+              }
+            }
             else
-              pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
-            pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-            std::cout<<"BWS slip"<<std::endl;
+            {
+              if (kin_tan_mag > 0)
+                pinfo->_contact_force = contact_force_normal + kin_capacity * contact_force_tangential / kin_tan_mag;
+              else
+                pinfo->_contact_force = contact_force_normal;
+              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+//              std::cout<<"BWS slip"<<std::endl;
+            }
           }
           else
           {
             pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-            std::cout<<"BWS stick"<<std::endl;
+//            std::cout<<"BWS stick"<<std::endl;
           }
           break;
         }
@@ -358,6 +398,7 @@ MechanicalContactConstraint::computeQpResidual(Moose::ConstraintType type)
             resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
           else
             resid += pen_force(_component);
+//          std::cout<<"BWS comp: "<<_component<<" resid: "<<resid<<std::endl;
         }
         else if (_model == CM_GLUED)
           resid += pen_force(_component);

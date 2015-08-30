@@ -216,7 +216,7 @@
   dt = 0.01
   end_time = 0.05
   num_steps = 1000
-  nl_rel_tol = 1e-4
+  nl_rel_tol = 1e-6
   dtmin = 0.01
   l_tol = 1e-3
 
