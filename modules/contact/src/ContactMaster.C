@@ -389,6 +389,10 @@ contactModel(const std::string & the_name)
   {
     model = CM_COULOMB;
   }
+  else if ("coulomb_mp" == name)
+  {
+    model = CM_COULOMB_MP;
+  }
   else if ("experimental" == name)
   {
     model = CM_FRICTIONLESS;

@@ -82,6 +82,9 @@ public:
   Real _lagrange_multiplier;
   unsigned int _locked_this_step;
   MECH_STATUS_ENUM _mech_status;
+  Point _incremental_slip_prev_iter;
+  unsigned int _prev_iter_id;
+  bool _slip_reversed;
 };
 
 // Used for Restart

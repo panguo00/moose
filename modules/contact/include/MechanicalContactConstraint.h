@@ -85,6 +85,7 @@ public:
 
 protected:
 
+  FEProblem & _fe_problem;
   Real nodalArea(PenetrationInfo & pinfo);
   Real getPenalty(PenetrationInfo & pinfo);
 

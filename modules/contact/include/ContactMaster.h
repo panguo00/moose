@@ -17,7 +17,8 @@ enum ContactModel
   CM_INVALID,
   CM_FRICTIONLESS,
   CM_GLUED,
-  CM_COULOMB
+  CM_COULOMB,
+  CM_COULOMB_MP
 };
 
 enum ContactFormulation

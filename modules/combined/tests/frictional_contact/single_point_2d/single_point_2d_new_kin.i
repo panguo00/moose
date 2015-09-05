@@ -251,8 +251,18 @@
 #  reference_residual_variables = 'saved_x saved_y'
 #[]
 
+#[Problem]
+#  type = ReferenceResidualProblem
+#  solution_variables = 'disp_x disp_y'
+#  reference_residual_variables = 'saved_x saved_y'
+#[]
+
 [Problem]
-  type = ReferenceResidualProblem
+  type = FrictionalContactDamperProblem
+  master = '2'
+  slave = '3'
+  disp_x = disp_x
+  disp_y = disp_y
   solution_variables = 'disp_x disp_y'
   reference_residual_variables = 'saved_x saved_y'
 []

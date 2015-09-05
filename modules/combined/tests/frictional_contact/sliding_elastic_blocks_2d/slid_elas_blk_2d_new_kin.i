@@ -209,6 +209,7 @@
 
 
   line_search = 'none'
+#  line_search = 'cp'
 
   nl_abs_tol = 1e-7
   l_max_its = 100
@@ -255,7 +256,12 @@
 []
 
 [Problem]
-  type = ReferenceResidualProblem
+#  type = ReferenceResidualProblem
+  type = FrictionalContactDamperProblem
+  master = '2'
+  slave = '3'
+  disp_x = disp_x
+  disp_y = disp_y
   solution_variables = 'disp_x disp_y'
   reference_residual_variables = 'saved_x saved_y'
 []
