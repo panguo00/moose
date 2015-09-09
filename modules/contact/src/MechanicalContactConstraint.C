@@ -136,7 +136,10 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
       pinfo->_contact_force_old = pinfo->_contact_force;
       pinfo->_accumulated_slip_old = pinfo->_accumulated_slip;
       pinfo->_frictional_energy_old = pinfo->_frictional_energy;
+      pinfo->_mech_status_old = pinfo->_mech_status;
+      pinfo->_mech_status_old = pinfo->_mech_status;
     }
+    pinfo->_incremental_slip_prev_iter = pinfo->_incremental_slip;
 
     const Real contact_pressure = -(pinfo->_normal * pinfo->_contact_force) / nodalArea(*pinfo);
     const Real distance = pinfo->_normal * (pinfo->_closest_point - _mesh.node(slave_node_num));
@@ -280,9 +283,14 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 //          std::cout<<"BWS ftan: "<<contact_force_tangential<<std::endl;
 //          std::cout<<"BWS islp: "<<pinfo->_incremental_slip<<std::endl;
 //          std::cout<<"BWS ism: "<<iter_slip_mult<<std::endl;
+//          if (!pinfo->wasCapturedLastStep()) // treat as frictionless on first step when contact is first established
+//          {
+//            pinfo->_contact_force = contact_force_normal;
+//            pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+//          }
           if (tangential_inc_slip_mag > slip_tol ||
-               tan_mag >= capacity)// &&
-//              current_nl_its > 0)
+                   tan_mag >= capacity)// &&
+//                  current_nl_its > 0)
           {
             if (tangential_inc_slip_mag > slip_tol)
             {
@@ -355,7 +363,7 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           else
           {
             pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-//            std::cout<<"BWS stick"<<std::endl;
+            //std::cout<<"BWS stick"<<std::endl;
           }
           break;
         }

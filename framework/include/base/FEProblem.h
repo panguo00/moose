@@ -1068,6 +1068,8 @@ private:
   friend class ComputeBoundaryInitialConditionThread;
   friend class Restartable;
   friend class DisplacedProblem;
+protected:
+  Real _damping;
 };
 
 template<typename T>

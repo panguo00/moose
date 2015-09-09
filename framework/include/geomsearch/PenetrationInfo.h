@@ -51,6 +51,7 @@ public:
   };
 
   bool isCaptured() const { return _mech_status != MS_NO_CONTACT; }
+  bool wasCapturedLastStep() const { return _mech_status_old != MS_NO_CONTACT; }
   void capture() { if (_mech_status == MS_NO_CONTACT) _mech_status = MS_CONTACT; }
   void release() { _mech_status = MS_NO_CONTACT; }
 
@@ -82,6 +83,7 @@ public:
   Real _lagrange_multiplier;
   unsigned int _locked_this_step;
   MECH_STATUS_ENUM _mech_status;
+  MECH_STATUS_ENUM _mech_status_old;
   Point _incremental_slip_prev_iter;
   unsigned int _prev_iter_id;
   bool _slip_reversed;

@@ -147,7 +147,8 @@ FEProblem::FEProblem(const InputParameters & parameters) :
     _use_legacy_uo_aux_computation(_app.legacyUoAuxComputationDefault()),
     _use_legacy_uo_initialization(_app.legacyUoInitializationDefault()),
     _error_on_jacobian_nonzero_reallocation(getParam<bool>("error_on_jacobian_nonzero_reallocation")),
-    _fail_next_linear_convergence_check(false)
+    _fail_next_linear_convergence_check(false),
+    _damping(1)
 {
 
   _n++;
@@ -3566,6 +3567,14 @@ FEProblem::computePostCheck(NonlinearImplicitSystem & sys,
       bool updated_solution = updateSolution(new_soln, *ghosted_solution);
       if (updated_solution)
         changed_new_soln = true;
+      if (_damping < 1.0)
+      {
+        std::cout<<"BWS damping: "<<_damping<<std::endl;
+        new_soln = old_soln;
+        new_soln.add(-_damping, search_direction);
+        changed_new_soln = true;
+        _damping = 1.0;
+      }
     }
 
   }

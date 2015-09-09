@@ -42,6 +42,8 @@ protected:
 
   int _num_nl_iterations;
   int _num_contact_nodes;
+  int _num_sticking;
+  int _num_slipping;
   int _num_slip_reversed;
   int _num_modified;
   Real _inc_slip_norm;
