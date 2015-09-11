@@ -136,10 +136,9 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
       pinfo->_contact_force_old = pinfo->_contact_force;
       pinfo->_accumulated_slip_old = pinfo->_accumulated_slip;
       pinfo->_frictional_energy_old = pinfo->_frictional_energy;
-      pinfo->_mech_status_old = pinfo->_mech_status;
-      pinfo->_mech_status_old = pinfo->_mech_status;
     }
     pinfo->_incremental_slip_prev_iter = pinfo->_incremental_slip;
+    pinfo->_mech_status_old = pinfo->_mech_status;
 
     const Real contact_pressure = -(pinfo->_normal * pinfo->_contact_force) / nodalArea(*pinfo);
     const Real distance = pinfo->_normal * (pinfo->_closest_point - _mesh.node(slave_node_num));
@@ -288,84 +287,142 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 //            pinfo->_contact_force = contact_force_normal;
 //            pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
 //          }
-          if (tangential_inc_slip_mag > slip_tol ||
-                   tan_mag >= capacity)// &&
-//                  current_nl_its > 0)
+
+
+
+          if (pinfo ->_mech_status_old == PenetrationInfo::MS_SLIPPING)
           {
-            if (tangential_inc_slip_mag > slip_tol)
+            RealVectorValue slip_inc_direction = 0;
+            Real slip_dot_tang_force = 0;
+            if (tangential_inc_slip_mag > 0)
             {
-              //RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
-              RealVectorValue slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
-              Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
-//              std::cout<<"BWS sdtf: "<<slip_dot_tang_force<<std::endl;
-              if (slip_dot_tang_force < capacity)
-              {
-                //if (false)
-                //if ((tangential_inc_slip_mag < slip_tol ||
-                //    slip_dot_tang_force < -capacity) &&
-                //    capacity > 0)
-//                if (pinfo->_slip_reversed == true)
-//                {
-//                  pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-//                  std::cout<<"BWS re-sticking"<<std::endl;
-//                }
-//                else
-                {
-//                  pinfo->_contact_force = contact_force_normal + (capacity + tan_mag) * contact_force_tangential / tan_mag;
-//                  if (slip_dot_tang_force < 0)
-//                    pinfo->_contact_force = contact_force_normal + slip_viscosity * slip_inc_direction;
-//                  else
-                  //if (slip_dot_tang_force < 0)
-                  //  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
-                  //else
-                  //  pinfo->_contact_force = contact_force_normal - capacity * slip_inc_direction;
-//                  Real mod_capacity = capacity + iter_slip_mult*(slip_dot_tang_force - capacity);
-//                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
-                  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
-                  //pinfo->_contact_force = contact_force_normal + (capacity - slip_dot_tang_force) * contact_force_tangential / tan_mag;
-                  //pinfo->_contact_force = contact_force_normal + slip_dot_tang_force * contact_force_tangential / tan_mag;
-                  pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-//                  std::cout<<"BWS slip too far"<<std::endl;
-//                  std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
-                }
-              }
-              else
-              {
-                if (tan_mag > 0)
-                {
-//                  Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
-                  pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
-//                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
-                }
-                else
-                  pinfo->_contact_force = contact_force_normal;
-                pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-//                std::cout<<"BWS slip"<<std::endl;
-//                std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
-              }
-              //pinfo->_contact_force += slip_viscosity * slip_inc_direction;
+              slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
+              slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
+            }
+            if (tan_mag < capacity &&
+                tangential_inc_slip_mag < capacity/penalty)
+            {
+              pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+              //std::cout<<"BWS re-stick"<<std::endl;
+            }
+            if (tangential_inc_slip_mag > 0 &&
+                slip_dot_tang_force < capacity)
+            {
+              pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
+              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+//              std::cout<<"BWS slip too far"<<std::endl;
+//              std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
             }
             else
             {
+              RealVectorValue tangential_force_direction = 0;
               if (tan_mag > 0)
-              {
-//                Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
-                pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
-//                std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
-              }
-              else
-                pinfo->_contact_force = contact_force_normal;
+                tangential_force_direction = contact_force_tangential / tan_mag;
+              pinfo->_contact_force = contact_force_normal + capacity * tangential_force_direction;
               pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
 //              std::cout<<"BWS slip"<<std::endl;
-//              std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
+//              std::cout<<"BWS tang_force: "<<capacity*tangential_force_direction<<std::endl;
             }
           }
           else
           {
-            pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-            //std::cout<<"BWS stick"<<std::endl;
+            if (tan_mag > capacity)
+            {
+              RealVectorValue tangential_force_direction = 0;
+              if (tan_mag > 0)
+                tangential_force_direction = contact_force_tangential / tan_mag;
+              pinfo->_contact_force = contact_force_normal + capacity * tangential_force_direction;
+              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+//              std::cout<<"BWS slip"<<std::endl;
+//              std::cout<<"BWS tang_force: "<<capacity*tangential_force_direction<<std::endl;
+            }
+            else
+            {
+              pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+              //std::cout<<"BWS stick"<<std::endl;
+            }
           }
           break;
+
+
+//          if (tangential_inc_slip_mag > slip_tol ||
+//                   tan_mag >= capacity)// &&
+////                  current_nl_its > 0)
+//          {
+//            if (tangential_inc_slip_mag > slip_tol)
+//            {
+//              //RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
+//              RealVectorValue slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
+//              Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
+////              std::cout<<"BWS sdtf: "<<slip_dot_tang_force<<std::endl;
+//              if (slip_dot_tang_force < capacity)
+//              {
+//                //if (false)
+//                //if ((tangential_inc_slip_mag < slip_tol ||
+//                //    slip_dot_tang_force < -capacity) &&
+//                //    capacity > 0)
+////                if (pinfo->_slip_reversed == true)
+////                {
+////                  pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+////                  std::cout<<"BWS re-sticking"<<std::endl;
+////                }
+////                else
+//                {
+////                  pinfo->_contact_force = contact_force_normal + (capacity + tan_mag) * contact_force_tangential / tan_mag;
+////                  if (slip_dot_tang_force < 0)
+////                    pinfo->_contact_force = contact_force_normal + slip_viscosity * slip_inc_direction;
+////                  else
+//                  //if (slip_dot_tang_force < 0)
+//                  //  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
+//                  //else
+//                  //  pinfo->_contact_force = contact_force_normal - capacity * slip_inc_direction;
+////                  Real mod_capacity = capacity + iter_slip_mult*(slip_dot_tang_force - capacity);
+////                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
+//                  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
+//                  //pinfo->_contact_force = contact_force_normal + (capacity - slip_dot_tang_force) * contact_force_tangential / tan_mag;
+//                  //pinfo->_contact_force = contact_force_normal + slip_dot_tang_force * contact_force_tangential / tan_mag;
+//                  pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+////                  std::cout<<"BWS slip too far"<<std::endl;
+////                  std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
+//                }
+//              }
+//              else
+//              {
+//                if (tan_mag > 0)
+//                {
+////                  Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
+//                  pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
+////                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
+//                }
+//                else
+//                  pinfo->_contact_force = contact_force_normal;
+//                pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+////                std::cout<<"BWS slip"<<std::endl;
+////                std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
+//              }
+//              //pinfo->_contact_force += slip_viscosity * slip_inc_direction;
+//            }
+//            else
+//            {
+//              if (tan_mag > 0)
+//              {
+////                Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
+//                pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
+////                std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
+//              }
+//              else
+//                pinfo->_contact_force = contact_force_normal;
+//              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+////              std::cout<<"BWS slip"<<std::endl;
+////              std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
+//            }
+//          }
+//          else
+//          {
+//            pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+//            //std::cout<<"BWS stick"<<std::endl;
+//          }
+//          break;
         }
         case CF_PENALTY:
         {

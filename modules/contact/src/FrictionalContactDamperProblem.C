@@ -96,7 +96,7 @@ FrictionalContactDamperProblem::updateSolution(NumericVector<Number>& vec_soluti
   updateContactPoints(ghosted_solution,false);
 
   _console << "Contact Damper NL Iteration: " << _num_nl_iterations << std::endl;
-  _console << "Iter  #Cont     #Stick       #Slip        #SlipRev     #Mod" << std::endl;
+  _console << "Iter   #Cont    #Stick     #Slip  #SlipRev      #Mod" << std::endl;
 
   solution_modified = limitSlip(vec_solution, ghosted_solution);
 
@@ -215,6 +215,8 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
                       damping_factor = 1 - (it_slip_in_old_dir + prev_slip_mag) / it_slip_in_old_dir;
                     if (damping_factor < 0)
                       mooseError("damping_factor can't be negative");
+                    if (damping_factor < 1e-1)
+                      damping_factor = 1e-1;
                     if (damping_factor < _damping)
                       _damping = damping_factor;
                   }
