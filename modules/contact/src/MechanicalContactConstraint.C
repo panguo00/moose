@@ -529,7 +529,10 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp];
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
+              else
+                return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp];
             default:
               mooseError("Invalid contact formulation");
           }
@@ -602,7 +605,10 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp];
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
+              else
+                return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp];
             default:
               mooseError("Invalid contact formulation");
           }
@@ -671,7 +677,10 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp];
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
+              else
+                return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp];
             default:
               mooseError("Invalid contact formulation");
           }
@@ -717,7 +726,10 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
               return 0;
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp];
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
+              else
+                return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp];
             default:
               mooseError("Invalid contact formulation");
           }
@@ -779,6 +791,9 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
             }
             return -pinfo->_normal(_component) * (pinfo->_normal*jac_vec) + (_phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp]) * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           }
+          else if ((_formulation == CF_PENALTY || _formulation == CF_AUGMENTED_LAGRANGE) && 
+                   pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+            return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           else
           {
             double curr_jac = (*_jacobian)(_current_node->dof_number(0, _vars(_component), 0), _connected_dof_indices[_j]);
@@ -833,6 +848,9 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
             }
             return -pinfo->_normal(_component)*(pinfo->_normal*jac_vec) - (_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp]) * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           }
+          else if ((_formulation == CF_PENALTY || _formulation == CF_AUGMENTED_LAGRANGE) && 
+                   pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+            return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           else
             return 0;
         case CM_COULOMB_MP:
@@ -887,7 +905,10 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              return 0;
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
+              else
+                return 0;
             default:
               mooseError("Invalid contact formulation");
           }
@@ -927,7 +948,11 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
         case CM_COULOMB:
         case CM_COULOMB_MP:
         case CM_GLUED:
-          return 0;
+          if ((_formulation == CF_PENALTY || _formulation == CF_AUGMENTED_LAGRANGE) && 
+              pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+            return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
+          else
+            return 0;
         default:
           mooseError("Invalid or unavailable contact model");
       }
