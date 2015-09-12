@@ -44,10 +44,12 @@ protected:
   int _num_contact_nodes;
   int _num_sticking;
   int _num_slipping;
+  int _num_slipping_friction;
   int _num_slip_reversed;
   int _num_modified;
   Real _inc_slip_norm;
   Real _it_slip_norm;
+  Real _max_iterative_slip;
 
   /// Convenient typedef for frequently used iterator
   typedef std::map<std::pair<unsigned int, unsigned int>, PenetrationLocator *>::iterator pl_iterator;

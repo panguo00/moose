@@ -25,6 +25,7 @@ InputParameters validParams<FrictionalContactDamperProblem>()
   params.addRequiredParam<NonlinearVariableName>("disp_x","Variable containing the x displacement");
   params.addRequiredParam<NonlinearVariableName>("disp_y","Variable containing the y displacement");
   params.addParam<NonlinearVariableName>        ("disp_z","Variable containing the z displacement");
+  params.addParam<Real>("max_iterative_slip",1000,"Maximum iterative slip");
   return params;
 }
 
@@ -33,10 +34,12 @@ FrictionalContactDamperProblem::FrictionalContactDamperProblem(const InputParame
     _num_contact_nodes(0),
     _num_sticking(0),
     _num_slipping(0),
+    _num_slipping_friction(0),
     _num_slip_reversed(0),
     _num_modified(0),
     _inc_slip_norm(0.0),
-    _it_slip_norm(0.0)
+    _it_slip_norm(0.0),
+    _max_iterative_slip(params.get<Real>("max_iterative_slip"))
 {
   std::vector<int> master = params.get<std::vector<int> >("master");
   std::vector<int> slave = params.get<std::vector<int> >("slave");
@@ -95,15 +98,16 @@ FrictionalContactDamperProblem::updateSolution(NumericVector<Number>& vec_soluti
   unsigned int dim = getNonlinearSystem().subproblem().mesh().dimension();
   updateContactPoints(ghosted_solution,false);
 
-  _console << "Contact Damper NL Iteration: " << _num_nl_iterations << std::endl;
-  _console << "Iter   #Cont    #Stick     #Slip  #SlipRev      #Mod" << std::endl;
-
   solution_modified = limitSlip(vec_solution, ghosted_solution);
+
+  _console << "Contact Damper NL Iteration: " << _num_nl_iterations << std::endl;
+  _console << "Iter   #Cont    #Stick     #Slip #SlipFric  #SlipRev      #Mod" << std::endl;
 
     _console << std::setw(10) << _num_nl_iterations
              << std::setw(10) << _num_contact_nodes
              << std::setw(10) << _num_sticking
              << std::setw(10) << _num_slipping
+             << std::setw(10) << _num_slipping_friction
              << std::setw(10) << _num_slip_reversed
              << std::setw(10) << _num_modified
              << std::endl;
@@ -134,6 +138,7 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
     _num_contact_nodes = 0;
     _num_sticking = 0;
     _num_slipping = 0;
+    _num_slipping_friction = 0;
     _num_slip_reversed = 0;
     _num_modified = 0;
 
@@ -179,6 +184,8 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
                   _num_sticking++;
                 else if (info._mech_status == PenetrationInfo::MS_SLIPPING)
                   _num_slipping++;
+                else if (info._mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
+                  _num_slipping_friction++;
 
                 
                 RealVectorValue slip_correction = 0;
@@ -190,35 +197,30 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
                   info._slip_reversed = false;
                 else
                 {
+                  RealVectorValue tangential_it_slip = tangential_inc_slip - tangential_inc_slip_prev_iter;
+                  Real damping_factor = 1;
                   //if (info._incremental_slip_prev_iter * info._incremental_slip < 0)
                   if ((tangential_inc_slip_prev_iter * tangential_inc_slip < 0) &&
 //                      info.wasCapturedLastStep() &&
-                      info._mech_status == PenetrationInfo::MS_SLIPPING)
+                      info._mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                   //if (false)
                   {
                     info._slip_reversed = true;
                     _num_slip_reversed++;
                     //slip_correction = -info._incremental_slip;
 //                    slip_correction = -tangential_inc_slip;
-                    std::cout<<"BWS node: "<<node->id()
-                                           <<" prev: "<<info._incremental_slip_prev_iter
-                                           <<" curr: "<<info._incremental_slip
-                                           <<std::endl;
 //                    std::cout<<"BWS correction: "<<slip_correction<<std::endl;
-                    RealVectorValue tangential_it_slip = tangential_inc_slip - tangential_inc_slip_prev_iter;
                     Real prev_slip_mag = tangential_inc_slip_prev_iter.size();
                     RealVectorValue prev_slip_unit_vec = tangential_inc_slip_prev_iter / prev_slip_mag;
                     Real it_slip_in_old_dir = tangential_it_slip * prev_slip_unit_vec;
-                    Real damping_factor = 1;
-                    if (prev_slip_mag > 1e-10 ||
+                    if (prev_slip_mag > info._slip_tol || //1e-10 ||
                         -it_slip_in_old_dir < 1e3 * prev_slip_mag)
                       damping_factor = 1 - (it_slip_in_old_dir + prev_slip_mag) / it_slip_in_old_dir;
                     if (damping_factor < 0)
                       mooseError("damping_factor can't be negative");
-                    if (damping_factor < 1e-1)
-                      damping_factor = 1e-1;
-                    if (damping_factor < _damping)
-                      _damping = damping_factor;
+                    if (damping_factor < 1e-5)
+                      damping_factor = 1e-5;
+
                   }
                   else
                   {
@@ -231,6 +233,17 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
                     //slip_correction = -0.5*iterative_slip;
                     //slip_correction = -iter_slip_mult*tangential_iterative_slip;
                   }
+                  if (tangential_it_slip.size() > _max_iterative_slip)
+                    damping_factor = (tangential_it_slip.size() - _max_iterative_slip) / tangential_it_slip.size();
+                  if (damping_factor < 1)
+                    std::cout<<"BWS node: "<<node->id()
+                                           <<" prev: "<<info._incremental_slip_prev_iter
+                                           <<" curr: "<<info._incremental_slip
+                                           <<" stol: "<<info._slip_tol
+                                           <<" df: "<<damping_factor
+                                           <<std::endl;
+                  if (damping_factor < _damping)
+                    _damping = damping_factor;
                 }
 //                info._incremental_slip_prev_iter = info._incremental_slip;
 
@@ -253,6 +266,7 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
     _communicator.sum(_num_contact_nodes);
     _communicator.sum(_num_sticking);
     _communicator.sum(_num_slipping);
+    _communicator.sum(_num_slipping_friction);
     _communicator.sum(_num_slip_reversed);
     _communicator.sum(_num_modified);
     _communicator.min(_damping);

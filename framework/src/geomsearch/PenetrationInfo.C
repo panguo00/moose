@@ -54,7 +54,8 @@ PenetrationInfo::PenetrationInfo(const Node * node, const Elem * elem, Elem * si
     _mech_status_old(MS_NO_CONTACT),
     _incremental_slip_prev_iter(0),
     _prev_iter_id(0),
-    _slip_reversed(false)
+    _slip_reversed(false),
+    _slip_tol(0)
 {}
 
 PenetrationInfo::PenetrationInfo(const PenetrationInfo & p)
@@ -90,7 +91,8 @@ PenetrationInfo::PenetrationInfo(const PenetrationInfo & p)
     _mech_status_old(p._mech_status_old),
     _incremental_slip_prev_iter(p._incremental_slip_prev_iter),
     _prev_iter_id(p._prev_iter_id),
-    _slip_reversed(p._slip_reversed)
+    _slip_reversed(p._slip_reversed),
+    _slip_tol(p._slip_tol)
 {}
 
 PenetrationInfo::PenetrationInfo()
@@ -125,7 +127,8 @@ PenetrationInfo::PenetrationInfo()
     _mech_status_old(MS_NO_CONTACT),
     _incremental_slip_prev_iter(0),
     _prev_iter_id(0),
-    _slip_reversed(false)
+    _slip_reversed(false),
+    _slip_tol(0)
 {}
 
 PenetrationInfo::~PenetrationInfo()

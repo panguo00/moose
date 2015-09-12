@@ -47,6 +47,7 @@ public:
     MS_NO_CONTACT=0,
     MS_STICKING,
     MS_SLIPPING,
+    MS_SLIPPING_FRICTION,
     MS_CONTACT // In contact, but unknown yet whether slipping or sticking.
   };
 
@@ -87,6 +88,7 @@ public:
   Point _incremental_slip_prev_iter;
   unsigned int _prev_iter_id;
   bool _slip_reversed;
+  Real _slip_tol;
 };
 
 // Used for Restart

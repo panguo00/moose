@@ -136,6 +136,9 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
       pinfo->_contact_force_old = pinfo->_contact_force;
       pinfo->_accumulated_slip_old = pinfo->_accumulated_slip;
       pinfo->_frictional_energy_old = pinfo->_frictional_energy;
+      pinfo->_lagrange_multiplier = 0;
+      if (pinfo->isCaptured() && _model == CM_COULOMB)
+        pinfo ->_mech_status_old = PenetrationInfo::MS_STICKING;
     }
     pinfo->_incremental_slip_prev_iter = pinfo->_incremental_slip;
     pinfo->_mech_status_old = pinfo->_mech_status;
@@ -249,7 +252,8 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           const Real tan_mag( contact_force_tangential.size() );
           const Real inc_slip_mag = pinfo->_incremental_slip.size();
           const Real tangential_inc_slip_mag = tangential_inc_slip.size();
-          const Real slip_tol = 0.1*tan_mag/penalty;
+          const Real slip_tol = capacity/penalty;
+          pinfo->_slip_tol = slip_tol;
 
 //          unsigned int current_nl_its = _fe_problem.getNonlinearSystem()._current_nl_its;
 //          Real iter_slip_mult =  1-(Real)current_nl_its/5;
@@ -290,139 +294,152 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 
 
 
-          if (pinfo ->_mech_status_old == PenetrationInfo::MS_SLIPPING)
-          {
-            RealVectorValue slip_inc_direction = 0;
-            Real slip_dot_tang_force = 0;
-            if (tangential_inc_slip_mag > 0)
-            {
-              slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
-              slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
-            }
-            if (tan_mag < capacity &&
-                tangential_inc_slip_mag < capacity/penalty)
-            {
-              pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-              //std::cout<<"BWS re-stick"<<std::endl;
-            }
-            if (tangential_inc_slip_mag > 0 &&
-                slip_dot_tang_force < capacity)
-            {
-              pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
-              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-//              std::cout<<"BWS slip too far"<<std::endl;
-//              std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
-            }
-            else
-            {
-              RealVectorValue tangential_force_direction = 0;
-              if (tan_mag > 0)
-                tangential_force_direction = contact_force_tangential / tan_mag;
-              pinfo->_contact_force = contact_force_normal + capacity * tangential_force_direction;
-              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-//              std::cout<<"BWS slip"<<std::endl;
-//              std::cout<<"BWS tang_force: "<<capacity*tangential_force_direction<<std::endl;
-            }
-          }
-          else
-          {
-            if (tan_mag > capacity)
-            {
-              RealVectorValue tangential_force_direction = 0;
-              if (tan_mag > 0)
-                tangential_force_direction = contact_force_tangential / tan_mag;
-              pinfo->_contact_force = contact_force_normal + capacity * tangential_force_direction;
-              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-//              std::cout<<"BWS slip"<<std::endl;
-//              std::cout<<"BWS tang_force: "<<capacity*tangential_force_direction<<std::endl;
-            }
-            else
-            {
-              pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-              //std::cout<<"BWS stick"<<std::endl;
-            }
-          }
-          break;
-
-
-//          if (tangential_inc_slip_mag > slip_tol ||
-//                   tan_mag >= capacity)// &&
-////                  current_nl_its > 0)
+//          if (pinfo ->_mech_status_old == PenetrationInfo::MS_SLIPPING)
 //          {
-//            if (tangential_inc_slip_mag > slip_tol)
+//            RealVectorValue slip_inc_direction = 0;
+//            Real slip_dot_tang_force = 0;
+//            if (tangential_inc_slip_mag > 0)
 //            {
-//              //RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
-//              RealVectorValue slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
-//              Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
-////              std::cout<<"BWS sdtf: "<<slip_dot_tang_force<<std::endl;
-//              if (slip_dot_tang_force < capacity)
-//              {
-//                //if (false)
-//                //if ((tangential_inc_slip_mag < slip_tol ||
-//                //    slip_dot_tang_force < -capacity) &&
-//                //    capacity > 0)
-////                if (pinfo->_slip_reversed == true)
-////                {
-////                  pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-////                  std::cout<<"BWS re-sticking"<<std::endl;
-////                }
-////                else
-//                {
-////                  pinfo->_contact_force = contact_force_normal + (capacity + tan_mag) * contact_force_tangential / tan_mag;
-////                  if (slip_dot_tang_force < 0)
-////                    pinfo->_contact_force = contact_force_normal + slip_viscosity * slip_inc_direction;
-////                  else
-//                  //if (slip_dot_tang_force < 0)
-//                  //  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
-//                  //else
-//                  //  pinfo->_contact_force = contact_force_normal - capacity * slip_inc_direction;
-////                  Real mod_capacity = capacity + iter_slip_mult*(slip_dot_tang_force - capacity);
-////                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
-//                  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
-//                  //pinfo->_contact_force = contact_force_normal + (capacity - slip_dot_tang_force) * contact_force_tangential / tan_mag;
-//                  //pinfo->_contact_force = contact_force_normal + slip_dot_tang_force * contact_force_tangential / tan_mag;
-//                  pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-////                  std::cout<<"BWS slip too far"<<std::endl;
-////                  std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
-//                }
-//              }
-//              else
-//              {
-//                if (tan_mag > 0)
-//                {
-////                  Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
-//                  pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
-////                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
-//                }
-//                else
-//                  pinfo->_contact_force = contact_force_normal;
-//                pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
-////                std::cout<<"BWS slip"<<std::endl;
-////                std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
-//              }
-//              //pinfo->_contact_force += slip_viscosity * slip_inc_direction;
+//              slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
+//              slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
+//            }
+//            if (tan_mag < capacity &&
+//                tangential_inc_slip_mag < capacity/penalty)
+//            {
+//              pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+//              //std::cout<<"BWS re-stick"<<std::endl;
+//            }
+//            if (tangential_inc_slip_mag > 0 &&
+//                slip_dot_tang_force < capacity)
+//            {
+//              pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
+//              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+////              std::cout<<"BWS slip too far"<<std::endl;
+////              std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
 //            }
 //            else
 //            {
+//              RealVectorValue tangential_force_direction = 0;
 //              if (tan_mag > 0)
-//              {
-////                Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
-//                pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
-////                std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
-//              }
-//              else
-//                pinfo->_contact_force = contact_force_normal;
+//                tangential_force_direction = contact_force_tangential / tan_mag;
+//              pinfo->_contact_force = contact_force_normal + capacity * tangential_force_direction;
 //              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
 ////              std::cout<<"BWS slip"<<std::endl;
-////              std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
+////              std::cout<<"BWS tang_force: "<<capacity*tangential_force_direction<<std::endl;
 //            }
 //          }
 //          else
 //          {
-//            pinfo->_mech_status=PenetrationInfo::MS_STICKING;
-//            //std::cout<<"BWS stick"<<std::endl;
+//            if (tan_mag > capacity)
+//            {
+//              RealVectorValue tangential_force_direction = 0;
+//              if (tan_mag > 0)
+//                tangential_force_direction = contact_force_tangential / tan_mag;
+//              pinfo->_contact_force = contact_force_normal + capacity * tangential_force_direction;
+//              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+////              std::cout<<"BWS slip"<<std::endl;
+////              std::cout<<"BWS tang_force: "<<capacity*tangential_force_direction<<std::endl;
+//            }
+//            else
+//            {
+//              pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+//              //std::cout<<"BWS stick"<<std::endl;
+//            }
 //          }
 //          break;
+
+
+          if (tangential_inc_slip_mag >= slip_tol ||
+                   tan_mag >= capacity)
+          {
+            if (tangential_inc_slip_mag >= slip_tol)
+            {
+              //RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
+              RealVectorValue slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
+              Real slip_dot_tang_force = slip_inc_direction * contact_force_tangential;
+//              std::cout<<"BWS sdtf: "<<slip_dot_tang_force<<std::endl;
+              if (slip_dot_tang_force < capacity)
+              {
+                //if (false)
+                //if ((tangential_inc_slip_mag < slip_tol ||
+                //    slip_dot_tang_force < -capacity) &&
+                //    capacity > 0)
+//                if (pinfo->_slip_reversed == true)
+//                {
+//                  pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+//                  std::cout<<"BWS re-sticking"<<std::endl;
+//                }
+//                else
+                {
+//                  pinfo->_contact_force = contact_force_normal + (capacity + tan_mag) * contact_force_tangential / tan_mag;
+//                  if (slip_dot_tang_force < 0)
+//                    pinfo->_contact_force = contact_force_normal + slip_viscosity * slip_inc_direction;
+//                  else
+                  //if (slip_dot_tang_force < 0)
+                  //  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
+                  //else
+                  //  pinfo->_contact_force = contact_force_normal - capacity * slip_inc_direction;
+//                  Real mod_capacity = capacity + iter_slip_mult*(slip_dot_tang_force - capacity);
+//                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
+                  pinfo->_contact_force = contact_force_normal + capacity * slip_inc_direction;
+                  //pinfo->_contact_force = contact_force_normal + (capacity - slip_dot_tang_force) * contact_force_tangential / tan_mag;
+                  //pinfo->_contact_force = contact_force_normal + slip_dot_tang_force * contact_force_tangential / tan_mag;
+                  if (capacity == 0)
+                    pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+                  else
+                    pinfo->_mech_status=PenetrationInfo::MS_SLIPPING_FRICTION;
+//                  std::cout<<"BWS slip too far"<<std::endl;
+//                  std::cout<<"BWS tang_force: "<<capacity*slip_inc_direction<<std::endl;
+                }
+              }
+              else
+              {
+                if (tan_mag > 0)
+                {
+//                  Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
+                  pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
+//                  std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
+                }
+                else
+                {
+                  pinfo->_contact_force = contact_force_normal;
+//                std::cout<<"BWS slip"<<std::endl;
+//                std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
+                }
+                if (capacity == 0)
+                  pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+                else
+                  pinfo->_mech_status=PenetrationInfo::MS_SLIPPING_FRICTION;
+              }
+              //pinfo->_contact_force += slip_viscosity * slip_inc_direction;
+            }
+            else
+            {
+              if (tan_mag > 0)
+              {
+//                Real mod_capacity = capacity + iter_slip_mult*(tan_mag - capacity);
+                pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
+//                std::cout<<"BWS mod_capacity: "<<mod_capacity<<std::endl;
+              }
+              else
+                pinfo->_contact_force = contact_force_normal;
+              if (capacity == 0)
+                pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+              else
+                pinfo->_mech_status=PenetrationInfo::MS_SLIPPING_FRICTION;
+//              std::cout<<"BWS slip"<<std::endl;
+//              std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
+            }
+          }
+          else
+          {
+            pinfo->_mech_status=PenetrationInfo::MS_STICKING;
+            //std::cout<<"BWS stick"<<std::endl;
+          }
+          break;
+
+
+
         }
         case CF_PENALTY:
         {
@@ -442,10 +459,13 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           const Real tan_mag( contact_force_tangential.size() );
           distance_vec = distance_vec - pinfo->_incremental_slip;
 
-          if ( tan_mag > capacity )
+          if ( tan_mag >= capacity )
           {
             pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
-            pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+            if (capacity == 0)
+              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING;
+            else
+              pinfo->_mech_status=PenetrationInfo::MS_SLIPPING_FRICTION;
           }
           else
             pinfo->_mech_status=PenetrationInfo::MS_STICKING;
@@ -514,7 +534,8 @@ MechanicalContactConstraint::computeQpResidual(Moose::ConstraintType type)
         {
           distance_vec = distance_vec - pinfo->_incremental_slip;
           pen_force = penalty * distance_vec;
-          if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+          if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+              pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
             resid += pinfo->_normal(_component) * pinfo->_normal * pen_force;
           else
             resid += pen_force(_component);
@@ -568,7 +589,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
           {
             case CF_KINEMATIC:
             {
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
               {
                 RealVectorValue jac_vec;
                 for (unsigned int i=0; i<_mesh_dimension; ++i)
@@ -586,7 +608,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                 return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
               else
                 return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp];
@@ -641,7 +664,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
           {
             case CF_KINEMATIC:
             {
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
               {
                 Node * curr_master_node = _current_master->get_node(_j);
 
@@ -662,7 +686,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                 return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
               else
                 return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp];
@@ -716,7 +741,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
           {
             case CF_KINEMATIC:
             {
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
               {
                 RealVectorValue jac_vec;
                 for (unsigned int i=0; i<_mesh_dimension; ++i)
@@ -734,7 +760,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                 return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
               else
                 return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp];
@@ -783,7 +810,8 @@ MechanicalContactConstraint::computeQpJacobian(Moose::ConstraintJacobianType typ
               return 0;
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                 return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp] * pinfo->_normal(_component) * pinfo->_normal(_component);
               else
                 return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp];
@@ -838,7 +866,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
         case CM_COULOMB:
         {
           if (_formulation == CF_KINEMATIC && 
-              pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+               pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION))
           {
             RealVectorValue jac_vec;
             for (unsigned int i=0; i<_mesh_dimension; ++i)
@@ -849,7 +878,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
             return -pinfo->_normal(_component) * (pinfo->_normal*jac_vec) + (_phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp]) * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           }
           else if ((_formulation == CF_PENALTY || _formulation == CF_AUGMENTED_LAGRANGE) && 
-                   pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                   (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                    pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION))
             return _phi_slave[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           else
           {
@@ -893,7 +923,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
           }
         case CM_COULOMB:
           if (_formulation == CF_KINEMATIC && 
-              pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+               pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION))
           {
             Node * curr_master_node = _current_master->get_node(_j);
 
@@ -906,7 +937,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
             return -pinfo->_normal(_component)*(pinfo->_normal*jac_vec) - (_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp]) * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           }
           else if ((_formulation == CF_PENALTY || _formulation == CF_AUGMENTED_LAGRANGE) && 
-                   pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+                   (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                    pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION))
             return -_phi_master[_j][_qp] * penalty * _test_slave[_i][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           else
             return 0;
@@ -944,7 +976,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
           {
             case CF_KINEMATIC:
             {
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
               {
                 RealVectorValue jac_vec;
                 for (unsigned int i=0; i<_mesh_dimension; ++i)
@@ -962,7 +995,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
             }
             case CF_PENALTY:
             case CF_AUGMENTED_LAGRANGE:
-              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+                  pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                 return -_test_master[_i][_qp] * penalty * _phi_slave[_j][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
               else
                 return 0;
@@ -1006,7 +1040,8 @@ MechanicalContactConstraint::computeQpOffDiagJacobian(Moose::ConstraintJacobianT
         case CM_COULOMB_MP:
         case CM_GLUED:
           if ((_formulation == CF_PENALTY || _formulation == CF_AUGMENTED_LAGRANGE) && 
-              pinfo->_mech_status == PenetrationInfo::MS_SLIPPING)
+              (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING ||
+               pinfo->_mech_status == PenetrationInfo::MS_SLIPPING_FRICTION))
             return _test_master[_i][_qp] * penalty * _phi_master[_j][_qp] * pinfo->_normal(_component) * normal_component_in_coupled_var_dir;
           else
             return 0;
