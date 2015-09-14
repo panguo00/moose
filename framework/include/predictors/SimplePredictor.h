@@ -16,6 +16,8 @@
 #define SIMPLEPREDICTOR_H
 
 #include "Predictor.h"
+#include "FEProblem.h"
+#include <vector>
 
 class SimplePredictor;
 
@@ -54,6 +56,8 @@ public:
 
 protected:
   Real _scale;
+  std::vector<Real> _skip_times;
+  virtual bool shouldApplyThisStep();
 };
 
 #endif /* SIMPLEPREDICTOR_H */
