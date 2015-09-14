@@ -51,9 +51,11 @@
   [../]
   [./inc_slip_y]
   [../]
-  [./accum_slip_x]
+  [./accum_slip]
   [../]
-  [./accum_slip_y]
+  [./tang_force_x]
+  [../]
+  [./tang_force_y]
   [../]
 []
 
@@ -76,31 +78,45 @@
 []
 
 [AuxKernels]
-  [./zeroslip_x]
-    type = ConstantAux
+  [./inc_slip_x]
+    type = PenetrationAux
     variable = inc_slip_x
+    execute_on = timestep_end
+    quantity = incremental_slip_x
     boundary = 3
-    execute_on = timestep_begin
-    value = 0.0
+    paired_boundary = 2
   [../]
-  [./zeroslip_y]
-    type = ConstantAux
+  [./inc_slip_y]
+    type = PenetrationAux
     variable = inc_slip_y
+    execute_on = timestep_end
+    quantity = incremental_slip_y
     boundary = 3
-    execute_on = timestep_begin
-    value = 0.0
+    paired_boundary = 2
   [../]
-  [./accum_slip_x]
-    type = AccumulateAux
-    variable = accum_slip_x
-    accumulate_from_variable = inc_slip_x
+  [./accum_slip]
+    type = PenetrationAux
+    variable = accum_slip
     execute_on = timestep_end
+    quantity = accumulated_slip
+    boundary = 3
+    paired_boundary = 2
   [../]
-  [./accum_slip_y]
-    type = AccumulateAux
-    variable = accum_slip_y
-    accumulate_from_variable = inc_slip_y
+  [./tangential_force_x]
+    type = PenetrationAux
+    variable = tang_force_x
     execute_on = timestep_end
+    quantity = tangential_force_x
+    boundary = 3
+    paired_boundary = 2
+  [../]
+  [./tangential_force_y]
+    type = PenetrationAux
+    variable = tang_force_y
+    execute_on = timestep_end
+    quantity = tangential_force_y
+    boundary = 3
+    paired_boundary = 2
   [../]
   [./penetration]
     type = PenetrationAux
