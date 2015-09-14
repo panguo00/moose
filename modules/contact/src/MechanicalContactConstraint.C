@@ -130,6 +130,7 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
     if (beginning_of_step)
     {
       pinfo->_locked_this_step = 0;
+      pinfo->_stick_locked_this_step = 0;
       pinfo->_starting_elem = it->second->_elem;
       pinfo->_starting_side_num = it->second->_side_num;
       pinfo->_starting_closest_point_ref = it->second->_closest_point_ref;
@@ -141,6 +142,9 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
         pinfo ->_mech_status_old = PenetrationInfo::MS_STICKING;
     }
     pinfo->_incremental_slip_prev_iter = pinfo->_incremental_slip;
+    if (pinfo->_mech_status == PenetrationInfo::MS_SLIPPING &&
+        pinfo->_mech_status_old != PenetrationInfo::MS_SLIPPING)
+      ++pinfo->_stick_locked_this_step;
     pinfo->_mech_status_old = pinfo->_mech_status;
 
     const Real contact_pressure = -(pinfo->_normal * pinfo->_contact_force) / nodalArea(*pinfo);
@@ -349,8 +353,10 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 //          break;
 
 
-          if (tangential_inc_slip_mag >= slip_tol ||
-                   tan_mag >= capacity)
+          if ((tangential_inc_slip_mag >= slip_tol ||
+               tan_mag >= capacity) &&
+              (pinfo->_stick_locked_this_step < 2 ||
+               tan_mag > capacity * 1.5))
           {
             if (tangential_inc_slip_mag >= slip_tol)
             {
@@ -430,6 +436,8 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 //              std::cout<<"BWS slip"<<std::endl;
 //              std::cout<<"BWS tang_force: "<<capacity*contact_force_tangential / tan_mag<<std::endl;
             }
+            if (pinfo->_stick_locked_this_step >= 2)
+              --pinfo->_stick_locked_this_step;
           }
           else
           {
@@ -457,7 +465,6 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 
           // Tangential magnitude of elastic predictor
           const Real tan_mag( contact_force_tangential.size() );
-          distance_vec = distance_vec - pinfo->_incremental_slip;
 
           if ( tan_mag >= capacity )
           {

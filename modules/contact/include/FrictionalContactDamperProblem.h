@@ -45,6 +45,7 @@ protected:
   int _num_sticking;
   int _num_slipping;
   int _num_slipping_friction;
+  int _num_stick_locked;
   int _num_slip_reversed;
   int _num_modified;
   Real _inc_slip_norm;

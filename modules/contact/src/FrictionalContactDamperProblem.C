@@ -35,6 +35,7 @@ FrictionalContactDamperProblem::FrictionalContactDamperProblem(const InputParame
     _num_sticking(0),
     _num_slipping(0),
     _num_slipping_friction(0),
+    _num_stick_locked(0),
     _num_slip_reversed(0),
     _num_modified(0),
     _inc_slip_norm(0.0),
@@ -101,13 +102,14 @@ FrictionalContactDamperProblem::updateSolution(NumericVector<Number>& vec_soluti
   solution_modified = limitSlip(vec_solution, ghosted_solution);
 
   _console << "Contact Damper NL Iteration: " << _num_nl_iterations << std::endl;
-  _console << "Iter   #Cont    #Stick     #Slip #SlipFric  #SlipRev      #Mod" << std::endl;
+  _console << "Iter   #Cont    #Stick     #Slip #SlipFric #StickLock  #SlipRev      #Mod" << std::endl;
 
     _console << std::setw(10) << _num_nl_iterations
              << std::setw(10) << _num_contact_nodes
              << std::setw(10) << _num_sticking
              << std::setw(10) << _num_slipping
              << std::setw(10) << _num_slipping_friction
+             << std::setw(10) << _num_stick_locked
              << std::setw(10) << _num_slip_reversed
              << std::setw(10) << _num_modified
              << std::endl;
@@ -139,6 +141,7 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
     _num_sticking = 0;
     _num_slipping = 0;
     _num_slipping_friction = 0;
+    _num_stick_locked = 0;
     _num_slip_reversed = 0;
     _num_modified = 0;
 
@@ -186,6 +189,8 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
                   _num_slipping++;
                 else if (info._mech_status == PenetrationInfo::MS_SLIPPING_FRICTION)
                   _num_slipping_friction++;
+                if (info._stick_locked_this_step >= 2)
+                  _num_stick_locked++;
 
                 
                 RealVectorValue slip_correction = 0;
@@ -267,6 +272,7 @@ FrictionalContactDamperProblem::limitSlip(NumericVector<Number>& vec_solution, N
     _communicator.sum(_num_sticking);
     _communicator.sum(_num_slipping);
     _communicator.sum(_num_slipping_friction);
+    _communicator.sum(_num_stick_locked);
     _communicator.sum(_num_slip_reversed);
     _communicator.sum(_num_modified);
     _communicator.min(_damping);
