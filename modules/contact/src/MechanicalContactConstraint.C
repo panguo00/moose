@@ -353,12 +353,12 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
 //          break;
 
 
-          if ((tangential_inc_slip_mag >= slip_tol ||
-               tan_mag >= capacity) &&
+          if ((tangential_inc_slip_mag > slip_tol ||
+               tan_mag > capacity) &&
               (pinfo->_stick_locked_this_step < 2 ||
                tan_mag > capacity * 1.5))
           {
-            if (tangential_inc_slip_mag >= slip_tol)
+            if (tangential_inc_slip_mag > slip_tol)
             {
               //RealVectorValue slip_inc_direction = pinfo->_incremental_slip / inc_slip_mag;
               RealVectorValue slip_inc_direction = tangential_inc_slip / tangential_inc_slip_mag;
@@ -466,7 +466,7 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
           // Tangential magnitude of elastic predictor
           const Real tan_mag( contact_force_tangential.size() );
 
-          if ( tan_mag >= capacity )
+          if ( tan_mag > capacity )
           {
             pinfo->_contact_force = contact_force_normal + capacity * contact_force_tangential / tan_mag;
             if (capacity == 0)
