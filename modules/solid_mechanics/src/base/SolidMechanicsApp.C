@@ -61,6 +61,7 @@
 #include "SolidModel.h"
 #include "StressDivergence.h"
 #include "OutOfPlaneStress.h"
+#include "OutOfPlanePressure.h"
 #include "StressDivergenceRZ.h"
 #include "StressDivergenceRSpherical.h"
 #include "RateDepSmearCrackModel.h"
@@ -144,6 +145,7 @@ SolidMechanicsApp::registerObjects(Factory & factory)
   registerKernel(SolidMechImplicitEuler);
   registerKernel(StressDivergence);
   registerKernel(OutOfPlaneStress);
+  registerKernel(OutOfPlanePressure);
   registerKernel(StressDivergenceRZ);
   registerKernel(StressDivergenceRSpherical);
 
