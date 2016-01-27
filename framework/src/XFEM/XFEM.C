@@ -1237,20 +1237,24 @@ XFEM::getPhysicalVolumeFraction(const Elem* elem) const
   return phys_volfrac;
 }
 
-Real
-XFEM::getWeightMultipliers(const Elem* elem, unsigned int i_qp, std::vector<Point> &g_points, std::vector<Real> &g_weights) const
+void
+XFEM::getWeightMultipliers(const Elem* elem, const std::vector<Point> &qp_points, const std::vector<Real> &qp_weights, std::vector<Real> &weight_multipliers) const
 {
-  Real qp_weight = 1.0;
+  weight_multipliers.clear();
+  weight_multipliers.resize(qp_points.size());
   std::map<const Elem*, XFEMCutElem*>::const_iterator it;
   it = _cut_elem_map.find(elem);
   if (it != _cut_elem_map.end())
   {
     XFEMCutElem *xfce = it->second;
-    xfce->set_gauss_points_and_weights(g_points,g_weights);
+    xfce->set_gauss_points_and_weights(qp_points,qp_weights);
     xfce->calc_mf_weights();
-    qp_weight = xfce->get_mf_weights(i_qp);
+    for (unsigned int i=0; i<qp_points.size(); ++i)
+      weight_multipliers[i] = xfce->get_mf_weights(i);
   }
-  return qp_weight;
+  else
+    for (unsigned int i=0; i<qp_points.size(); ++i)
+      weight_multipliers[i] = 1.0;
 }
 
 Real

@@ -54,7 +54,7 @@ protected:
 
 public:
 
-  void set_gauss_points_and_weights(std::vector<Point> &gauss_points, std::vector<Real> &gauss_weights);
+  void set_gauss_points_and_weights(const std::vector<Point> &gauss_points, const std::vector<Real> &gauss_weights);
   virtual void calc_physical_volfrac() = 0;
   Real get_physical_volfrac() const;
   virtual void calc_mf_weights() = 0;

@@ -3812,8 +3812,10 @@ FEProblem::computeXFEMWeights(const Elem * elem, THREAD_ID tid)
     {
       std::vector<Point> qp_points = (_assembly[tid]->qRule())->get_points();
       std::vector<Real>  qp_weights = (_assembly[tid]->qRule())->get_weights();
+      std::vector<Real>  qp_weight_multipliers;
+      _xfem->getWeightMultipliers(undisplaced_elem, qp_points, qp_weights, qp_weight_multipliers);
       for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
-        _xfem_weights[elem->id()][qp] = _xfem->getWeightMultipliers(undisplaced_elem, qp, qp_points, qp_weights);
+        _xfem_weights[elem->id()][qp] = qp_weight_multipliers[qp];
       break;
     }
     case DIRECT: // remove q-points outside the partial element's physical domain

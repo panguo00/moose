@@ -102,7 +102,7 @@ public:
    * Get the volume fraction of an element that is physical
    */
   Real getPhysicalVolumeFraction(const Elem* elem) const;
-  Real getWeightMultipliers(const Elem* elem, unsigned int i_qp, std::vector<Point> &g_points, std::vector<Real> &g_weights) const;
+  void getWeightMultipliers(const Elem* elem, const std::vector<Point> &qp_points, const std::vector<Real> &qp_weights, std::vector<Real> &weight_multipliers) const;
   Real isQpPhysical(const Elem* elem, const Point & p) const;
 
   /**
