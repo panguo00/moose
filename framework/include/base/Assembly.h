@@ -466,7 +466,7 @@ public:
   */
   void setXFEMWeights(std::vector<Real> & xfem_weights, const Elem* elem);
 
-  void updateXFEMWeights(const Elem* elem);
+  void updateWeightsDueToXFEM(const Elem* elem);
 
 protected:
   /**
@@ -547,7 +547,7 @@ protected:
   /// The current list of transformed jacobian weights
   MooseArray<Real> _current_JxW;
   /// The XFEM integration weights
-  std::map<dof_id_type, MooseArray<Real> > _xfem_weights_map;
+  std::map<dof_id_type, MooseArray<Real> > _xfem_weights;
   /// The coordinate system
   Moose::CoordinateSystemType _coord_type;
   /// The current coordinate transformation coefficients

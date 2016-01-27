@@ -1240,7 +1240,7 @@ XFEM::get_elem_phys_volfrac(const Elem* elem) const
 }
 
 Real
-XFEM::get_elem_new_weights(const Elem* elem, unsigned int i_qp, std::vector<Point> &g_points, std::vector<Real> &g_weights) const // ZZY
+XFEM::get_elem_new_weights(const Elem* elem, unsigned int i_qp, std::vector<Point> &g_points, std::vector<Real> &g_weights) const
 {
   Real qp_weight = 1.0;
   std::map<const Elem*, XFEMCutElem*>::const_iterator it;

@@ -124,10 +124,10 @@ public:
 
   XFEM * get_xfem(){return &_xfem;}
   void get_xfem_weights(const Elem * elem, THREAD_ID tid);
-  std::vector<Real> & xfem_weights(dof_id_type id){return _xfem_JxW[id];}
-  void reinitXFEMWeights();
-  bool isUseXFEM() {return _is_use_xfem;}
-  void setUseXFEM() {_is_use_xfem = true;}
+  std::vector<Real> & xfem_weights(dof_id_type id){return _xfem_weights[id];}
+  void clearXFEMWeights();
+  bool haveXFEM() {return _have_xfem;}
+  void setHaveXFEM() {_have_xfem = true;}
 
   virtual EquationSystems & es() { return _eq; }
   virtual MooseMesh & mesh() { return _mesh; }
@@ -815,9 +815,11 @@ public:
   // Adaptivity /////
   Adaptivity & adaptivity() { return _adaptivity; }
   virtual void adaptMesh();
-  virtual bool xfemUpdateMesh();
 #endif //LIBMESH_ENABLE_AMR
   virtual void meshChanged();
+
+  // Update the mesh due to changing XFEM cuts
+  virtual bool xfemUpdateMesh();
 
   /**
    * Register an object that derives from MeshChangedInterface
@@ -1105,8 +1107,8 @@ protected:
 #endif
 
   XFEM _xfem;
-  std::map<dof_id_type, std::vector<Real> > _xfem_JxW;
-  bool _is_use_xfem;
+  std::map<dof_id_type, std::vector<Real> > _xfem_weights;
+  bool _have_xfem;
 
   // Displaced mesh /////
   MooseMesh * _displaced_mesh;

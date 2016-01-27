@@ -420,9 +420,9 @@ Assembly::reinitFE(const Elem * elem)
   }
 
   if (do_caching)
-    efesd->_invalidated = false; 
+    efesd->_invalidated = false;
 
-  updateXFEMWeights(elem);
+  updateWeightsDueToXFEM(elem);
 }
 
 void
@@ -1551,22 +1551,22 @@ Assembly::clearCachedJacobianContributions()
 }
 
 void
-Assembly::updateXFEMWeights(const Elem *elem)
+Assembly::updateWeightsDueToXFEM(const Elem *elem)
 {
- if((_xfem_weights_map.find(elem->id()) != _xfem_weights_map.end())){
-    mooseAssert(_xfem_weights_map[elem->id()].size()==_current_JxW.size(),"wrong number of entries in xfem_weights"); 
-      for(unsigned i = 0; i < _xfem_weights_map[elem->id()].size(); i++){ 
-        _current_JxW[i] = _current_JxW[i] * _xfem_weights_map[elem->id()][i]; 
+ if((_xfem_weights.find(elem->id()) != _xfem_weights.end())){
+    mooseAssert(_xfem_weights[elem->id()].size()==_current_JxW.size(),"wrong number of entries in xfem_weights");
+      for(unsigned i = 0; i < _xfem_weights[elem->id()].size(); i++){
+        _current_JxW[i] = _current_JxW[i] * _xfem_weights[elem->id()][i];
       }
-   } 
+   }
 }
 
 void
 Assembly::setXFEMWeights(std::vector<Real> & xfem_weights, const Elem * elem)
 {
-  _xfem_weights_map[elem->id()].resize(xfem_weights.size());
+  _xfem_weights[elem->id()].resize(xfem_weights.size());
 
   for(unsigned i = 0; i < xfem_weights.size(); i++)
-    _xfem_weights_map[elem->id()][i] = xfem_weights[i]; 
+    _xfem_weights[elem->id()][i] = xfem_weights[i];
 }
 
