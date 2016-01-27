@@ -462,14 +462,7 @@ public:
   void addCachedJacobianContributions(SparseMatrix<Number> & jacobian);
 
   /**
-   * Update the integration weights for XFEM partial elements.
-   * This only affects the weights if XFEM is used and if the element is cut.
-   * @param elem The element for which the weights are adjusted
-  */
-  void updateWeightsDueToXFEM(const Elem* elem);
-
-  /**
-   * Set  XFEM integration weights
+   * Set XFEM integration weights
    * @param xfem_weights Vector of weight multipliers (sized by number of qps)
    * @param elem         The element for which these weights apply
   */
@@ -514,6 +507,13 @@ protected:
    * This is automatically called by setCachedJacobianContributions and addCachedJacobianContributions
    */
   void clearCachedJacobianContributions();
+
+  /**
+   * Update the integration weights for XFEM partial elements.
+   * This only affects the weights if XFEM is used and if the element is cut.
+   * @param elem The element for which the weights are adjusted
+  */
+  void modifyWeightsDueToXFEM(const Elem* elem);
 
   SystemBase & _sys;
   /// Reference to coupling matrix

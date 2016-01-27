@@ -575,7 +575,7 @@ XFEM::mark_cut_edges_by_state(Real time)
     EFAelement * EFAelem = _efa_mesh.getElemByID(elem->id());
     EFAelement2D * CEMElem = dynamic_cast<EFAelement2D*>(EFAelem);
 
-    Real volfrac_elem = get_elem_phys_volfrac(elem);
+    Real volfrac_elem = getPhysicalVolumeFraction(elem);
     if (volfrac_elem < 0.25)
       continue;
 
@@ -1219,7 +1219,7 @@ XFEM::get_efa_node_coor(EFAnode* CEMnode, EFAelement* CEMElem,
 }
 
 Real
-XFEM::get_elem_phys_volfrac(const Elem* elem) const
+XFEM::getPhysicalVolumeFraction(const Elem* elem) const
 {
   Real phys_volfrac = 1.0;
   std::map<const Elem*, XFEMCutElem*>::const_iterator it;
@@ -1238,7 +1238,7 @@ XFEM::get_elem_phys_volfrac(const Elem* elem) const
 }
 
 Real
-XFEM::get_elem_new_weights(const Elem* elem, unsigned int i_qp, std::vector<Point> &g_points, std::vector<Real> &g_weights) const
+XFEM::getWeightMultipliers(const Elem* elem, unsigned int i_qp, std::vector<Point> &g_points, std::vector<Real> &g_weights) const
 {
   Real qp_weight = 1.0;
   std::map<const Elem*, XFEMCutElem*>::const_iterator it;
@@ -1254,7 +1254,7 @@ XFEM::get_elem_new_weights(const Elem* elem, unsigned int i_qp, std::vector<Poin
 }
 
 Real
-XFEM::flag_qp_inside(const Elem* elem, const Point & p) const
+XFEM::isQpPhysical(const Elem* elem, const Point & p) const
 {
   // get the flag indicating if a QP is inside the physical domain of a partial element
   Real flag = 1.0; // default value - qp inside physical domain

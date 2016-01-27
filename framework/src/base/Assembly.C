@@ -422,7 +422,7 @@ Assembly::reinitFE(const Elem * elem)
   if (do_caching)
     efesd->_invalidated = false;
 
-  updateWeightsDueToXFEM(elem);
+  modifyWeightsDueToXFEM(elem);
 }
 
 void
@@ -1551,17 +1551,6 @@ Assembly::clearCachedJacobianContributions()
 }
 
 void
-Assembly::updateWeightsDueToXFEM(const Elem *elem)
-{
- if((_xfem_weights.find(elem->id()) != _xfem_weights.end())){
-    mooseAssert(_xfem_weights[elem->id()].size()==_current_JxW.size(),"wrong number of entries in xfem_weights");
-      for(unsigned i = 0; i < _xfem_weights[elem->id()].size(); i++){
-        _current_JxW[i] = _current_JxW[i] * _xfem_weights[elem->id()][i];
-      }
-   }
-}
-
-void
 Assembly::setXFEMWeights(MooseArray<Real> & xfem_weights, const Elem * elem)
 {
   _xfem_weights[elem->id()].resize(xfem_weights.size());
@@ -1579,4 +1568,15 @@ Assembly::clearXFEMWeights()
   for (;it != end; ++it)
     (it->second).clear();
   _xfem_weights.clear();
+}
+
+void
+Assembly::modifyWeightsDueToXFEM(const Elem *elem)
+{
+ if((_xfem_weights.find(elem->id()) != _xfem_weights.end())){
+    mooseAssert(_xfem_weights[elem->id()].size()==_current_JxW.size(),"wrong number of entries in xfem_weights");
+      for(unsigned i = 0; i < _xfem_weights[elem->id()].size(); i++){
+        _current_JxW[i] = _current_JxW[i] * _xfem_weights[elem->id()][i];
+      }
+   }
 }

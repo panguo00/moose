@@ -37,5 +37,5 @@ XFEMVolFracAux::XFEMVolFracAux(const InputParameters & parameters)
 Real
 XFEMVolFracAux::computeValue()
 {
-  return _xfem->get_elem_phys_volfrac(_current_elem);
+  return _xfem->getPhysicalVolumeFraction(_current_elem);
 }

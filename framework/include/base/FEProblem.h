@@ -122,13 +122,6 @@ public:
   FEProblem(const InputParameters & parameters);
   virtual ~FEProblem();
 
-  XFEM * createXFEM();
-  XFEM * getXFEM(){return _xfem;}
-  void computeXFEMWeights(const Elem * elem, THREAD_ID tid);
-  MooseArray<Real> & getXFEMWeights(dof_id_type id){return _xfem_weights[id];}
-  void clearXFEMWeights();
-  bool haveXFEM() {return _xfem != NULL;}
-
   virtual EquationSystems & es() { return _eq; }
   virtual MooseMesh & mesh() { return _mesh; }
 
@@ -816,10 +809,36 @@ public:
   Adaptivity & adaptivity() { return _adaptivity; }
   virtual void adaptMesh();
 #endif //LIBMESH_ENABLE_AMR
-  virtual void meshChanged();
 
-  // Update the mesh due to changing XFEM cuts
-  virtual bool xfemUpdateMesh();
+  /// Create XFEM controller object
+  XFEM * createXFEM();
+
+  /// Get a pointer to the XFEM controller object
+  XFEM * getXFEM(){return _xfem;}
+
+  /**
+   * Compute the qp weight multipliers for XFEM partial elements
+   * @param elem Current element
+   * @param tid  Current thread id
+   */
+  void computeXFEMWeights(const Elem * elem, THREAD_ID tid);
+
+  /**
+   * Get the qp weight multipliers for a specified element
+   * @param id Element id
+   */
+  MooseArray<Real> & getXFEMWeights(dof_id_type id){ return _xfem_weights[id]; }
+
+  /// Clear the map of XFEM qp weight multipliers
+  void clearXFEMWeights();
+
+  /// Find out whether the current analysis is using XFEM
+  bool haveXFEM() { return _xfem != NULL; }
+
+  /// Update the mesh due to changing XFEM cuts
+  virtual bool updateMeshXFEM();
+
+  virtual void meshChanged();
 
   /**
    * Register an object that derives from MeshChangedInterface
@@ -1106,7 +1125,10 @@ protected:
   Adaptivity _adaptivity;
 #endif
 
+  /// Pointer to XFEM controller
   XFEM * _xfem;
+
+  ///Weight factors used by XFEM to modify qp weights for partial elements
   std::map<dof_id_type, MooseArray<Real> > _xfem_weights;
 
   // Displaced mesh /////

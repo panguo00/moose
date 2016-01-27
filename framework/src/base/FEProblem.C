@@ -692,78 +692,9 @@ FEProblem::getMaxScalarOrder() const
   return _max_scalar_order;
 }
 
-XFEM *
-FEProblem::createXFEM()
-{
-  if (!_xfem)
-  {
-    if (!_displaced_mesh)
-      _xfem = new XFEM(_material_data, &_mesh.getMesh());
-    else
-      _xfem = new XFEM(_material_data, &_mesh.getMesh(), &_displaced_mesh->getMesh());
-  }
-  return _xfem;
-}
-
-void
-FEProblem::clearXFEMWeights()
-{
-  std::map<dof_id_type, MooseArray<Real> > ::iterator it  = _xfem_weights.begin();
-  std::map<dof_id_type, MooseArray<Real> > ::iterator end  = _xfem_weights.end();
-
-  for (;it != end; ++it)
-    (it->second).clear();
-  _xfem_weights.clear();
-
-  for (unsigned int i = 0; i < libMesh::n_threads(); ++i){
-    _assembly[i]->clearXFEMWeights();
-  }
-}
-
-void
-FEProblem::computeXFEMWeights(const Elem * elem, THREAD_ID tid)
-{
-  mooseAssert(_xfem != NULL, "XFEM not initialized");
-  _xfem_weights[elem->id()].clear();
-  const Elem * undisplaced_elem  = NULL;
-  if(_displaced_problem != NULL)
-  {
-    undisplaced_elem = _displaced_problem->refMesh().elem(elem->id());
-  } 
-  else
-    undisplaced_elem = elem;
-  
-  _xfem_weights[elem->id()].resize((_assembly[tid]->qRule())->n_points(), 1.0);
-
-  switch (_xfem->get_xfem_qrule())
-  {
-    case VOLFRAC:
-    {
-      Real volfrac = _xfem->get_elem_phys_volfrac(undisplaced_elem);
-      for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
-        _xfem_weights[elem->id()][qp] = volfrac;
-      break;
-    }
-    case MOMENT_FITTING:
-    {
-      std::vector<Point> qp_points = (_assembly[tid]->qRule())->get_points();
-      std::vector<Real>  qp_weights = (_assembly[tid]->qRule())->get_weights();
-      for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
-        _xfem_weights[elem->id()][qp] = _xfem->get_elem_new_weights(undisplaced_elem, qp, qp_points, qp_weights);
-      break;
-    }
-    case DIRECT: // remove q-points outside the partial element's physical domain
-      for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
-        _xfem_weights[elem->id()][qp] = _xfem->flag_qp_inside(undisplaced_elem, (_assembly[tid]->qPoints())[qp]);
-      break;
-    default:
-      mooseError("Undefined option for XFEM_QRULE");
-  }
-}
-
 void
 FEProblem::prepare(const Elem * elem, THREAD_ID tid)
-{ 
+{
   if (haveXFEM() &&
       elem->is_semilocal(_mesh.processor_id()) &&
       _xfem->is_elem_cut(elem))
@@ -3840,8 +3771,77 @@ FEProblem::adaptMesh()
 }
 #endif //LIBMESH_ENABLE_AMR
 
+XFEM *
+FEProblem::createXFEM()
+{
+  if (!_xfem)
+  {
+    if (!_displaced_mesh)
+      _xfem = new XFEM(_material_data, &_mesh.getMesh());
+    else
+      _xfem = new XFEM(_material_data, &_mesh.getMesh(), &_displaced_mesh->getMesh());
+  }
+  return _xfem;
+}
+
+void
+FEProblem::computeXFEMWeights(const Elem * elem, THREAD_ID tid)
+{
+  mooseAssert(_xfem != NULL, "XFEM not initialized");
+  _xfem_weights[elem->id()].clear();
+  const Elem * undisplaced_elem  = NULL;
+  if(_displaced_problem != NULL)
+  {
+    undisplaced_elem = _displaced_problem->refMesh().elem(elem->id());
+  }
+  else
+    undisplaced_elem = elem;
+
+  _xfem_weights[elem->id()].resize((_assembly[tid]->qRule())->n_points(), 1.0);
+
+  switch (_xfem->get_xfem_qrule())
+  {
+    case VOLFRAC:
+    {
+      Real volfrac = _xfem->getPhysicalVolumeFraction(undisplaced_elem);
+      for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
+        _xfem_weights[elem->id()][qp] = volfrac;
+      break;
+    }
+    case MOMENT_FITTING:
+    {
+      std::vector<Point> qp_points = (_assembly[tid]->qRule())->get_points();
+      std::vector<Real>  qp_weights = (_assembly[tid]->qRule())->get_weights();
+      for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
+        _xfem_weights[elem->id()][qp] = _xfem->getWeightMultipliers(undisplaced_elem, qp, qp_points, qp_weights);
+      break;
+    }
+    case DIRECT: // remove q-points outside the partial element's physical domain
+      for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
+        _xfem_weights[elem->id()][qp] = _xfem->isQpPhysical(undisplaced_elem, (_assembly[tid]->qPoints())[qp]);
+      break;
+    default:
+      mooseError("Undefined option for XFEM_QRULE");
+  }
+}
+
+void
+FEProblem::clearXFEMWeights()
+{
+  std::map<dof_id_type, MooseArray<Real> > ::iterator it  = _xfem_weights.begin();
+  std::map<dof_id_type, MooseArray<Real> > ::iterator end  = _xfem_weights.end();
+
+  for (;it != end; ++it)
+    (it->second).clear();
+  _xfem_weights.clear();
+
+  for (unsigned int i = 0; i < libMesh::n_threads(); ++i){
+    _assembly[i]->clearXFEMWeights();
+  }
+}
+
 bool
-FEProblem::xfemUpdateMesh()
+FEProblem::updateMeshXFEM()
 {
   bool updated = false;
   if (haveXFEM())
