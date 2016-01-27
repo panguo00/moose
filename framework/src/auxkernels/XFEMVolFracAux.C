@@ -31,7 +31,7 @@ XFEMVolFracAux::XFEMVolFracAux(const InputParameters & parameters)
   FEProblem * fe_problem = dynamic_cast<FEProblem *>(&_subproblem);
   if (fe_problem == NULL)
     mooseError("Problem casting _subproblem to FEProblem in XFEMVolFracAux");
-  _xfem = fe_problem->get_xfem();
+  _xfem = fe_problem->getXFEM();
 }
 
 Real

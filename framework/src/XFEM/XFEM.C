@@ -212,8 +212,6 @@ XFEM::store_crack_tip_origin_and_direction()
 bool
 XFEM::update(Real time)
 {
-//  parallel_only();
-
   bool mesh_changed = false;
 
   build_efa_mesh();

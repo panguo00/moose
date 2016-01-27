@@ -74,11 +74,6 @@
 #include "Control.h"
 #include "ScalarInitialCondition.h"
 #include "InternalSideIndicator.h"
-#include "XFEM_geometric_cut.h"
-#include "XFEM_geometric_cut_2d.h"
-#include "XFEM_square_cut.h"
-#include "XFEM_circle_cut.h"
-#include "XFEM_ellipse_cut.h"
 
 #include "libmesh/exodusII_io.h"
 #include "libmesh/quadrature.h"
@@ -128,8 +123,7 @@ FEProblem::FEProblem(const InputParameters & parameters) :
 #ifdef LIBMESH_ENABLE_AMR
     _adaptivity(*this),
 #endif
-    _xfem(_material_data, &_mesh.getMesh()),
-    _have_xfem(false),
+    _xfem(NULL),
     _displaced_mesh(NULL),
     _geometric_search_data(*this, _mesh),
     _reinit_displaced_elem(false),
@@ -252,6 +246,7 @@ FEProblem::~FEProblem()
        it != _random_data_objects.end(); ++it)
     delete it->second;
 
+  delete _xfem;
 }
 
 Moose::CoordinateSystemType
@@ -697,20 +692,38 @@ FEProblem::getMaxScalarOrder() const
   return _max_scalar_order;
 }
 
+XFEM *
+FEProblem::createXFEM()
+{
+  if (!_xfem)
+  {
+    if (!_displaced_mesh)
+      _xfem = new XFEM(_material_data, &_mesh.getMesh());
+    else
+      _xfem = new XFEM(_material_data, &_mesh.getMesh(), &_displaced_mesh->getMesh());
+  }
+  return _xfem;
+}
+
 void
 FEProblem::clearXFEMWeights()
 {
-  std::map<dof_id_type, std::vector<Real> > ::iterator it  = _xfem_weights.begin();
-  std::map<dof_id_type, std::vector<Real> > ::iterator end  = _xfem_weights.end();
+  std::map<dof_id_type, MooseArray<Real> > ::iterator it  = _xfem_weights.begin();
+  std::map<dof_id_type, MooseArray<Real> > ::iterator end  = _xfem_weights.end();
 
   for (;it != end; ++it)
     (it->second).clear();
   _xfem_weights.clear();
+
+  for (unsigned int i = 0; i < libMesh::n_threads(); ++i){
+    _assembly[i]->clearXFEMWeights();
+  }
 }
 
 void
-FEProblem::get_xfem_weights(const Elem * elem, THREAD_ID tid)
+FEProblem::computeXFEMWeights(const Elem * elem, THREAD_ID tid)
 {
+  mooseAssert(_xfem != NULL, "XFEM not initialized");
   _xfem_weights[elem->id()].clear();
   const Elem * undisplaced_elem  = NULL;
   if(_displaced_problem != NULL)
@@ -722,11 +735,11 @@ FEProblem::get_xfem_weights(const Elem * elem, THREAD_ID tid)
   
   _xfem_weights[elem->id()].resize((_assembly[tid]->qRule())->n_points(), 1.0);
 
-  switch (_xfem.get_xfem_qrule())
+  switch (_xfem->get_xfem_qrule())
   {
     case VOLFRAC:
     {
-      Real volfrac = _xfem.get_elem_phys_volfrac(undisplaced_elem);
+      Real volfrac = _xfem->get_elem_phys_volfrac(undisplaced_elem);
       for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
         _xfem_weights[elem->id()][qp] = volfrac;
       break;
@@ -736,12 +749,12 @@ FEProblem::get_xfem_weights(const Elem * elem, THREAD_ID tid)
       std::vector<Point> qp_points = (_assembly[tid]->qRule())->get_points();
       std::vector<Real>  qp_weights = (_assembly[tid]->qRule())->get_weights();
       for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
-        _xfem_weights[elem->id()][qp] = _xfem.get_elem_new_weights(undisplaced_elem, qp, qp_points, qp_weights);
+        _xfem_weights[elem->id()][qp] = _xfem->get_elem_new_weights(undisplaced_elem, qp, qp_points, qp_weights);
       break;
     }
     case DIRECT: // remove q-points outside the partial element's physical domain
       for (unsigned qp = 0; qp < (_assembly[tid]->qRule())->n_points(); qp++)
-        _xfem_weights[elem->id()][qp] = _xfem.flag_qp_inside(undisplaced_elem, (_assembly[tid]->qPoints())[qp]);
+        _xfem_weights[elem->id()][qp] = _xfem->flag_qp_inside(undisplaced_elem, (_assembly[tid]->qPoints())[qp]);
       break;
     default:
       mooseError("Undefined option for XFEM_QRULE");
@@ -753,10 +766,10 @@ FEProblem::prepare(const Elem * elem, THREAD_ID tid)
 { 
   if (haveXFEM() &&
       elem->is_semilocal(_mesh.processor_id()) &&
-      _xfem.is_elem_cut(elem))
+      _xfem->is_elem_cut(elem))
   {
     if (_xfem_weights[elem->id()].size() == 0)
-      get_xfem_weights(elem,tid);
+      computeXFEMWeights(elem,tid);
     _assembly[tid]->setXFEMWeights(_xfem_weights[elem->id()],elem);
   }
 
@@ -3763,7 +3776,6 @@ FEProblem::addDisplacedProblem(MooseSharedPointer<DisplacedProblem> displaced_pr
 {
   _displaced_mesh = &displaced_problem->mesh();
   _displaced_problem = displaced_problem;
-  _xfem.setSecondMesh(&_displaced_mesh->getMesh());
 }
 
 void
@@ -3831,12 +3843,16 @@ FEProblem::adaptMesh()
 bool
 FEProblem::xfemUpdateMesh()
 {
-  bool updated = _xfem.update(_time);
-  if (updated)
+  bool updated = false;
+  if (haveXFEM())
   {
-    meshChanged();
-    _xfem.initSolution(_nl, _aux);
-    restoreSolutions();
+    updated = _xfem->update(_time);
+    if (updated)
+    {
+      meshChanged();
+      _xfem->initSolution(_nl, _aux);
+      restoreSolutions();
+    }
   }
   return updated;
 }

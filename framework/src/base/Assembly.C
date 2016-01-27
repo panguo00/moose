@@ -1562,7 +1562,7 @@ Assembly::updateWeightsDueToXFEM(const Elem *elem)
 }
 
 void
-Assembly::setXFEMWeights(std::vector<Real> & xfem_weights, const Elem * elem)
+Assembly::setXFEMWeights(MooseArray<Real> & xfem_weights, const Elem * elem)
 {
   _xfem_weights[elem->id()].resize(xfem_weights.size());
 
@@ -1570,3 +1570,13 @@ Assembly::setXFEMWeights(std::vector<Real> & xfem_weights, const Elem * elem)
     _xfem_weights[elem->id()][i] = xfem_weights[i];
 }
 
+void
+Assembly::clearXFEMWeights()
+{
+  std::map<dof_id_type, MooseArray<Real> > ::iterator it  = _xfem_weights.begin();
+  std::map<dof_id_type, MooseArray<Real> > ::iterator end  = _xfem_weights.end();
+
+  for (;it != end; ++it)
+    (it->second).clear();
+  _xfem_weights.clear();
+}

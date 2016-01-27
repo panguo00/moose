@@ -122,12 +122,12 @@ public:
   FEProblem(const InputParameters & parameters);
   virtual ~FEProblem();
 
-  XFEM * get_xfem(){return &_xfem;}
-  void get_xfem_weights(const Elem * elem, THREAD_ID tid);
-  std::vector<Real> & xfem_weights(dof_id_type id){return _xfem_weights[id];}
+  XFEM * createXFEM();
+  XFEM * getXFEM(){return _xfem;}
+  void computeXFEMWeights(const Elem * elem, THREAD_ID tid);
+  MooseArray<Real> & getXFEMWeights(dof_id_type id){return _xfem_weights[id];}
   void clearXFEMWeights();
-  bool haveXFEM() {return _have_xfem;}
-  void setHaveXFEM() {_have_xfem = true;}
+  bool haveXFEM() {return _xfem != NULL;}
 
   virtual EquationSystems & es() { return _eq; }
   virtual MooseMesh & mesh() { return _mesh; }
@@ -1106,9 +1106,8 @@ protected:
   Adaptivity _adaptivity;
 #endif
 
-  XFEM _xfem;
-  std::map<dof_id_type, std::vector<Real> > _xfem_weights;
-  bool _have_xfem;
+  XFEM * _xfem;
+  std::map<dof_id_type, MooseArray<Real> > _xfem_weights;
 
   // Displaced mesh /////
   MooseMesh * _displaced_mesh;

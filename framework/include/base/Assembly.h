@@ -462,11 +462,23 @@ public:
   void addCachedJacobianContributions(SparseMatrix<Number> & jacobian);
 
   /**
-  * Set  XFEM integration weights
+   * Update the integration weights for XFEM partial elements.
+   * This only affects the weights if XFEM is used and if the element is cut.
+   * @param elem The element for which the weights are adjusted
   */
-  void setXFEMWeights(std::vector<Real> & xfem_weights, const Elem* elem);
-
   void updateWeightsDueToXFEM(const Elem* elem);
+
+  /**
+   * Set  XFEM integration weights
+   * @param xfem_weights Vector of weight multipliers (sized by number of qps)
+   * @param elem         The element for which these weights apply
+  */
+  void setXFEMWeights(MooseArray<Real> & xfem_weights, const Elem* elem);
+
+  /**
+   * Clear the map of XFEM weights
+  */
+  void clearXFEMWeights();
 
 protected:
   /**
