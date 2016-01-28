@@ -38,7 +38,7 @@ ElementFragmentAlgorithm::ElementFragmentAlgorithm()
 
 ElementFragmentAlgorithm::~ElementFragmentAlgorithm()
 {
-  std::map<unsigned int, EFAnode*>::iterator mit;
+  std::map<unsigned int, EFANode*>::iterator mit;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
   {
     delete mit->second;
@@ -54,7 +54,7 @@ ElementFragmentAlgorithm::~ElementFragmentAlgorithm()
     delete mit->second;
     mit->second = NULL;
   }
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {
     delete eit->second;
@@ -74,7 +74,7 @@ ElementFragmentAlgorithm::add2DElements( std::vector< std::vector<unsigned int> 
   for(unsigned int i = 0; i < quads.size(); ++i)
   {
     unsigned int new_elem_id = getNewID(_elements);
-    EfaElement2D* newElem = new EfaElement2D(new_elem_id, num_nodes);
+    EFAElement2D* newElem = new EFAElement2D(new_elem_id, num_nodes);
     _elements.insert(std::make_pair(new_elem_id,newElem));
 
     if (i == 0)
@@ -82,11 +82,11 @@ ElementFragmentAlgorithm::add2DElements( std::vector< std::vector<unsigned int> 
 
     for (unsigned int j = 0; j < num_nodes; ++j)
     {
-      EFAnode * currNode = NULL;
-      std::map<unsigned int, EFAnode*>::iterator mit = _permanent_nodes.find(quads[i][j]);
+      EFANode * currNode = NULL;
+      std::map<unsigned int, EFANode*>::iterator mit = _permanent_nodes.find(quads[i][j]);
       if (mit == _permanent_nodes.end())
       {
-        currNode = new EFAnode(quads[i][j],N_CATEGORY_PERMANENT);
+        currNode = new EFANode(quads[i][j],N_CATEGORY_PERMANENT);
         _permanent_nodes.insert(std::make_pair(quads[i][j],currNode));
       }
       else
@@ -100,25 +100,25 @@ ElementFragmentAlgorithm::add2DElements( std::vector< std::vector<unsigned int> 
   return first_id;
 }
 
-EfaElement*
+EFAElement*
 ElementFragmentAlgorithm::add2DElement( std::vector<unsigned int> quad, unsigned int id )
 {
   unsigned int num_nodes = quad.size();
 
-  std::map<unsigned int, EfaElement*>::iterator mit = _elements.find(id);
+  std::map<unsigned int, EFAElement*>::iterator mit = _elements.find(id);
   if (mit != _elements.end())
     CutElemMeshError("In add2DElement element with id: "<<id<<" already exists")
 
-  EfaElement2D* newElem = new EfaElement2D(id, num_nodes);
+  EFAElement2D* newElem = new EFAElement2D(id, num_nodes);
   _elements.insert(std::make_pair(id,newElem));
 
   for (unsigned int j = 0; j < num_nodes; ++j)
   {
-    EFAnode * currNode = NULL;
-    std::map<unsigned int, EFAnode*>::iterator mit = _permanent_nodes.find(quad[j]);
+    EFANode * currNode = NULL;
+    std::map<unsigned int, EFANode*>::iterator mit = _permanent_nodes.find(quad[j]);
     if (mit == _permanent_nodes.end())
     {
-      currNode = new EFAnode(quad[j],N_CATEGORY_PERMANENT);
+      currNode = new EFANode(quad[j],N_CATEGORY_PERMANENT);
       _permanent_nodes.insert(std::make_pair(quad[j],currNode));
     }
     else
@@ -131,7 +131,7 @@ ElementFragmentAlgorithm::add2DElement( std::vector<unsigned int> quad, unsigned
   return newElem;
 }
 
-EfaElement*
+EFAElement*
 ElementFragmentAlgorithm::add3DElement( std::vector<unsigned int> quad, unsigned int id )
 {
   unsigned int num_nodes = quad.size();
@@ -143,20 +143,20 @@ ElementFragmentAlgorithm::add3DElement( std::vector<unsigned int> quad, unsigned
   else
     CutElemMeshError("In add3DElement element with id: "<<id<<" has invalid num_nodes")
 
-  std::map<unsigned int, EfaElement*>::iterator mit = _elements.find(id);
+  std::map<unsigned int, EFAElement*>::iterator mit = _elements.find(id);
   if (mit != _elements.end())
     CutElemMeshError("In add3DElement element with id: "<<id<<" already exists")
 
-  EfaElement3D* newElem = new EfaElement3D(id, num_nodes, num_faces);
+  EFAElement3D* newElem = new EFAElement3D(id, num_nodes, num_faces);
   _elements.insert(std::make_pair(id,newElem));
 
   for (unsigned int j = 0; j < num_nodes; ++j)
   {
-    EFAnode * currNode = NULL;
-    std::map<unsigned int, EFAnode*>::iterator mit = _permanent_nodes.find(quad[j]);
+    EFANode * currNode = NULL;
+    std::map<unsigned int, EFANode*>::iterator mit = _permanent_nodes.find(quad[j]);
     if (mit == _permanent_nodes.end())
     {
-      currNode = new EFAnode(quad[j],N_CATEGORY_PERMANENT);
+      currNode = new EFANode(quad[j],N_CATEGORY_PERMANENT);
       _permanent_nodes.insert(std::make_pair(quad[j],currNode));
     }
     else
@@ -172,22 +172,22 @@ ElementFragmentAlgorithm::add3DElement( std::vector<unsigned int> quad, unsigned
 void
 ElementFragmentAlgorithm::updateEdgeNeighbors()
 {
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
-    EfaElement* elem = eit->second;
+    EFAElement* elem = eit->second;
     elem->clear_neighbors();
   }
 
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
-    EfaElement* curr_elem = eit->second;
+    EFAElement* curr_elem = eit->second;
     curr_elem->setup_neighbors(_inverse_connectivity);
   } // loop over all elements
 
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
-    EfaElement *curr_elem = eit->second;
+    EFAElement *curr_elem = eit->second;
     curr_elem->neighbor_sanity_check();
   }
 }
@@ -196,10 +196,10 @@ void
 ElementFragmentAlgorithm::initCrackTipTopology()
 {
   _crack_tip_elements.clear(); // re-build CrackTipElements!
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
-    EfaElement *curr_elem = eit->second;
+    EFAElement *curr_elem = eit->second;
     curr_elem->init_crack_tip(_crack_tip_elements); // CrackTipElements changed here
   }
 }
@@ -208,11 +208,11 @@ void
 ElementFragmentAlgorithm::addElemEdgeIntersection(unsigned int elemid, unsigned int edgeid, double position)
 {
   // this method is called when we are marking cut edges
-  std::map<unsigned int, EfaElement*>::iterator eit = _elements.find(elemid);
+  std::map<unsigned int, EFAElement*>::iterator eit = _elements.find(elemid);
   if (eit == _elements.end())
     CutElemMeshError("Could not find element with id: "<<elemid<<" in addEdgeIntersection")
 
-  EfaElement2D *curr_elem = dynamic_cast<EfaElement2D*>(eit->second);
+  EFAElement2D *curr_elem = dynamic_cast<EFAElement2D*>(eit->second);
   if (!curr_elem)
     CutElemMeshError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
   curr_elem->add_edge_cut(edgeid, position, NULL, _embedded_nodes, true);
@@ -222,11 +222,11 @@ void
 ElementFragmentAlgorithm::addFragEdgeIntersection(unsigned int elemid, unsigned int frag_edge_id, double position)
 {
   // N.B. this method must be called after addEdgeIntersection
-  std::map<unsigned int, EfaElement*>::iterator eit = _elements.find(elemid);
+  std::map<unsigned int, EFAElement*>::iterator eit = _elements.find(elemid);
   if (eit == _elements.end())
     CutElemMeshError("Could not find element with id: "<<elemid<<" in addFragEdgeIntersection")
 
-  EfaElement2D *elem = dynamic_cast<EfaElement2D*>(eit->second);
+  EFAElement2D *elem = dynamic_cast<EFAElement2D*>(eit->second);
   if (!elem)
     CutElemMeshError("addFragEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
   elem->add_frag_edge_cut(frag_edge_id, position, _embedded_nodes);
@@ -237,11 +237,11 @@ ElementFragmentAlgorithm::addElemFaceIntersection(unsigned int elemid, unsigned 
                                                   std::vector<unsigned int> edgeid, std::vector<double> position)
 {
   // this method is called when we are marking cut edges
-  std::map<unsigned int, EfaElement*>::iterator eit = _elements.find(elemid);
+  std::map<unsigned int, EFAElement*>::iterator eit = _elements.find(elemid);
   if (eit == _elements.end())
     CutElemMeshError("Could not find element with id: "<<elemid<<" in addEdgeIntersection")
 
-  EfaElement3D *curr_elem = dynamic_cast<EfaElement3D*>(eit->second);
+  EFAElement3D *curr_elem = dynamic_cast<EFAElement3D*>(eit->second);
   if (!curr_elem)
     CutElemMeshError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
 
@@ -261,10 +261,10 @@ void
 ElementFragmentAlgorithm::updatePhysicalLinksAndFragments()
 {
   //loop over the elements in the mesh
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
-    EfaElement *curr_elem = eit->second;
+    EFAElement *curr_elem = eit->second;
     curr_elem->update_fragments(_crack_tip_elements, _embedded_nodes);
   } // loop over all elements
 }
@@ -288,7 +288,7 @@ ElementFragmentAlgorithm::updateTopology(bool mergeUncutVirtualEdges)
   sanityCheck();
   updateCrackTipElements();
 
-  std::map<unsigned int, EFAnode*>::iterator mit;
+  std::map<unsigned int, EFANode*>::iterator mit;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
   {
     if (mit->first >= first_new_node_id)
@@ -307,7 +307,7 @@ ElementFragmentAlgorithm::reset()
   _crack_tip_elements.clear();
   _inverse_connectivity.clear();
 
-  std::map<unsigned int, EFAnode*>::iterator mit;
+  std::map<unsigned int, EFANode*>::iterator mit;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
   {
     delete mit->second;
@@ -325,7 +325,7 @@ ElementFragmentAlgorithm::reset()
     mit->second = NULL;
   }
   _temp_nodes.clear();
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {
     delete eit->second;
@@ -346,19 +346,19 @@ ElementFragmentAlgorithm::clearAncestry()
   }
   _parent_elements.clear();
 
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {
-    EfaElement *curr_elem = eit->second;
+    EFAElement *curr_elem = eit->second;
     curr_elem->remove_parent_children();
     for (unsigned int j = 0; j < curr_elem->num_nodes(); j++)
     {
-      EFAnode *curr_node = curr_elem->get_node(j);
+      EFANode *curr_node = curr_elem->get_node(j);
       _inverse_connectivity[curr_node].insert(curr_elem);
     }
   }
 
-  std::map<unsigned int, EFAnode*>::iterator mit;
+  std::map<unsigned int, EFANode*>::iterator mit;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
     mit->second->remove_parent();
 
@@ -377,7 +377,7 @@ ElementFragmentAlgorithm::clearAncestry()
 }
 
 void
-ElementFragmentAlgorithm::restoreFragmentInfo(EfaElement * const elem, const EfaElement * const from_elem)
+ElementFragmentAlgorithm::restoreFragmentInfo(EFAElement * const elem, const EFAElement * const from_elem)
 {
   elem->restore_fragment(from_elem);
 }
@@ -386,14 +386,14 @@ void
 ElementFragmentAlgorithm::createChildElements()
 {
   //temporary container for new elements -- will be merged with Elements
-  std::map<unsigned int, EfaElement*> newChildElements;
+  std::map<unsigned int, EFAElement*> newChildElements;
 
   //loop over the original elements in the mesh
-  std::map<unsigned int, EfaElement*>::iterator eit;
-  std::map<unsigned int, EfaElement*>::iterator ElementsEnd = _elements.end();
+  std::map<unsigned int, EFAElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator ElementsEnd = _elements.end();
   for (eit = _elements.begin(); eit != ElementsEnd; ++eit)
   {
-    EfaElement *curr_elem = eit->second;
+    EFAElement *curr_elem = eit->second;
     curr_elem->create_child(_crack_tip_elements, _elements, newChildElements,
                             _child_elements, _parent_elements, _temp_nodes);
   } // loop over elements
@@ -407,12 +407,12 @@ ElementFragmentAlgorithm::connectFragments(bool mergeUncutVirtualEdges)
   //now perform the comparison on the children
   for (unsigned int elem_iter = 0; elem_iter < _child_elements.size(); elem_iter++)
   {
-    EfaElement *childElem = _child_elements[elem_iter];
+    EFAElement *childElem = _child_elements[elem_iter];
     childElem->connect_neighbors(_permanent_nodes, _temp_nodes,
                                  _inverse_connectivity, mergeUncutVirtualEdges);
   } // loop over child elements
 
-  std::vector<EfaElement*>::iterator vit;
+  std::vector<EFAElement*>::iterator vit;
   for (vit = _child_elements.begin(); vit != _child_elements.end(); )
   {
     if (*vit == NULL)
@@ -437,7 +437,7 @@ ElementFragmentAlgorithm::sanityCheck()
 void
 ElementFragmentAlgorithm::updateCrackTipElements()
 {
-  std::set<EfaElement*>::iterator sit;
+  std::set<EFAElement*>::iterator sit;
   //Delete all elements that were previously flagged as crack tip elements if they have
   //been split (and hence appear in ParentElements).
   for (unsigned int i = 0; i < _parent_elements.size(); ++i)
@@ -451,7 +451,7 @@ ElementFragmentAlgorithm::updateCrackTipElements()
   //crack growth.
   for (unsigned int elem_iter = 0; elem_iter < _child_elements.size(); elem_iter++)
   {
-    EfaElement *childElem = _child_elements[elem_iter];
+    EFAElement *childElem = _child_elements[elem_iter];
     if (childElem->is_crack_tip_elem())
       _crack_tip_elements.insert(childElem);
   } // loop over (new) child elements
@@ -475,7 +475,7 @@ ElementFragmentAlgorithm::printMesh()
   std::cout<<"============================================================"
            <<"=================================================="<<std::endl;
   std::cout << "Permanent Nodes:" << std::endl;
-  std::map<unsigned int, EFAnode*>::iterator mit;
+  std::map<unsigned int, EFANode*>::iterator mit;
   unsigned int counter = 0;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
   {
@@ -535,18 +535,18 @@ ElementFragmentAlgorithm::printMesh()
             << std::endl;
   std::cout<<"------------------------------------------------------------"
            <<"--------------------------------------------------"<<std::endl;
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {
-    EfaElement* currElem = eit->second;
+    EFAElement* currElem = eit->second;
     currElem->print_elem();
   }
 }
 
-EfaElement*
+EFAElement*
 ElementFragmentAlgorithm::getElemByID(unsigned int id)
 {
-  std::map<unsigned int, EfaElement*>::iterator mit = _elements.find(id);
+  std::map<unsigned int, EFAElement*>::iterator mit = _elements.find(id);
   if (mit == _elements.end())
     CutElemMeshError("in getElemByID() could not find element: "<<id)
   return mit->second;
@@ -556,10 +556,10 @@ unsigned int
 ElementFragmentAlgorithm::getElemIdByNodes(unsigned int * node_id)
 {
   unsigned int elem_id = 99999;
-  std::map<unsigned int, EfaElement*>::iterator eit;
+  std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
-    EfaElement *curr_elem = eit->second;
+    EFAElement *curr_elem = eit->second;
     unsigned int counter = 0;
     for (unsigned int i = 0; i < curr_elem->num_nodes(); ++i)
     {
@@ -579,10 +579,10 @@ void
 ElementFragmentAlgorithm::clearPotentialIsolatedNodes()
 {
   // Collect all parent nodes that will be isolated
-  std::map<EFAnode*, std::vector<EFAnode*> > isolate_parent_to_child;
+  std::map<EFANode*, std::vector<EFANode*> > isolate_parent_to_child;
   for (unsigned int i = 0; i < _new_nodes.size(); ++i)
   {
-    EFAnode* parent_node = _new_nodes[i]->parent();
+    EFANode* parent_node = _new_nodes[i]->parent();
     if (!parent_node)
       mooseError("a new permanent node must have a parent node!");
     bool isParentNodeInNewElem = false;
@@ -600,11 +600,11 @@ ElementFragmentAlgorithm::clearPotentialIsolatedNodes()
 
   // For each isolated parent node, pick one of its child new node
   // Then, switch that child with its parent for all new elems
-  std::map<EFAnode*, std::vector<EFAnode*> >::iterator mit;
+  std::map<EFANode*, std::vector<EFANode*> >::iterator mit;
   for (mit = isolate_parent_to_child.begin(); mit != isolate_parent_to_child.end(); ++mit)
   {
-    EFAnode* parent_node = mit->first;
-    EFAnode* child_node = (mit->second)[0]; // need to discard it and swap it back to its parent
+    EFANode* parent_node = mit->first;
+    EFANode* child_node = (mit->second)[0]; // need to discard it and swap it back to its parent
     for (unsigned int i = 0; i < _child_elements.size(); ++i)
     {
       if (_child_elements[i]->containsNode(child_node))

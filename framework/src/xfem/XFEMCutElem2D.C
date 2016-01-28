@@ -18,7 +18,7 @@
 #include "XFEMMiscFuncs.h"
 #include "petscblaslapack.h"
 
-XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EfaElement2D * const CEMelem, unsigned int n_qpoints):
+XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EFAElement2D * const CEMelem, unsigned int n_qpoints):
   XFEMCutElem(elem, n_qpoints),
   _efa_elem2d(CEMelem, true)
 {
@@ -31,9 +31,9 @@ XFEMCutElem2D::~XFEMCutElem2D()
 }
 
 Point
-XFEMCutElem2D::get_node_coords(EFAnode* CEMnode, MeshBase* displaced_mesh) const
+XFEMCutElem2D::get_node_coords(EFANode* CEMnode, MeshBase* displaced_mesh) const
 { Point node_coor(0.0,0.0,0.0);
-  std::vector<EFAnode*> master_nodes;
+  std::vector<EFANode*> master_nodes;
   std::vector<Point> master_points;
   std::vector<double> master_weights;
 
@@ -102,12 +102,12 @@ Point
 XFEMCutElem2D::get_origin(unsigned int plane_id, MeshBase* displaced_mesh) const
 {
   Point orig(0.0,0.0,0.0);
-  std::vector<std::vector<EFAnode*> > cut_line_nodes;
+  std::vector<std::vector<EFANode*> > cut_line_nodes;
   for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
   {
     if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
     {
-      std::vector<EFAnode*> node_line(2,NULL);
+      std::vector<EFANode*> node_line(2,NULL);
       node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(0);
       node_line[1] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
       cut_line_nodes.push_back(node_line);
@@ -127,12 +127,12 @@ Point
 XFEMCutElem2D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
 {
   Point normal(0.0,0.0,0.0);
-  std::vector<std::vector<EFAnode*> > cut_line_nodes;
+  std::vector<std::vector<EFANode*> > cut_line_nodes;
   for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
   {
     if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
     {
-      std::vector<EFAnode*> node_line(2,NULL);
+      std::vector<EFANode*> node_line(2,NULL);
       node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(0);
       node_line[1] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
       cut_line_nodes.push_back(node_line);
@@ -159,12 +159,12 @@ void
 XFEMCutElem2D::get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const
 {
   //TODO: two cut plane case is not working
-  std::vector<EFAnode*> cut_line_nodes;
+  std::vector<EFANode*> cut_line_nodes;
   for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
   {
     if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
     {
-      std::vector<EFAnode*> node_line(2,NULL);
+      std::vector<EFANode*> node_line(2,NULL);
       node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(0);
       node_line[1] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
       if (node_line[1]->id() == tip_id)
@@ -210,7 +210,7 @@ XFEMCutElem2D::get_frag_faces(std::vector<std::vector<Point> > &frag_faces, Mesh
   }
 }
 
-const EfaElement*
+const EFAElement*
 XFEMCutElem2D::get_efa_elem() const
 {
   return &_efa_elem2d;
@@ -240,7 +240,7 @@ void
 XFEMCutElem2D::partial_gauss(unsigned int nen, std::vector<std::vector<Real> > &tsg) // ZZY
 {
   // Get the coords for parial element nodes
-  EFAfragment2D* frag = _efa_elem2d.get_fragment(0);
+  EFAFragment2D* frag = _efa_elem2d.get_fragment(0);
   unsigned int nnd_pe = frag->num_edges();
   std::vector<Point> frag_points(nnd_pe, Point(0.0,0.0,0.0));// nodal coord of partial elem
   Real jac = 0.0;

@@ -12,22 +12,22 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EFAfragment.h"
+#include "EFAFragment.h"
 
-#include "EfaElement.h"
+#include "EFAElement.h"
 #include "EFAfuncs.h"
 
-EFAfragment::EFAfragment()
+EFAFragment::EFAFragment()
 {}
 
-EFAfragment::~EFAfragment()
+EFAFragment::~EFAFragment()
 {}
 
-std::vector<EFAnode*>
-EFAfragment::get_common_nodes(EFAfragment* other) const
+std::vector<EFANode*>
+EFAFragment::get_common_nodes(EFAFragment* other) const
 {
-  std::set<EFAnode*> frag1_nodes = get_all_nodes();
-  std::set<EFAnode*> frag2_nodes = other->get_all_nodes();
-  std::vector<EFAnode*> common_nodes = get_common_elems(frag1_nodes, frag2_nodes);
+  std::set<EFANode*> frag1_nodes = get_all_nodes();
+  std::set<EFANode*> frag2_nodes = other->get_all_nodes();
+  std::vector<EFANode*> common_nodes = get_common_elems(frag1_nodes, frag2_nodes);
   return common_nodes;
 }

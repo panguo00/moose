@@ -12,48 +12,27 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EFAnode.h"
+#ifndef EFAFRAGMENT_H
+#define EFAFRAGMENT_H
 
-EFAnode::EFAnode(unsigned int nid, N_CATEGORY ncat, EFAnode* nparent):
-  _category(ncat),
-  _id(nid),
-  _parent(nparent)
-{};
+#include "EFAEdge.h"
 
-std::string
-EFAnode::id_cat_str()
+class EFAFragment
 {
-  std::ostringstream s;
-  s << _id;
-  if (_category == N_CATEGORY_EMBEDDED)
-    s<<"e";
-  else if (_category == N_CATEGORY_TEMP)
-    s<<"t";
-  else
-    s<<" ";
-  return s.str();
-}
+public:
 
-unsigned int
-EFAnode::id() const
-{
-  return _id;
-}
+  EFAFragment();
+  virtual ~EFAFragment();
 
-N_CATEGORY
-EFAnode::category() const
-{
-  return _category;
-}
+  virtual void switchNode(EFANode *new_node, EFANode *old_node) = 0;
+  virtual bool containsNode(EFANode *node) const = 0;
+  virtual unsigned int get_num_cuts() const = 0;
+  virtual std::set<EFANode*> get_all_nodes() const = 0;
+  virtual bool isConnected(EFAFragment *other_fragment) const = 0;
+  virtual void remove_invalid_embedded(std::map<unsigned int, EFANode*> &EmbeddedNodes) = 0;
 
-EFAnode*
-EFAnode::parent() const
-{
-  return _parent;
-}
+  // common methods
+  std::vector<EFANode*> get_common_nodes(EFAFragment* other) const;
+};
 
-void
-EFAnode::remove_parent()
-{
-  _parent = NULL;
-}
+#endif

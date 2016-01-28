@@ -37,7 +37,7 @@ enum XFEM_QRULE
   DIRECT
 };
 
-class XFEM_geometric_cut;
+class XFEMGeometricCut;
 
 /**
  * This is the \p XFEM class.  This class implements
@@ -66,7 +66,7 @@ public:
 
   void setSecondMesh(MeshBase* mesh2);
 
-  void addGeometricCut(XFEM_geometric_cut* geometric_cut);
+  void addGeometricCut(XFEMGeometricCut* geometric_cut);
 
   void addStateMarkedElem(unsigned int elem_id, RealVectorValue normal);
   void addStateMarkedElem(unsigned int elem_id, RealVectorValue normal, unsigned int marked_side);
@@ -95,7 +95,7 @@ public:
   bool init_crack_intersect_edge(Point cut_origin, RealVectorValue cut_normal,
                                  Point edge_p1, Point edge_p2, Real & dist);
   bool cut_mesh_with_efa();
-  Point get_efa_node_coor(EFAnode* CEMnode, EfaElement* CEMElem,
+  Point get_efa_node_coor(EFANode* CEMnode, EFAElement* CEMElem,
                           const Elem *elem, MeshBase* displaced_mesh = NULL) const;
 
   /**
@@ -116,7 +116,7 @@ public:
   void get_frag_faces(const Elem* elem, std::vector<std::vector<Point> > &frag_faces,
                       bool displaced_mesh = false) const;
   void store_crack_tip_origin_and_direction();
-  void correct_crack_extension_angle(const Elem * elem, EfaElement2D * CEMElem, EfaEdge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep);
+  void correct_crack_extension_angle(const Elem * elem, EFAElement2D * CEMElem, EFAEdge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep);
   void get_crack_tip_origin(std::map<unsigned int, const Elem*> & elem_id_crack_tip, std::vector<Point> &  crack_front_points);
   //void update_crack_propagation_direction(const Elem* elem, Point direction);
   //void clear_crack_propagation_direction();
@@ -133,9 +133,9 @@ public:
 
 private:
 
-  void get_frag_edges(const Elem* elem, EfaElement2D* CEMElem,
+  void get_frag_edges(const Elem* elem, EFAElement2D* CEMElem,
                       std::vector<std::vector<Point> > &frag_edges) const;
-  void get_frag_faces(const Elem* elem, EfaElement3D* CEMElem,
+  void get_frag_faces(const Elem* elem, EFAElement3D* CEMElem,
                       std::vector<std::vector<Point> > &frag_faces) const;
 
 private:
@@ -157,7 +157,7 @@ private:
    */
   MeshBase* _mesh;
   MeshBase* _mesh2;
-  std::vector<XFEM_geometric_cut *> _geometric_cuts;
+  std::vector<XFEMGeometricCut *> _geometric_cuts;
 
   std::map<const Elem*, XFEMCutElem*> _cut_elem_map;
   std::set<const Elem*> _crack_tip_elems;

@@ -37,12 +37,12 @@ struct cutFace
   std::vector<Real> position;
 };
 
-class XFEM_geometric_cut
+class XFEMGeometricCut
 {
 public:
 
-  XFEM_geometric_cut(Real t0, Real t1);
-  virtual ~XFEM_geometric_cut();
+  XFEMGeometricCut(Real t0, Real t1);
+  virtual ~XFEMGeometricCut();
 
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges,
                                     Real time) = 0;

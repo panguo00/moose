@@ -15,36 +15,36 @@
 #ifndef EFAFRAGMENT2D_H
 #define EFAFRAGMENT2D_H
 
-#include "EfaEdge.h"
-#include "EFAfragment.h"
-#include "EFAface.h"
+#include "EFAEdge.h"
+#include "EFAFace.h"
+#include "EFAFragment.h"
 
-class EfaElement2D;
-class EFAface;
+class EFAElement2D;
+class EFAFace;
 
-class EFAfragment2D : public EFAfragment
+class EFAFragment2D : public EFAFragment
 {
 public:
 
-  EFAfragment2D(EfaElement2D * host, bool create_boundary_edges,
-                const EfaElement2D * from_host,
+  EFAFragment2D(EFAElement2D * host, bool create_boundary_edges,
+                const EFAElement2D * from_host,
                 unsigned int frag_id = std::numeric_limits<unsigned int>::max());
-  EFAfragment2D(EfaElement2D* host, const EFAface * from_face);
-  ~EFAfragment2D();
+  EFAFragment2D(EFAElement2D* host, const EFAFace * from_face);
+  ~EFAFragment2D();
 
 private:
 
-  EfaElement2D * _host_elem;
-  std::vector<EfaEdge*> _boundary_edges;
+  EFAElement2D * _host_elem;
+  std::vector<EFAEdge*> _boundary_edges;
 
 public:
   // override pure virtual methods
-  virtual void switchNode(EFAnode *new_node, EFAnode *old_node);
-  virtual bool containsNode(EFAnode *node) const;
+  virtual void switchNode(EFANode *new_node, EFANode *old_node);
+  virtual bool containsNode(EFANode *node) const;
   virtual unsigned int get_num_cuts() const;
-  virtual std::set<EFAnode*> get_all_nodes() const;
-  virtual bool isConnected(EFAfragment *other_fragment) const;
-  virtual void remove_invalid_embedded(std::map<unsigned int, EFAnode*> &EmbeddedNodes);
+  virtual std::set<EFANode*> get_all_nodes() const;
+  virtual bool isConnected(EFAFragment *other_fragment) const;
+  virtual void remove_invalid_embedded(std::map<unsigned int, EFANode*> &EmbeddedNodes);
 
   // EFAfragment2D specific methods
   void combine_tip_edges();
@@ -52,11 +52,11 @@ public:
   std::vector<unsigned int> get_interior_edge_id() const;
   bool isSecondaryInteriorEdge(unsigned int edge_id) const;
   unsigned int num_edges() const;
-  EfaEdge* get_edge(unsigned int edge_id) const;
-  void add_edge(EfaEdge* new_edge);
-  std::set<EFAnode*> get_edge_nodes(unsigned int edge_id) const;
-  EfaElement2D * get_host() const;
-  std::vector<EFAfragment2D*> split();
+  EFAEdge* get_edge(unsigned int edge_id) const;
+  void add_edge(EFAEdge* new_edge);
+  std::set<EFANode*> get_edge_nodes(unsigned int edge_id) const;
+  EFAElement2D * get_host() const;
+  std::vector<EFAFragment2D*> split();
 };
 
 #endif

@@ -23,13 +23,13 @@ class XFEMCutElem2D : public XFEMCutElem
 {
 public:
 
-  XFEMCutElem2D(Elem* elem, const EfaElement2D * const CEMelem, unsigned int n_qpoints);
+  XFEMCutElem2D(Elem* elem, const EFAElement2D * const CEMelem, unsigned int n_qpoints);
   ~XFEMCutElem2D();
 
 private:
 
-  EfaElement2D _efa_elem2d; // 2D EFAelement
-  virtual Point get_node_coords(EFAnode* node, MeshBase* displaced_mesh = NULL) const;
+  EFAElement2D _efa_elem2d; // 2D EFAelement
+  virtual Point get_node_coords(EFANode* node, MeshBase* displaced_mesh = NULL) const;
 
 public:
 
@@ -39,7 +39,7 @@ public:
   virtual Point get_normal(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
   virtual void get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const;
   virtual void get_frag_faces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const;
-  virtual const EfaElement * get_efa_elem() const;
+  virtual const EFAElement * get_efa_elem() const;
   virtual unsigned int num_cut_planes() const;
 
 private:

@@ -13,12 +13,12 @@
 /****************************************************************/
 
 #include "libmesh/mesh_base.h"
-#include "XFEM_square_cut.h"
+#include "XFEMSquareCut.h"
 #include "EFAfuncs.h"
 #include "XFEMMiscFuncs.h"
 
-XFEM_square_cut::XFEM_square_cut(std::vector<Real> square_nodes):
-  XFEM_geometric_cut(0.0, 0.0),
+XFEMSquareCut::XFEMSquareCut(std::vector<Real> square_nodes):
+  XFEMGeometricCut(0.0, 0.0),
   _vertices(4, Point(0.0,0.0,0.0)),
   _center(Point(0.0,0.0,0.0)),
   _normal(Point(0.0,0.0,0.0))
@@ -43,18 +43,18 @@ XFEM_square_cut::XFEM_square_cut(std::vector<Real> square_nodes):
   normalize(_normal);
 }
 
-XFEM_square_cut::~XFEM_square_cut()
+XFEMSquareCut::~XFEMSquareCut()
 {}
 
 bool
-XFEM_square_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
+XFEMSquareCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting");
   return false;
 }
 
 bool
-XFEM_square_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+XFEMSquareCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
 {
   bool cut_elem = false;
   int hex_ix[6][4] = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}};
@@ -114,7 +114,7 @@ XFEM_square_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & c
 }
 
 bool
-XFEM_square_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
+XFEMSquareCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
                                       std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting");
@@ -122,7 +122,7 @@ XFEM_square_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_ed
 }
 
 bool
-XFEM_square_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
+XFEMSquareCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
                                       std::vector<cutFace> & cutFaces, Real time)
 {
   // TODO: finish this for 3D problems with branching
@@ -131,7 +131,7 @@ XFEM_square_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_fa
 
 // private methods below
 bool
-XFEM_square_cut::intersect_with_edge(Point p1, Point p2, Point &pint)
+XFEMSquareCut::intersect_with_edge(Point p1, Point p2, Point &pint)
 {
   bool has_inters = false;
   double plane_point[3] = {_center(0), _center(1), _center(2)};
@@ -152,7 +152,7 @@ XFEM_square_cut::intersect_with_edge(Point p1, Point p2, Point &pint)
 }
 
 bool
-XFEM_square_cut::isInsideCutPlane(Point p)
+XFEMSquareCut::isInsideCutPlane(Point p)
 {
   bool inside = false;
   unsigned int counter = 0;

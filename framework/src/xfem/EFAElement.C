@@ -12,11 +12,11 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EfaElement.h"
+#include "EFAElement.h"
 
 #include "EFAfuncs.h"
 
-EfaElement::EfaElement(unsigned int eid, unsigned int n_nodes):
+EFAElement::EFAElement(unsigned int eid, unsigned int n_nodes):
   _id(eid),
   _num_nodes(n_nodes),
   _nodes(_num_nodes, NULL),
@@ -24,35 +24,35 @@ EfaElement::EfaElement(unsigned int eid, unsigned int n_nodes):
   _crack_tip_split_element(false)
 {}
 
-EfaElement::~EfaElement()
+EFAElement::~EFAElement()
 {}
 
 unsigned int
-EfaElement::id() const
+EFAElement::id() const
 {
   return _id;
 }
 
 unsigned int
-EfaElement::num_nodes() const
+EFAElement::num_nodes() const
 {
   return _num_nodes;
 }
 
 void
-EfaElement::set_node(unsigned int node_id, EFAnode* node)
+EFAElement::set_node(unsigned int node_id, EFANode* node)
 {
   _nodes[node_id] = node;
 }
 
-EFAnode*
-EfaElement::get_node(unsigned int node_id) const
+EFANode*
+EFAElement::get_node(unsigned int node_id) const
 {
   return _nodes[node_id];
 }
 
 bool
-EfaElement::containsNode(EFAnode* node) const
+EFAElement::containsNode(EFANode* node) const
 {
   for (unsigned int i = 0; i < _nodes.size(); ++i)
     if (_nodes[i] == node)
@@ -61,28 +61,28 @@ EfaElement::containsNode(EFAnode* node) const
 }
 
 void
-EfaElement::display_nodes() const
+EFAElement::display_nodes() const
 {
   std::cout << "***** display nodes for element " << _id << " *****" << std::endl;
   for (unsigned int i = 0; i < _num_nodes; ++i)
     std::cout << "addr " << _nodes[i] << ", ID " << _nodes[i]->id_cat_str() << ", category " << _nodes[i]->category() << std::endl;
 }
 
-EFAnode *
-EfaElement::create_local_node_from_global_node(const EFAnode * global_node) const
+EFANode *
+EFAElement::create_local_node_from_global_node(const EFANode * global_node) const
 {
   //Given a global node, create a new local node
   if (global_node->category() != N_CATEGORY_PERMANENT &&
       global_node->category() != N_CATEGORY_TEMP)
     mooseError("In create_local_node_from_global_node node is not global");
 
-  EFAnode * new_local_node = NULL;
+  EFANode * new_local_node = NULL;
   unsigned int inode = 0;
   for (; inode < _nodes.size(); ++inode)
   {
     if (_nodes[inode] == global_node)
     {
-      new_local_node = new EFAnode(inode, N_CATEGORY_LOCAL_INDEX);
+      new_local_node = new EFANode(inode, N_CATEGORY_LOCAL_INDEX);
       break;
     }
   }
@@ -92,14 +92,14 @@ EfaElement::create_local_node_from_global_node(const EFAnode * global_node) cons
   return new_local_node;
 }
 
-EFAnode *
-EfaElement::get_global_node_from_local_node(const EFAnode * local_node) const
+EFANode *
+EFAElement::get_global_node_from_local_node(const EFANode * local_node) const
 {
   //Given a local node, find the global node corresponding to that node
   if (local_node->category() != N_CATEGORY_LOCAL_INDEX)
     mooseError("In get_global_node_from_local_node node passed in is not local");
 
-  EFAnode * global_node = _nodes[local_node->id()];
+  EFANode * global_node = _nodes[local_node->id()];
 
   if (global_node->category() != N_CATEGORY_PERMANENT &&
       global_node->category() != N_CATEGORY_TEMP)
@@ -109,7 +109,7 @@ EfaElement::get_global_node_from_local_node(const EFAnode * local_node) const
 }
 
 unsigned int
-EfaElement::getLocalNodeIndex(EFAnode * node) const
+EFAElement::getLocalNodeIndex(EFANode * node) const
 {
   unsigned int local_node_id = 99999;
   for (unsigned int i = 0; i < _num_nodes; ++i)
@@ -125,35 +125,35 @@ EfaElement::getLocalNodeIndex(EFAnode * node) const
   return local_node_id;
 }
 
-std::vector<EFAnode*>
-EfaElement::get_common_nodes(const EfaElement* other_elem) const
+std::vector<EFANode*>
+EFAElement::get_common_nodes(const EFAElement* other_elem) const
 {
-  std::set<EFAnode*> e1nodes(_nodes.begin(), _nodes.end());
-  std::set<EFAnode*> e2nodes(other_elem->_nodes.begin(), other_elem->_nodes.end());
-  std::vector<EFAnode*> common_nodes = get_common_elems(e1nodes, e2nodes);
+  std::set<EFANode*> e1nodes(_nodes.begin(), _nodes.end());
+  std::set<EFANode*> e2nodes(other_elem->_nodes.begin(), other_elem->_nodes.end());
+  std::vector<EFANode*> common_nodes = get_common_elems(e1nodes, e2nodes);
   return common_nodes;
 }
 
 void
-EfaElement::set_crack_tip_split()
+EFAElement::set_crack_tip_split()
 {
   _crack_tip_split_element = true;
 }
 
 bool
-EfaElement::is_crack_tip_split() const
+EFAElement::is_crack_tip_split() const
 {
   return _crack_tip_split_element;
 }
 
 unsigned int
-EfaElement::num_crack_tip_neighbors() const
+EFAElement::num_crack_tip_neighbors() const
 {
   return _crack_tip_neighbors.size();
 }
 
 unsigned int
-EfaElement::get_crack_tip_neighbor(unsigned int index) const
+EFAElement::get_crack_tip_neighbor(unsigned int index) const
 {
   if (index < _crack_tip_neighbors.size())
     return _crack_tip_neighbors[index];
@@ -162,7 +162,7 @@ EfaElement::get_crack_tip_neighbor(unsigned int index) const
 }
 
 void
-EfaElement::add_crack_tip_neighbor(EfaElement * neighbor_elem)
+EFAElement::add_crack_tip_neighbor(EFAElement * neighbor_elem)
 {
   //Find out what side the specified element is on, and add it as a crack tip neighbor
   //element for that side.
@@ -177,14 +177,14 @@ EfaElement::add_crack_tip_neighbor(EfaElement * neighbor_elem)
     _crack_tip_neighbors.push_back(neighbor_index);
 }
 
-EfaElement*
-EfaElement::parent() const
+EFAElement*
+EFAElement::parent() const
 {
   return _parent;
 }
 
-EfaElement*
-EfaElement::get_child(unsigned int child_id) const
+EFAElement*
+EFAElement::get_child(unsigned int child_id) const
 {
   if (child_id < _children.size())
     return _children[child_id];
@@ -193,72 +193,72 @@ EfaElement::get_child(unsigned int child_id) const
 }
 
 void
-EfaElement::set_parent(EfaElement* parent)
+EFAElement::set_parent(EFAElement* parent)
 {
   _parent = parent;
 }
 
 unsigned int
-EfaElement::num_children() const
+EFAElement::num_children() const
 {
   return _children.size();
 }
 
 void
-EfaElement::add_child(EfaElement* child)
+EFAElement::add_child(EFAElement* child)
 {
   _children.push_back(child);
 }
 
 void
-EfaElement::remove_parent_children()
+EFAElement::remove_parent_children()
 {
   _parent = NULL;
   _children.clear();
 }
 
-std::vector<EfaElement*>
-EfaElement::get_general_neighbors(std::map<EFAnode*, std::set<EfaElement*> > &InverseConnectivity) const
+std::vector<EFAElement*>
+EFAElement::get_general_neighbors(std::map<EFANode*, std::set<EFAElement*> > &InverseConnectivity) const
 {
-  std::vector<EfaElement*> neighbor_elements;
-  std::set<EfaElement*> patch_elements;
+  std::vector<EFAElement*> neighbor_elements;
+  std::set<EFAElement*> patch_elements;
   for (unsigned int inode = 0; inode < _num_nodes; ++inode)
   {
-    std::set<EfaElement*> this_node_connected_elems = InverseConnectivity[_nodes[inode]];
+    std::set<EFAElement*> this_node_connected_elems = InverseConnectivity[_nodes[inode]];
     patch_elements.insert(this_node_connected_elems.begin(), this_node_connected_elems.end());
   }
 
-  std::set<EfaElement*>::iterator eit2;
+  std::set<EFAElement*>::iterator eit2;
   for (eit2 = patch_elements.begin(); eit2 != patch_elements.end(); ++eit2)
   {
-    EfaElement* neigh_elem = *eit2;
+    EFAElement* neigh_elem = *eit2;
     if (neigh_elem != this)
       neighbor_elements.push_back(neigh_elem);
   }
   return neighbor_elements;
 }
 
-EfaElement*
-EfaElement::get_general_neighbor(unsigned int index) const
+EFAElement*
+EFAElement::get_general_neighbor(unsigned int index) const
 {
   return _general_neighbors[index];
 }
 
 unsigned int
-EfaElement::num_general_neighbors() const
+EFAElement::num_general_neighbors() const
 {
   return _general_neighbors.size();
 }
 
 void
-EfaElement::mergeNodes(EFAnode* &childNode, EFAnode* &childOfNeighborNode, EfaElement* childOfNeighborElem,
-                       std::map<unsigned int, EFAnode*> &PermanentNodes, std::map<unsigned int, EFAnode*> &TempNodes)
+EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAElement* childOfNeighborElem,
+                       std::map<unsigned int, EFANode*> &PermanentNodes, std::map<unsigned int, EFANode*> &TempNodes)
 {
   // N.B. "this" must point to a child element that was just created
   if (!_parent)
     mooseError("no parent element for child element " << _id << " in mergeNodes");
 
-  EfaElement* childElem = this;
+  EFAElement* childElem = this;
   if (childNode != childOfNeighborNode)
   {
     if(childNode->category() == N_CATEGORY_PERMANENT)
@@ -336,7 +336,7 @@ EfaElement::mergeNodes(EFAnode* &childNode, EFAnode* &childOfNeighborNode, EfaEl
     else //both nodes are temporary -- create new permanent node and delete temporary nodes
     {
       unsigned int new_node_id = getNewID(PermanentNodes);
-      EFAnode* newNode = new EFAnode(new_node_id,N_CATEGORY_PERMANENT,childNode->parent());
+      EFANode* newNode = new EFANode(new_node_id,N_CATEGORY_PERMANENT,childNode->parent());
       PermanentNodes.insert(std::make_pair(new_node_id,newNode));
 
       childOfNeighborElem->switchNode(newNode, childOfNeighborNode, true);

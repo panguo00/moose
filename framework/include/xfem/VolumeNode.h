@@ -15,29 +15,29 @@
 #ifndef VOLUMENODE_H
 #define VOLUMENODE_H
 
-#include "EFAnode.h"
+#include "EFANode.h"
 
 class VolumeNode
 {
   public:
 
-  VolumeNode(EFAnode* node, double xi, double eta, double zeta);
+  VolumeNode(EFANode* node, double xi, double eta, double zeta);
   VolumeNode(const VolumeNode & other_vol_node);
 
   ~VolumeNode();
 
   private:
 
-  EFAnode * _node;
+  EFANode * _node;
   double _xi;
   double _eta;
   double _zeta;
 
   public:
 
-  EFAnode * get_node();
+  EFANode * get_node();
   double get_para_coords(unsigned int i);
-  void switchNode(EFAnode* new_old, EFAnode* old_node);
+  void switchNode(EFANode* new_old, EFANode* old_node);
 };
 
 #endif

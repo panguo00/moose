@@ -68,9 +68,9 @@ public:
   void CutElemMeshTest6a();
   void CutElemMeshTest6b();
 
-  void CutElemCheckNodes(std::map<unsigned int, EFAnode*> & nodes, std::vector<unsigned int> & gold);
-  void CutElemCheckElements(std::vector<EfaElement*> & elems, std::vector<unsigned int> & gold);
-  void CutElemCheckElements(std::set<EfaElement*> & elems, std::vector<unsigned int> & gold);
+  void CutElemCheckNodes(std::map<unsigned int, EFANode*> & nodes, std::vector<unsigned int> & gold);
+  void CutElemCheckElements(std::vector<EFAElement*> & elems, std::vector<unsigned int> & gold);
+  void CutElemCheckElements(std::set<EFAElement*> & elems, std::vector<unsigned int> & gold);
 };
 
 #endif  // CUTELEMMESHTEST_H

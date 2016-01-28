@@ -12,13 +12,14 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
+#include "XFEMCircleCut.h"
+
 #include "libmesh/mesh_base.h"
-#include "XFEM_circle_cut.h"
 #include "EFAfuncs.h"
 #include "XFEMMiscFuncs.h"
 
-XFEM_circle_cut::XFEM_circle_cut(std::vector<Real> circle_nodes):
-   XFEM_geometric_cut(0.0, 0.0), 
+XFEMCircleCut::XFEMCircleCut(std::vector<Real> circle_nodes):
+   XFEMGeometricCut(0.0, 0.0), 
    _vertices(2, Point(0.0,0.0,0.0)),
    _center(Point(0.0,0.0,0.0)),
    _normal(Point(0.0,0.0,0.0)),
@@ -44,16 +45,16 @@ XFEM_circle_cut::XFEM_circle_cut(std::vector<Real> circle_nodes):
    _angle = std::acos( (ray1*ray2)/(R1*R2) );
 }
 
-XFEM_circle_cut::~XFEM_circle_cut()
+XFEMCircleCut::~XFEMCircleCut()
 {}
 
-bool XFEM_circle_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
+bool XFEMCircleCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting\n");
   return false;
 }
 
-bool XFEM_circle_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+bool XFEMCircleCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
 {
   bool cut_elem = false;
  
@@ -118,19 +119,19 @@ bool XFEM_circle_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace
 }	
 
 
-bool XFEM_circle_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time)
+bool XFEMCircleCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting\n");
   return false;
 }
 
 
-bool XFEM_circle_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time)
+bool XFEMCircleCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time)
 {
   return false;
 }
 
-bool XFEM_circle_cut::intersect_with_edge(Point p1, Point p2, Point &pint)
+bool XFEMCircleCut::intersect_with_edge(Point p1, Point p2, Point &pint)
 {
   bool has_inters = false;
   double plane_point[3] = {_center(0), _center(1), _center(2)};
@@ -150,7 +151,7 @@ bool XFEM_circle_cut::intersect_with_edge(Point p1, Point p2, Point &pint)
 }
 
 
-bool XFEM_circle_cut::isInsideCutPlane(Point p){
+bool XFEMCircleCut::isInsideCutPlane(Point p){
     Point ray = p - _center; 
     if( std::abs(ray*_normal)<1e-15 && std::sqrt(ray.size_sq()) < _radius )   
 	return true;

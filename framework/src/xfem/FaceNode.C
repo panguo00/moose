@@ -14,7 +14,7 @@
 
 #include "FaceNode.h"
 
-FaceNode::FaceNode(EFAnode* node, double xi, double eta):
+FaceNode::FaceNode(EFANode* node, double xi, double eta):
   _node(node),
   _xi(xi),
   _eta(eta)
@@ -29,7 +29,7 @@ FaceNode::FaceNode(const FaceNode & other_face_node):
 FaceNode::~FaceNode()
 {}
 
-EFAnode *
+EFANode *
 FaceNode::get_node()
 {
   return _node;
@@ -50,7 +50,7 @@ FaceNode::get_para_coords(unsigned int i)
 }
 
 void
-FaceNode::switchNode(EFAnode* new_node, EFAnode* old_node)
+FaceNode::switchNode(EFANode* new_node, EFANode* old_node)
 {
   if (_node == old_node)
     _node = new_node;

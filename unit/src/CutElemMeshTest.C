@@ -23,9 +23,9 @@ CutElemMeshTest::~CutElemMeshTest()
 {}
 
 void 
-CutElemMeshTest::CutElemCheckNodes(std::map<unsigned int, EFAnode*> & nodes, std::vector<unsigned int> & gold)
+CutElemMeshTest::CutElemCheckNodes(std::map<unsigned int, EFANode*> & nodes, std::vector<unsigned int> & gold)
 {
-  std::map<unsigned int, EFAnode*>::iterator mit;
+  std::map<unsigned int, EFANode*>::iterator mit;
   std::vector<unsigned int> test;
   for (mit = nodes.begin(); mit != nodes.end(); ++mit)
     test.push_back(mit->second->id());
@@ -36,9 +36,9 @@ CutElemMeshTest::CutElemCheckNodes(std::map<unsigned int, EFAnode*> & nodes, std
 }
 
 void 
-CutElemMeshTest::CutElemCheckElements(std::vector<EfaElement*> & elems, std::vector<unsigned int> & gold)
+CutElemMeshTest::CutElemCheckElements(std::vector<EFAElement*> & elems, std::vector<unsigned int> & gold)
 {
-  std::vector<EfaElement*>::iterator it;
+  std::vector<EFAElement*>::iterator it;
   std::vector<unsigned int> test;
   for (it = elems.begin(); it != elems.end(); ++it)
     test.push_back((*it)->id());
@@ -49,9 +49,9 @@ CutElemMeshTest::CutElemCheckElements(std::vector<EfaElement*> & elems, std::vec
 }
 
 void 
-CutElemMeshTest::CutElemCheckElements(std::set<EfaElement*> & elems, std::vector<unsigned int> & gold)
+CutElemMeshTest::CutElemCheckElements(std::set<EFAElement*> & elems, std::vector<unsigned int> & gold)
 {
-  std::set<EfaElement*>::iterator it;
+  std::set<EFAElement*>::iterator it;
   std::vector<unsigned int> test;
   for (it = elems.begin(); it != elems.end(); ++it)
     test.push_back((*it)->id());
@@ -114,31 +114,31 @@ CutElemMeshTest::CutElemMeshTest1a()
   //CPPUNIT_ASSERT(false);
  
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {2, 3, 4};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {0, 1};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -167,31 +167,31 @@ CutElemMeshTest::CutElemMeshTest1b()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -378,31 +378,31 @@ void CutElemMeshTest::CutElemMeshTest3()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {4, 5, 6, 7, 8, 9};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {1, 2, 3};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -525,31 +525,31 @@ void CutElemMeshTest::CutElemMeshTest4()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3, 4};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {16, 17, 18, 19, 20, 21, 22, 23, 24};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {1, 2, 5, 8, 9};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -623,31 +623,31 @@ void CutElemMeshTest::CutElemMeshTest5a()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -665,31 +665,31 @@ void CutElemMeshTest::CutElemMeshTest5a()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes2 = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes2 = MyMesh.getPermanentNodes();
   unsigned int pn2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
   std::vector<unsigned int> pn_gold2 (pn2, pn2 + sizeof(pn2) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes2, pn_gold2);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes2 = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes2 = MyMesh.getTempNodes();
   unsigned int tn2[] = {};
   std::vector<unsigned int> tn_gold2 (tn2, tn2 + sizeof(tn2) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes2, tn_gold2);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes2 = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes2 = MyMesh.getEmbeddedNodes();
   unsigned int en2[] = {0, 1, 2, 3, 4, 5};
   std::vector<unsigned int> en_gold2 (en2, en2 + sizeof(en2) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes2, en_gold2);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem2 = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem2 = MyMesh.getChildElements();
   unsigned int ce2[] = {};
   std::vector<unsigned int> ce_gold2 (ce2, ce2 + sizeof(ce2) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem2, ce_gold2);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem2 = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem2 = MyMesh.getParentElements();
   unsigned int pe2[] = {};
   std::vector<unsigned int> pe_gold2 (pe2, pe2 + sizeof(pe2) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem2, pe_gold2);
@@ -706,31 +706,31 @@ void CutElemMeshTest::CutElemMeshTest5a()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes3 = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes3 = MyMesh.getPermanentNodes();
   unsigned int pn3[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
   std::vector<unsigned int> pn_gold3 (pn3, pn3 + sizeof(pn3) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes3, pn_gold3);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes3 = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes3 = MyMesh.getTempNodes();
   unsigned int tn3[] = {};
   std::vector<unsigned int> tn_gold3 (tn3, tn3 + sizeof(tn3) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes3, tn_gold3);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes3 = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes3 = MyMesh.getEmbeddedNodes();
   unsigned int en3[] = {0, 1, 2, 3, 4, 5, 6};
   std::vector<unsigned int> en_gold3 (en3, en3 + sizeof(en3) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes3, en_gold3);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem3 = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem3 = MyMesh.getChildElements();
   unsigned int ce3[] = {};
   std::vector<unsigned int> ce_gold3 (ce3, ce3 + sizeof(ce3) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem3, ce_gold3);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem3 = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem3 = MyMesh.getParentElements();
   unsigned int pe3[] = {};
   std::vector<unsigned int> pe_gold3 (pe3, pe3 + sizeof(pe3) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem3, pe_gold3);
@@ -767,31 +767,31 @@ void CutElemMeshTest::CutElemMeshTest5b()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -809,31 +809,31 @@ void CutElemMeshTest::CutElemMeshTest5b()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes2 = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes2 = MyMesh.getPermanentNodes();
   unsigned int pn2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21};
   std::vector<unsigned int> pn_gold2 (pn2, pn2 + sizeof(pn2) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes2, pn_gold2);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes2 = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes2 = MyMesh.getTempNodes();
   unsigned int tn2[] = {};
   std::vector<unsigned int> tn_gold2 (tn2, tn2 + sizeof(tn2) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes2, tn_gold2);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes2 = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes2 = MyMesh.getEmbeddedNodes();
   unsigned int en2[] = {0, 1, 2, 3, 4, 5};
   std::vector<unsigned int> en_gold2 (en2, en2 + sizeof(en2) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes2, en_gold2);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem2 = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem2 = MyMesh.getChildElements();
   unsigned int ce2[] = {};
   std::vector<unsigned int> ce_gold2 (ce2, ce2 + sizeof(ce2) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem2, ce_gold2);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem2 = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem2 = MyMesh.getParentElements();
   unsigned int pe2[] = {};
   std::vector<unsigned int> pe_gold2 (pe2, pe2 + sizeof(pe2) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem2, pe_gold2);
@@ -850,31 +850,31 @@ void CutElemMeshTest::CutElemMeshTest5b()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes3 = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes3 = MyMesh.getPermanentNodes();
   unsigned int pn3[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
   std::vector<unsigned int> pn_gold3 (pn3, pn3 + sizeof(pn3) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes3, pn_gold3);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes3 = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes3 = MyMesh.getTempNodes();
   unsigned int tn3[] = {};
   std::vector<unsigned int> tn_gold3 (tn3, tn3 + sizeof(tn3) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes3, tn_gold3);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes3 = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes3 = MyMesh.getEmbeddedNodes();
   unsigned int en3[] = {0, 1, 2, 3, 4, 5, 6};
   std::vector<unsigned int> en_gold3 (en3, en3 + sizeof(en3) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes3, en_gold3);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem3 = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem3 = MyMesh.getChildElements();
   unsigned int ce3[] = {};
   std::vector<unsigned int> ce_gold3 (ce3, ce3 + sizeof(ce3) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem3, ce_gold3);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem3 = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem3 = MyMesh.getParentElements();
   unsigned int pe3[] = {};
   std::vector<unsigned int> pe_gold3 (pe3, pe3 + sizeof(pe3) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem3, pe_gold3);
@@ -912,31 +912,31 @@ void CutElemMeshTest::CutElemMeshTest5c()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3, 4, 5, 6};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -1020,38 +1020,38 @@ CutElemMeshTest::CutElemMeshTest6a()
 
   // print crack tip elems
   std::cout << " ***** crack tip elements *****" << std::endl;
-  std::set<EfaElement*> crack_tip_elem = MyMesh.getCrackTipElements();
-  std::set<EfaElement*>::iterator it;
+  std::set<EFAElement*> crack_tip_elem = MyMesh.getCrackTipElements();
+  std::set<EFAElement*>::iterator it;
   for (it = crack_tip_elem.begin(); it != crack_tip_elem.end(); ++it)
     std::cout << (*it)->id() << " ";
   std::cout << std::endl;
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -1126,31 +1126,31 @@ CutElemMeshTest::CutElemMeshTest6b()
   MyMesh.printMesh();
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 33, 34, 35, 36, 37};
   std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes, pn_gold);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
   unsigned int tn[] = {};
   std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes, tn_gold);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
   unsigned int en[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes, en_gold);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
   unsigned int ce[] = {8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
   std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem, ce_gold);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
   unsigned int pe[] = {0, 1, 3, 4, 5, 7};
   std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem, pe_gold);
@@ -1172,38 +1172,38 @@ CutElemMeshTest::CutElemMeshTest6b()
 
  // print crack tip elems
   std::cout << " ***** crack tip elements *****" << std::endl;
-  std::set<EfaElement*> crack_tip_elem = MyMesh.getCrackTipElements();
-  std::set<EfaElement*>::iterator it;
+  std::set<EFAElement*> crack_tip_elem = MyMesh.getCrackTipElements();
+  std::set<EFAElement*>::iterator it;
   for (it = crack_tip_elem.begin(); it != crack_tip_elem.end(); ++it)
     std::cout << (*it)->id() << " ";
   std::cout << std::endl;
 
   //Test permanent nodes
-  std::map<unsigned int, EFAnode*> permanent_nodes2 = MyMesh.getPermanentNodes();
+  std::map<unsigned int, EFANode*> permanent_nodes2 = MyMesh.getPermanentNodes();
   unsigned int pn2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32, 33, 34, 35, 36, 37};
   std::vector<unsigned int> pn_gold2 (pn2, pn2 + sizeof(pn2) / sizeof(unsigned int) );
   CutElemCheckNodes(permanent_nodes2, pn_gold2);
 
   //Test temp nodes
-  std::map<unsigned int, EFAnode*> temp_nodes2 = MyMesh.getTempNodes();
+  std::map<unsigned int, EFANode*> temp_nodes2 = MyMesh.getTempNodes();
   unsigned int tn2[] = {};
   std::vector<unsigned int> tn_gold2 (tn2, tn2 + sizeof(tn2) / sizeof(unsigned int) );
   CutElemCheckNodes(temp_nodes2, tn_gold2);
 
   //Test embedded nodes
-  std::map<unsigned int, EFAnode*> embedded_nodes2 = MyMesh.getEmbeddedNodes();
+  std::map<unsigned int, EFANode*> embedded_nodes2 = MyMesh.getEmbeddedNodes();
   unsigned int en2[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   std::vector<unsigned int> en_gold2 (en2, en2 + sizeof(en2) / sizeof(unsigned int) );
   CutElemCheckNodes(embedded_nodes2, en_gold2);
 
   //Test child elements
-  std::vector<EfaElement*> child_elem2 = MyMesh.getChildElements();
+  std::vector<EFAElement*> child_elem2 = MyMesh.getChildElements();
   unsigned int ce2[] = {};
   std::vector<unsigned int> ce_gold2 (ce2, ce2 + sizeof(ce2) / sizeof(unsigned int) );
   CutElemCheckElements(child_elem2, ce_gold2);
 
   //Test parent elements
-  std::vector<EfaElement*> parent_elem2 = MyMesh.getParentElements();
+  std::vector<EFAElement*> parent_elem2 = MyMesh.getParentElements();
   unsigned int pe2[] = {};
   std::vector<unsigned int> pe_gold2 (pe2, pe2 + sizeof(pe2) / sizeof(unsigned int) );
   CutElemCheckElements(parent_elem2, pe_gold2);

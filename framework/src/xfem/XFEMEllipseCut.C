@@ -13,12 +13,12 @@
 /****************************************************************/
 
 #include "libmesh/mesh_base.h"
-#include "XFEM_ellipse_cut.h"
+#include "XFEMEllipseCut.h"
 #include "EFAfuncs.h"
 #include "XFEMMiscFuncs.h"
 
-XFEM_ellipse_cut::XFEM_ellipse_cut(std::vector<Real> ellipse_nodes):
-   XFEM_geometric_cut(0.0, 0.0),
+XFEMEllipseCut::XFEMEllipseCut(std::vector<Real> ellipse_nodes):
+   XFEMGeometricCut(0.0, 0.0),
    _vertices(2, Point(0.0,0.0,0.0)),
    _center(Point(0.0,0.0,0.0)),
    _normal(Point(0.0,0.0,0.0)),
@@ -61,16 +61,16 @@ XFEM_ellipse_cut::XFEM_ellipse_cut(std::vector<Real> ellipse_nodes):
 
 }
 
-XFEM_ellipse_cut::~XFEM_ellipse_cut()
+XFEMEllipseCut::~XFEMEllipseCut()
 {}
 
-bool XFEM_ellipse_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
+bool XFEMEllipseCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting\n");
   return false;
 }
 
-bool XFEM_ellipse_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+bool XFEMEllipseCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
 {
   bool cut_elem = false;
 
@@ -135,19 +135,19 @@ bool XFEM_ellipse_cut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFac
    return cut_elem;
 }
 
-bool XFEM_ellipse_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time)
+bool XFEMEllipseCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting\n");
   return false;
 }
 
 
-bool XFEM_ellipse_cut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time)
+bool XFEMEllipseCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time)
 {
   return false;
 }
 
-bool XFEM_ellipse_cut::intersect_with_edge(Point p1, Point p2, Point &pint)
+bool XFEMEllipseCut::intersect_with_edge(Point p1, Point p2, Point &pint)
 {
   bool has_inters = false;
   double plane_point[3] = {_center(0), _center(1), _center(2)};
@@ -166,7 +166,7 @@ bool XFEM_ellipse_cut::intersect_with_edge(Point p1, Point p2, Point &pint)
   return has_inters;
 }
 
-bool XFEM_ellipse_cut::isInsideCutPlane(Point p){
+bool XFEMEllipseCut::isInsideCutPlane(Point p){
     Point ray = p - _center;
     if( std::abs(ray*_normal) < 1e-6 ){
        double xloc = ray*_unit_vec1;

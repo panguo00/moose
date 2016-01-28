@@ -12,17 +12,17 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef XFEM_SQUARE_CUT_H
-#define XFEM_SQUARE_CUT_H
+#ifndef XFEM_GEOMETRIC_CUT_2D_H
+#define XFEM_GEOMETRIC_CUT_2D_H
 
-#include "XFEM_geometric_cut.h"
+#include "XFEMGeometricCut.h"
 
-class XFEM_square_cut : public XFEM_geometric_cut
+class XFEMGeometricCut2D : public XFEMGeometricCut
 {
 public:
 
-  XFEM_square_cut(std::vector<Real> square_nodes);
-  ~XFEM_square_cut();
+  XFEMGeometricCut2D(Real x0_, Real y0_, Real x1_, Real y1_, Real t_start_, Real t_end_);
+  ~XFEMGeometricCut2D();
 
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
@@ -33,15 +33,7 @@ public:
                             std::vector<cutFace> & cutFaces, Real time);
 
 private:
-
-  std::vector<Point> _vertices;
-  Point _center;
-  Point _normal;
-
-private:
-
-  bool intersect_with_edge(Point p1, Point p2, Point &pint);
-  bool isInsideCutPlane(Point p);
+  Real x0, x1, y0, y1;
 };
 
 #endif

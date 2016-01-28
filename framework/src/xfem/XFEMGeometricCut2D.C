@@ -13,21 +13,21 @@
 /****************************************************************/
 
 #include "libmesh/mesh_base.h"
-#include "XFEM_geometric_cut_2d.h"
+#include "XFEMGeometricCut2D.h"
 
-XFEM_geometric_cut_2d::XFEM_geometric_cut_2d(Real x0_, Real y0_, Real x1_, Real y1_, Real t_start_, Real t_end_):
-  XFEM_geometric_cut(t_start_, t_end_),
+XFEMGeometricCut2D::XFEMGeometricCut2D(Real x0_, Real y0_, Real x1_, Real y1_, Real t_start_, Real t_end_):
+  XFEMGeometricCut(t_start_, t_end_),
   x0(x0_),
   x1(x1_),
   y0(y0_),
   y1(y1_)
 {}
 
-XFEM_geometric_cut_2d::~XFEM_geometric_cut_2d()
+XFEMGeometricCut2D::~XFEMGeometricCut2D()
 {}
 
 bool
-XFEM_geometric_cut_2d::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
+XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
 {
   //Use the algorithm described here to determine whether edges are cut by the cut line:
   //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
@@ -90,14 +90,14 @@ XFEM_geometric_cut_2d::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdg
 }
 
 bool
-XFEM_geometric_cut_2d::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
 {
   mooseError("invalid method for 2D mesh cutting");
   return false;
 }
 
 bool
-XFEM_geometric_cut_2d::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
+XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
                                             std::vector<cutEdge> & cutEdges, Real time)
 {
   //Use the algorithm described here to determine whether edges are cut by the cut line:
@@ -158,7 +158,7 @@ XFEM_geometric_cut_2d::cut_frag_by_geometry(std::vector<std::vector<Point> > & f
 }
 
 bool
-XFEM_geometric_cut_2d::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
+XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
                                             std::vector<cutFace> & cutFaces, Real time)
 {
   mooseError("invalid method for 2D mesh cutting");

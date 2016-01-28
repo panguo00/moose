@@ -22,10 +22,10 @@
 #include "Parser.h"
 #include "Factory.h"
 
-#include "XFEM_geometric_cut_2d.h"
-#include "XFEM_square_cut.h"
-#include "XFEM_circle_cut.h"
-#include "XFEM_ellipse_cut.h"
+#include "XFEMCircleCut.h"
+#include "XFEMGeometricCut2D.h"
+#include "XFEMSquareCut.h"
+#include "XFEMEllipseCut.h"
 
 // libMesh includes
 #include "libmesh/transient_system.h"
@@ -112,7 +112,7 @@ XFEMAction::act()
         Real y1 = (_xfem_cut_data[i*6+3]+trans[1])*scale[1];
         Real t0 = _xfem_cut_data[i*6+4];
         Real t1 = _xfem_cut_data[i*6+5];
-        xfem->addGeometricCut(new XFEM_geometric_cut_2d( x0, y0, x1, y1, t0, t1));
+        xfem->addGeometricCut(new XFEMGeometricCut2D( x0, y0, x1, y1, t0, t1));
       }
     }
     else if (_xfem_cut_type == "square_cut_3d")
@@ -126,7 +126,7 @@ XFEMAction::act()
         for(unsigned j = 0; j < 12; j++){
           square_cut_data[j] = _xfem_cut_data[i*12+j];
         }
-        xfem->addGeometricCut(new XFEM_square_cut(square_cut_data));
+        xfem->addGeometricCut(new XFEMSquareCut(square_cut_data));
       }
     }
     else if (_xfem_cut_type == "circle_cut_3d")
@@ -140,7 +140,7 @@ XFEMAction::act()
          for(unsigned j = 0; j < 9; j++){
            circle_cut_data[j] = _xfem_cut_data[i*9+j];
          }
-         xfem->addGeometricCut(new XFEM_circle_cut(circle_cut_data));
+         xfem->addGeometricCut(new XFEMCircleCut(circle_cut_data));
        }
     }
     else if (_xfem_cut_type == "ellipse_cut_3d")
@@ -154,7 +154,7 @@ XFEMAction::act()
         for(unsigned j = 0; j < 9; j++){
           ellipse_cut_data[j] = _xfem_cut_data[i*9+j];
         }
-        xfem->addGeometricCut(new XFEM_ellipse_cut(ellipse_cut_data));
+        xfem->addGeometricCut(new XFEMEllipseCut(ellipse_cut_data));
       }
     }
     else

@@ -12,35 +12,51 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "libmesh/mesh_base.h"
-#include "XFEM_geometric_cut.h"
+#ifndef EFANODE_H
+#define EFANODE_H
 
-XFEM_geometric_cut::XFEM_geometric_cut(Real t0, Real t1):
-  t_start(t0),
-  t_end(t1)
-{}
+#include <cstddef>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <set>
+#include <limits>
+#include <algorithm>
+#include <iomanip>
+#include <cmath>
+#include "MooseError.h"
 
-XFEM_geometric_cut::~XFEM_geometric_cut()
-{}
+#define CutElemMeshError(msg) {std::cout<<"CutElemMesh ERROR: "<<msg<<std::endl; exit(1);}
 
-Real XFEM_geometric_cut::cut_fraction(Real time)
+enum N_CATEGORY
 {
-  Real fraction = 0.0;
-  if (time > t_start)
-  {
-    if (time >= t_end)
-    {
-      fraction = 1.0;
-    }
-    else
-    {
-      fraction = (time - t_start) / (t_end - t_start);
-    }
-  }
-  return fraction;
-}
+  N_CATEGORY_PERMANENT,
+  N_CATEGORY_TEMP,
+  N_CATEGORY_EMBEDDED,
+  N_CATEGORY_LOCAL_INDEX
+};
 
-Real XFEM_geometric_cut::crossprod_2d(Real ax, Real ay, Real bx, Real by)
+class EFANode
 {
-  return (ax*by-bx*ay);
-}
+public:
+
+  EFANode(unsigned int nid, N_CATEGORY ncat, EFANode* nparent=NULL);
+
+private:
+
+  N_CATEGORY _category;
+  unsigned int _id;
+  EFANode* _parent;
+
+public:
+
+  std::string id_cat_str();
+  unsigned int id() const;
+  N_CATEGORY category() const;
+  EFANode* parent() const;
+  void remove_parent();
+};
+
+
+#endif

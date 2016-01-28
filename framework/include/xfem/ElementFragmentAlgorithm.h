@@ -24,12 +24,12 @@
 #include <set>
 #include <limits>
 
-#include "EFAnode.h"
 #include "FaceNode.h"
-#include "EfaEdge.h"
-#include "EfaElement2D.h"
-#include "EfaElement3D.h"
-#include "EFAfragment.h"
+#include "EFAEdge.h"
+#include "EFAElement2D.h"
+#include "EFAElement3D.h"
+#include "EFAFragment.h"
+#include "EFANode.h"
 
 class ElementFragmentAlgorithm
 {
@@ -44,22 +44,22 @@ public:
 
 private:
   //unsigned int MaxElemId;
-  std::map< unsigned int, EFAnode*> _permanent_nodes;
-  std::map< unsigned int, EFAnode*> _embedded_nodes;
-  std::map< unsigned int, EFAnode*> _temp_nodes;
-  std::map< unsigned int, EfaElement*> _elements;
+  std::map< unsigned int, EFANode*> _permanent_nodes;
+  std::map< unsigned int, EFANode*> _embedded_nodes;
+  std::map< unsigned int, EFANode*> _temp_nodes;
+  std::map< unsigned int, EFAElement*> _elements;
 //  std::map< std::set< EFAnode* >, std::set< EFAelement* > > _merged_edge_map;
-  std::set< EfaElement*> _crack_tip_elements;
-  std::vector< EFAnode* > _new_nodes;
-  std::vector< EfaElement* > _child_elements;
-  std::vector< EfaElement* > _parent_elements;
-  std::map< EFAnode*, std::set< EfaElement *> > _inverse_connectivity;
+  std::set< EFAElement*> _crack_tip_elements;
+  std::vector< EFANode* > _new_nodes;
+  std::vector< EFAElement* > _child_elements;
+  std::vector< EFAElement* > _parent_elements;
+  std::map< EFANode*, std::set< EFAElement *> > _inverse_connectivity;
 
 public:
 
   unsigned int add2DElements( std::vector< std::vector<unsigned int> > &quads );
-  EfaElement* add2DElement( std::vector<unsigned int> quad, unsigned int id );
-  EfaElement* add3DElement( std::vector<unsigned int> quad, unsigned int id );
+  EFAElement* add2DElement( std::vector<unsigned int> quad, unsigned int id );
+  EFAElement* add3DElement( std::vector<unsigned int> quad, unsigned int id );
 
   void updateEdgeNeighbors();
   void initCrackTipTopology();
@@ -75,7 +75,7 @@ public:
   void updateTopology(bool mergeUncutVirtualEdges=true);
   void reset();
   void clearAncestry();
-  void restoreFragmentInfo(EfaElement * const elem, const EfaElement * const from_elem);
+  void restoreFragmentInfo(EFAElement * const elem, const EFAElement * const from_elem);
 
   void createChildElements();
   void connectFragments(bool mergeUncutVirtualEdges);
@@ -85,14 +85,14 @@ public:
   void printMesh();
   void error(const std::string &error_string);
 
-  const std::vector<EfaElement*> &getChildElements(){return _child_elements;};
-  const std::vector<EfaElement*> &getParentElements(){return _parent_elements;};
-  const std::vector<EFAnode*> &getNewNodes(){return _new_nodes;};
-  const std::set<EfaElement*> &getCrackTipElements(){return _crack_tip_elements;};
-  const std::map<unsigned int, EFAnode*> &getPermanentNodes(){return _permanent_nodes;}
-  const std::map<unsigned int, EFAnode*> &getTempNodes(){return _temp_nodes;}
-  const std::map<unsigned int, EFAnode*> &getEmbeddedNodes(){return _embedded_nodes;}
-  EfaElement* getElemByID(unsigned int id);
+  const std::vector<EFAElement*> &getChildElements(){return _child_elements;};
+  const std::vector<EFAElement*> &getParentElements(){return _parent_elements;};
+  const std::vector<EFANode*> &getNewNodes(){return _new_nodes;};
+  const std::set<EFAElement*> &getCrackTipElements(){return _crack_tip_elements;};
+  const std::map<unsigned int, EFANode*> &getPermanentNodes(){return _permanent_nodes;}
+  const std::map<unsigned int, EFANode*> &getTempNodes(){return _temp_nodes;}
+  const std::map<unsigned int, EFANode*> &getEmbeddedNodes(){return _embedded_nodes;}
+  EFAElement* getElemByID(unsigned int id);
   unsigned int getElemIdByNodes(unsigned int * node_id);
   void clearPotentialIsolatedNodes();
 };

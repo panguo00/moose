@@ -15,28 +15,28 @@
 #ifndef FACENODE_H
 #define FACENODE_H
 
-#include "EFAnode.h"
+#include "EFANode.h"
 
 class FaceNode
 {
 public:
 
-  FaceNode(EFAnode* node, double xi, double eta);
+  FaceNode(EFANode* node, double xi, double eta);
   FaceNode(const FaceNode & other_face_node);
 
   ~FaceNode();
 
 private:
 
-  EFAnode * _node;
+  EFANode * _node;
   double _xi;
   double _eta;
 
 public:
 
-  EFAnode * get_node();
+  EFANode * get_node();
   double get_para_coords(unsigned int i);
-  void switchNode(EFAnode* new_old, EFAnode* old_node);
+  void switchNode(EFANode* new_old, EFANode* old_node);
 };
 
 #endif

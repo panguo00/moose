@@ -14,7 +14,7 @@
 
 #include "VolumeNode.h"
 
-VolumeNode::VolumeNode(EFAnode* node, double xi, double eta, double zeta):
+VolumeNode::VolumeNode(EFANode* node, double xi, double eta, double zeta):
   _node(node),
   _xi(xi),
   _eta(eta),
@@ -31,7 +31,7 @@ VolumeNode::VolumeNode(const VolumeNode & other_vol_node):
 VolumeNode::~VolumeNode()
 {}
 
-EFAnode *
+EFANode *
 VolumeNode::get_node()
 {
   return _node;
@@ -54,7 +54,7 @@ VolumeNode::get_para_coords(unsigned int i)
 }
 
 void
-VolumeNode::switchNode(EFAnode* new_node, EFAnode* old_node)
+VolumeNode::switchNode(EFANode* new_node, EFANode* old_node)
 {
   if (_node == old_node)
     _node = new_node;

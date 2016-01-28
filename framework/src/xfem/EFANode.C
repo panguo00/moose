@@ -12,28 +12,48 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef XFEM_GEOMETRIC_CUT_2D_H
-#define XFEM_GEOMETRIC_CUT_2D_H
+#include "EFANode.h"
 
-#include "XFEM_geometric_cut.h"
+EFANode::EFANode(unsigned int nid, N_CATEGORY ncat, EFANode* nparent):
+  _category(ncat),
+  _id(nid),
+  _parent(nparent)
+{};
 
-class XFEM_geometric_cut_2d : public XFEM_geometric_cut
+std::string
+EFANode::id_cat_str()
 {
-public:
+  std::ostringstream s;
+  s << _id;
+  if (_category == N_CATEGORY_EMBEDDED)
+    s<<"e";
+  else if (_category == N_CATEGORY_TEMP)
+    s<<"t";
+  else
+    s<<" ";
+  return s.str();
+}
 
-  XFEM_geometric_cut_2d(Real x0_, Real y0_, Real x1_, Real y1_, Real t_start_, Real t_end_);
-  ~XFEM_geometric_cut_2d();
+unsigned int
+EFANode::id() const
+{
+  return _id;
+}
 
-  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
+N_CATEGORY
+EFANode::category() const
+{
+  return _category;
+}
 
-  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
-                            std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
-                            std::vector<cutFace> & cutFaces, Real time);
+EFANode*
+EFANode::parent() const
+{
+  return _parent;
+}
 
-private:
-  Real x0, x1, y0, y1;
-};
-
-#endif
+void
+EFANode::remove_parent()
+{
+  _parent = NULL;
+}

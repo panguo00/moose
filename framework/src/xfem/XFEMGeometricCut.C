@@ -12,27 +12,35 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef EFAFRAGMENT_H
-#define EFAFRAGMENT_H
+#include "libmesh/mesh_base.h"
+#include "XFEMGeometricCut.h"
 
-#include "EfaEdge.h"
+XFEMGeometricCut::XFEMGeometricCut(Real t0, Real t1):
+  t_start(t0),
+  t_end(t1)
+{}
 
-class EFAfragment
+XFEMGeometricCut::~XFEMGeometricCut()
+{}
+
+Real XFEMGeometricCut::cut_fraction(Real time)
 {
-public:
+  Real fraction = 0.0;
+  if (time > t_start)
+  {
+    if (time >= t_end)
+    {
+      fraction = 1.0;
+    }
+    else
+    {
+      fraction = (time - t_start) / (t_end - t_start);
+    }
+  }
+  return fraction;
+}
 
-  EFAfragment();
-  virtual ~EFAfragment();
-
-  virtual void switchNode(EFAnode *new_node, EFAnode *old_node) = 0;
-  virtual bool containsNode(EFAnode *node) const = 0;
-  virtual unsigned int get_num_cuts() const = 0;
-  virtual std::set<EFAnode*> get_all_nodes() const = 0;
-  virtual bool isConnected(EFAfragment *other_fragment) const = 0;
-  virtual void remove_invalid_embedded(std::map<unsigned int, EFAnode*> &EmbeddedNodes) = 0;
-
-  // common methods
-  std::vector<EFAnode*> get_common_nodes(EFAfragment* other) const;
-};
-
-#endif
+Real XFEMGeometricCut::crossprod_2d(Real ax, Real ay, Real bx, Real by)
+{
+  return (ax*by-bx*ay);
+}

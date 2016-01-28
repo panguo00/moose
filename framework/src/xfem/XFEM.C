@@ -33,8 +33,8 @@
 #include "libmesh/node.h"
 
 #include "XFEM.h"
-#include "XFEM_geometric_cut.h"
-#include "XFEM_geometric_cut_2d.h"
+#include "XFEMGeometricCut.h"
+#include "XFEMGeometricCut2D.h"
 #include "EFAfuncs.h"
 
 #ifdef DEBUG
@@ -73,7 +73,7 @@ XFEM::setSecondMesh(MeshBase* mesh2)
 }
 
 void
-XFEM::addGeometricCut(XFEM_geometric_cut* geometric_cut)
+XFEM::addGeometricCut(XFEMGeometricCut* geometric_cut)
 {
   _geometric_cuts.push_back(geometric_cut);
 }
@@ -176,13 +176,13 @@ void
 XFEM::store_crack_tip_origin_and_direction()
 {
   _elem_crack_origin_direction_map.clear();
-  std::set<EfaElement*> CrackTipElements = _efa_mesh.getCrackTipElements();
-  std::set<EfaElement*>::iterator sit;
+  std::set<EFAElement*> CrackTipElements = _efa_mesh.getCrackTipElements();
+  std::set<EFAElement*>::iterator sit;
   for (sit = CrackTipElements.begin(); sit != CrackTipElements.end(); ++sit)
   {
     if (_mesh->mesh_dimension() == 2){
-      EfaElement2D * CEMElem = dynamic_cast<EfaElement2D*>(*sit);
-      EFAnode *tip_node = CEMElem->get_tip_embedded();
+      EFAElement2D * CEMElem = dynamic_cast<EFAElement2D*>(*sit);
+      EFANode *tip_node = CEMElem->get_tip_embedded();
       unsigned int cts_id = CEMElem->get_crack_tip_split_element_id();
 
       Point origin(0,0,0);
@@ -193,7 +193,7 @@ XFEM::store_crack_tip_origin_and_direction()
       if (it != _cut_elem_map.end())
       {
         const XFEMCutElem *xfce = it->second;
-        const EfaElement* EFAelem = xfce->get_efa_elem();
+        const EFAElement* EFAelem = xfce->get_efa_elem();
         if (EFAelem->is_partial()) // exclude the full crack tip elements
         {
           xfce->get_crack_tip_origin_and_direction(tip_node->id(),origin,direction);
@@ -352,7 +352,7 @@ void XFEM::build_efa_mesh()
     if (cemit != _cut_elem_map.end())
     {
       XFEMCutElem *xfce = cemit->second;
-      EfaElement * CEMElem = _efa_mesh.getElemByID(elem->id());
+      EFAElement * CEMElem = _efa_mesh.getElemByID(elem->id());
       _efa_mesh.restoreFragmentInfo(CEMElem, xfce->get_efa_elem());
     }
   }
@@ -395,8 +395,8 @@ XFEM::mark_cut_edges_by_geometry(Real time)
     std::vector<cutEdge> elemCutEdges;
     std::vector<cutEdge> fragCutEdges;
     std::vector<std::vector<Point> > frag_edges;
-    EfaElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-    EfaElement2D * CEMElem = dynamic_cast<EfaElement2D*>(EFAelem);
+    EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
+    EFAElement2D * CEMElem = dynamic_cast<EFAElement2D*>(EFAelem);
 
     if (!CEMElem)
     {
@@ -444,7 +444,7 @@ XFEM::mark_cut_edges_by_geometry(Real time)
 }
 
 void
-XFEM::correct_crack_extension_angle(const Elem * elem, EfaElement2D * CEMElem, EfaEdge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep)
+XFEM::correct_crack_extension_angle(const Elem * elem, EFAElement2D * CEMElem, EFAEdge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep)
 {
   std::vector<Point> edge_ends(2,Point(0.0,0.0,0.0));
   Point edge1(0.0,0.0,0.0);
@@ -572,8 +572,8 @@ XFEM::mark_cut_edges_by_state(Real time)
   {
     const Elem *elem = pmeit->first;
     RealVectorValue normal = pmeit->second;
-    EfaElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-    EfaElement2D * CEMElem = dynamic_cast<EfaElement2D*>(EFAelem);
+    EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
+    EFAElement2D * CEMElem = dynamic_cast<EFAElement2D*>(EFAelem);
 
     Real volfrac_elem = getPhysicalVolumeFraction(elem);
     if (volfrac_elem < 0.25)
@@ -593,8 +593,8 @@ XFEM::mark_cut_edges_by_state(Real time)
     unsigned int nsides = CEMElem->num_edges();
     unsigned int orig_cut_side_id = 999999;
     Real orig_cut_distance = -1.0;
-    EFAnode * orig_node = NULL;
-    EfaEdge * orig_edge = NULL;
+    EFANode * orig_node = NULL;
+    EFAEdge * orig_edge = NULL;
 
     //crack tip origin coordinates and direction
     Point crack_tip_origin(0,0,0);
@@ -770,14 +770,14 @@ XFEM::mark_cut_edges_by_state(Real time)
         Real x1 = x0 + _crack_growth_increment * growth_direction(0);
         Real y1 = y0 + _crack_growth_increment * growth_direction(1);
 
-        XFEM_geometric_cut * geometric_cut  = new XFEM_geometric_cut_2d( x0, y0, x1, y1, time*0.9, time*0.9);    
+        XFEMGeometricCut * geometric_cut  = new XFEMGeometricCut2D( x0, y0, x1, y1, time*0.9, time*0.9);    
 
         for ( ; elem_it != elem_end; ++elem_it)
         {
           const Elem *elem = *elem_it;
           std::vector<cutEdge> elemCutEdges;
-          EfaElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-          EfaElement2D * CEMElem = dynamic_cast<EfaElement2D*>(EFAelem);
+          EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
+          EFAElement2D * CEMElem = dynamic_cast<EFAElement2D*>(EFAelem);
 
           if (!CEMElem)
           {
@@ -845,8 +845,8 @@ XFEM::mark_cut_faces_by_geometry(Real time)
     std::vector<cutFace> elemCutFaces;
     std::vector<cutFace> fragCutFaces;
     std::vector<std::vector<Point> > frag_faces;
-    EfaElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-    EfaElement3D * CEMElem = dynamic_cast<EfaElement3D*>(EFAelem);
+    EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
+    EFAElement3D * CEMElem = dynamic_cast<EFAElement3D*>(EFAelem);
     if (!CEMElem)
     {
       libMesh::err << " ERROR: EFAelem is not of EFAelement3D type" << std::endl;
@@ -941,7 +941,7 @@ XFEM::cut_mesh_with_efa()
 //  std::cout<<"BWS cut done"<<std::endl;
 
   //Add new nodes
-  const std::vector<EFAnode*> NewNodes = _efa_mesh.getNewNodes();
+  const std::vector<EFANode*> NewNodes = _efa_mesh.getNewNodes();
   for (unsigned int i = 0; i < NewNodes.size(); ++i)
   {
     unsigned int new_node_id = NewNodes[i]->id();
@@ -987,7 +987,7 @@ XFEM::cut_mesh_with_efa()
 
 
   //Add new elements
-  const std::vector<EfaElement*> NewElements = _efa_mesh.getChildElements();
+  const std::vector<EFAElement*> NewElements = _efa_mesh.getChildElements();
   
 
   for (unsigned int i = 0; i < NewElements.size(); ++i)
@@ -1066,7 +1066,7 @@ XFEM::cut_mesh_with_efa()
     XFEMCutElem * xfce = NULL;
     if (_mesh->mesh_dimension() == 2)
     {
-      EfaElement2D* new_efa_elem2d = dynamic_cast<EfaElement2D*>(NewElements[i]);
+      EFAElement2D* new_efa_elem2d = dynamic_cast<EFAElement2D*>(NewElements[i]);
       if (!new_efa_elem2d)
       {
         libMesh::err << " ERROR: dynamic_cast to new_efa_elem2d fails" <<std::endl;
@@ -1076,7 +1076,7 @@ XFEM::cut_mesh_with_efa()
     }
     else if (_mesh->mesh_dimension() == 3)
     {
-      EfaElement3D* new_efa_elem3d = dynamic_cast<EfaElement3D*>(NewElements[i]);
+      EFAElement3D* new_efa_elem3d = dynamic_cast<EFAElement3D*>(NewElements[i]);
       if (!new_efa_elem3d)
       {
         libMesh::err << " ERROR: dynamic_cast to new_efa_elem3d fails" <<std::endl;
@@ -1133,7 +1133,7 @@ XFEM::cut_mesh_with_efa()
   } // i
 
   //delete elements
-  const std::vector<EfaElement*> DeleteElements = _efa_mesh.getParentElements();
+  const std::vector<EFAElement*> DeleteElements = _efa_mesh.getParentElements();
   for (unsigned int i = 0; i < DeleteElements.size(); ++i)
   {
     Elem *elem_to_delete = _mesh->elem(DeleteElements[i]->id());
@@ -1166,8 +1166,8 @@ XFEM::cut_mesh_with_efa()
   if (mesh_changed)
   {
     _crack_tip_elems.clear();
-    const std::set<EfaElement*> CrackTipElements = _efa_mesh.getCrackTipElements();
-    std::set<EfaElement*>::const_iterator sit;
+    const std::set<EFAElement*> CrackTipElements = _efa_mesh.getCrackTipElements();
+    std::set<EFAElement*>::const_iterator sit;
     for (sit = CrackTipElements.begin(); sit != CrackTipElements.end(); ++sit)
     {
       unsigned int eid = (*sit)->id();
@@ -1186,11 +1186,11 @@ XFEM::cut_mesh_with_efa()
 }
 
 Point
-XFEM::get_efa_node_coor(EFAnode* CEMnode, EfaElement* CEMElem,
+XFEM::get_efa_node_coor(EFANode* CEMnode, EFAElement* CEMElem,
                         const Elem *elem, MeshBase* displaced_mesh) const
 {
   Point node_coor(0.0,0.0,0.0);
-  std::vector<EFAnode*> master_nodes;
+  std::vector<EFANode*> master_nodes;
   std::vector<Point> master_points;
   std::vector<double> master_weights;
 
@@ -1227,7 +1227,7 @@ XFEM::getPhysicalVolumeFraction(const Elem* elem) const
   if (it != _cut_elem_map.end())
   {
     XFEMCutElem *xfce = it->second;
-    const EfaElement* EFAelem = xfce->get_efa_elem();
+    const EFAElement* EFAelem = xfce->get_efa_elem();
     if (EFAelem->is_partial()){ // exclude the full crack tip elements
       xfce->calc_physical_volfrac();
       phys_volfrac = xfce->get_physical_volfrac();
@@ -1295,7 +1295,7 @@ XFEM::get_cut_plane(const Elem* elem, const XFEM_CUTPLANE_QUANTITY quantity,
   if (it != _cut_elem_map.end())
   {
     const XFEMCutElem *xfce = it->second;
-    const EfaElement* EFAelem = xfce->get_efa_elem();
+    const EFAElement* EFAelem = xfce->get_efa_elem();
     if (EFAelem->is_partial()) // exclude the full crack tip elements
     {
       if ((unsigned int)quantity < 3)
@@ -1335,7 +1335,7 @@ XFEM::is_elem_cut(const Elem* elem) const
   if (it != _cut_elem_map.end())
   {
     const XFEMCutElem *xfce = it->second;
-    const EfaElement* EFAelem = xfce->get_efa_elem();
+    const EFAElement* EFAelem = xfce->get_efa_elem();
     if (EFAelem->is_partial()) // exclude the full crack tip elements
       is_cut = true;
   }
@@ -1358,7 +1358,7 @@ XFEM::get_frag_faces(const Elem* elem, std::vector<std::vector<Point> > &frag_fa
 }
 
 void
-XFEM::get_frag_edges(const Elem* elem, EfaElement2D* CEMElem, std::vector<std::vector<Point> > &frag_edges) const
+XFEM::get_frag_edges(const Elem* elem, EFAElement2D* CEMElem, std::vector<std::vector<Point> > &frag_edges) const
 {
   // N.B. CEMElem here has global EFAnode
   frag_edges.clear();
@@ -1377,7 +1377,7 @@ XFEM::get_frag_edges(const Elem* elem, EfaElement2D* CEMElem, std::vector<std::v
 }
 
 void
-XFEM::get_frag_faces(const Elem* elem, EfaElement3D* CEMElem, std::vector<std::vector<Point> > &frag_faces) const
+XFEM::get_frag_faces(const Elem* elem, EFAElement3D* CEMElem, std::vector<std::vector<Point> > &frag_faces) const
 {
   // N.B. CEMElem here has global EFAnode
   frag_faces.clear();

@@ -22,13 +22,13 @@ using namespace libMesh;
 class XFEMCutElem3D : public XFEMCutElem
 {
 public:
-  XFEMCutElem3D(Elem* elem, const EfaElement3D * const CEMelem, unsigned int n_qpoints);
+  XFEMCutElem3D(Elem* elem, const EFAElement3D * const CEMelem, unsigned int n_qpoints);
   ~XFEMCutElem3D();
 
 private:
 
-  EfaElement3D _efa_elem3d; // 3D EFAelement
-  virtual Point get_node_coords(EFAnode* node, MeshBase* displaced_mesh = NULL) const;
+  EFAElement3D _efa_elem3d; // 3D EFAelement
+  virtual Point get_node_coords(EFANode* node, MeshBase* displaced_mesh = NULL) const;
 
 public:
   virtual void calc_physical_volfrac();
@@ -37,7 +37,7 @@ public:
   virtual Point get_normal(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
   virtual void get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const;
   virtual void get_frag_faces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const;
-  virtual const EfaElement * get_efa_elem() const;
+  virtual const EFAElement * get_efa_elem() const;
   virtual unsigned int num_cut_planes() const;
 
 private:

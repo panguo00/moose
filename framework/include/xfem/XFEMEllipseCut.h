@@ -2,14 +2,14 @@
 #ifndef XFEM_ELLIPSE_CUT_H
 #define XFEM_ELLIPSE_CUT_H
 
-#include "XFEM_geometric_cut.h"
+#include "XFEMGeometricCut.h"
 
-class XFEM_ellipse_cut : public XFEM_geometric_cut
+class XFEMEllipseCut : public XFEMGeometricCut
 {
 public:
 
-  XFEM_ellipse_cut(std::vector<Real> square_nodes);
-  ~XFEM_ellipse_cut();
+  XFEMEllipseCut(std::vector<Real> square_nodes);
+  ~XFEMEllipseCut();
 
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);

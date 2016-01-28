@@ -12,51 +12,36 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef EFANODE_H
-#define EFANODE_H
+#ifndef XFEM_SQUARE_CUT_H
+#define XFEM_SQUARE_CUT_H
 
-#include <cstddef>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <set>
-#include <limits>
-#include <algorithm>
-#include <iomanip>
-#include <cmath>
-#include "MooseError.h"
+#include "XFEMGeometricCut.h"
 
-#define CutElemMeshError(msg) {std::cout<<"CutElemMesh ERROR: "<<msg<<std::endl; exit(1);}
-
-enum N_CATEGORY
-{
-  N_CATEGORY_PERMANENT,
-  N_CATEGORY_TEMP,
-  N_CATEGORY_EMBEDDED,
-  N_CATEGORY_LOCAL_INDEX
-};
-
-class EFAnode
+class XFEMSquareCut : public XFEMGeometricCut
 {
 public:
 
-  EFAnode(unsigned int nid, N_CATEGORY ncat, EFAnode* nparent=NULL);
+  XFEMSquareCut(std::vector<Real> square_nodes);
+  ~XFEMSquareCut();
+
+  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
+  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
+
+  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
+                            std::vector<cutEdge> & cutEdges, Real time);
+  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
+                            std::vector<cutFace> & cutFaces, Real time);
 
 private:
 
-  N_CATEGORY _category;
-  unsigned int _id;
-  EFAnode* _parent;
+  std::vector<Point> _vertices;
+  Point _center;
+  Point _normal;
 
-public:
+private:
 
-  std::string id_cat_str();
-  unsigned int id() const;
-  N_CATEGORY category() const;
-  EFAnode* parent() const;
-  void remove_parent();
+  bool intersect_with_edge(Point p1, Point p2, Point &pint);
+  bool isInsideCutPlane(Point p);
 };
-
 
 #endif

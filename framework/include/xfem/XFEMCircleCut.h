@@ -2,14 +2,14 @@
 #ifndef XFEM_CIRCLE_CUT_H
 #define XFEM_CIRCLE_CUT_H
 
-#include "XFEM_geometric_cut.h"
+#include "XFEMGeometricCut.h"
 
-class XFEM_circle_cut : public XFEM_geometric_cut
+class XFEMCircleCut : public XFEMGeometricCut
 {
 public:
 
-  XFEM_circle_cut(std::vector<Real> square_nodes);
-  ~XFEM_circle_cut();
+  XFEMCircleCut(std::vector<Real> square_nodes);
+  ~XFEMCircleCut();
 
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
   virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
