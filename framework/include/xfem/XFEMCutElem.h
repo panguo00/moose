@@ -63,7 +63,7 @@ public:
   virtual Point get_normal(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const = 0;
   virtual void get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const = 0;
   virtual void get_frag_faces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const = 0;
-  virtual const EFAelement * get_efa_elem() const = 0;
+  virtual const EfaElement * get_efa_elem() const = 0;
   virtual unsigned int num_cut_planes() const = 0;
 };
 #endif

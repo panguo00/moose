@@ -12,8 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EFAelement.h"
 #include "EFAfragment.h"
+
+#include "EfaElement.h"
 #include "EFAfuncs.h"
 
 EFAfragment::EFAfragment()

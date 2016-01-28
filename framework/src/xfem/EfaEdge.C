@@ -12,9 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EFAedge.h"
+#include "EfaEdge.h"
 
-EFAedge::EFAedge(EFAnode * node1, EFAnode * node2):
+EfaEdge::EfaEdge(EFAnode * node1, EFAnode * node2):
   _edge_node1(node1),
   _edge_node2(node2)
 {
@@ -23,7 +23,7 @@ EFAedge::EFAedge(EFAnode * node1, EFAnode * node2):
   consistency_check();
 }
 
-EFAedge::EFAedge(const EFAedge & other_edge)
+EfaEdge::EfaEdge(const EfaEdge & other_edge)
 {
   _edge_node1 = other_edge._edge_node1;
   _edge_node2 = other_edge._edge_node2;
@@ -32,11 +32,11 @@ EFAedge::EFAedge(const EFAedge & other_edge)
   consistency_check();
 }
 
-EFAedge::~EFAedge() // do not delete edge node - they will be deleted
+EfaEdge::~EfaEdge() // do not delete edge node - they will be deleted
 {}                  // in EFAelement's destructor
 
 bool
-EFAedge::equivalent(const EFAedge & other) const
+EfaEdge::equivalent(const EfaEdge & other) const
 {
   bool isEqual = false;
   if (other._edge_node1 == _edge_node1 &&
@@ -49,7 +49,7 @@ EFAedge::equivalent(const EFAedge & other) const
 }
 
 bool
-EFAedge::isPartialOverlap(const EFAedge & other) const
+EfaEdge::isPartialOverlap(const EfaEdge & other) const
 {
   bool partially_overlap = false;
   if (containsEdge(other) || other.containsEdge(*this))
@@ -58,7 +58,7 @@ EFAedge::isPartialOverlap(const EFAedge & other) const
 }
 
 bool
-EFAedge::containsEdge(const EFAedge & other) const
+EfaEdge::containsEdge(const EfaEdge & other) const
 {
   bool contains = false;
   if (containsNode(other._edge_node1) &&
@@ -68,7 +68,7 @@ EFAedge::containsEdge(const EFAedge & other) const
 }
 
 bool
-EFAedge::getNodeMasters(EFAnode* node, std::vector<EFAnode*> &master_nodes,
+EfaEdge::getNodeMasters(EFAnode* node, std::vector<EFAnode*> &master_nodes,
                         std::vector<double> &master_weights) const
 {
   master_nodes.clear();
@@ -134,7 +134,7 @@ EFAedge::getNodeMasters(EFAnode* node, std::vector<EFAnode*> &master_nodes,
 //}
 
 void
-EFAedge::add_intersection(double position, EFAnode * embedded_node_tmp, EFAnode * from_node)
+EfaEdge::add_intersection(double position, EFAnode * embedded_node_tmp, EFAnode * from_node)
 {
   _embedded_nodes.push_back(embedded_node_tmp);
   if (from_node == _edge_node1)
@@ -146,7 +146,7 @@ EFAedge::add_intersection(double position, EFAnode * embedded_node_tmp, EFAnode 
 }
 
 void
-EFAedge::reset_intersection(double position, EFAnode * embedded_node_tmp, EFAnode * from_node)
+EfaEdge::reset_intersection(double position, EFAnode * embedded_node_tmp, EFAnode * from_node)
 {
   for (unsigned int i = 0; i < _embedded_nodes.size(); ++i)
   {
@@ -164,7 +164,7 @@ EFAedge::reset_intersection(double position, EFAnode * embedded_node_tmp, EFAnod
 }
 
 void
-EFAedge::copy_intersection(const EFAedge & other, unsigned int from_node_id)
+EfaEdge::copy_intersection(const EfaEdge & other, unsigned int from_node_id)
 {
   _embedded_nodes.clear();
   _intersection_x.clear();
@@ -183,7 +183,7 @@ EFAedge::copy_intersection(const EFAedge & other, unsigned int from_node_id)
 }
 
 EFAnode *
-EFAedge::get_node(unsigned int index) const
+EfaEdge::get_node(unsigned int index) const
 {
   if (index == 0)
     return _edge_node1;
@@ -194,7 +194,7 @@ EFAedge::get_node(unsigned int index) const
 }
 
 void
-EFAedge::reverse_nodes()
+EfaEdge::reverse_nodes()
 {
   EFAnode* tmp = _edge_node1;
   _edge_node1 = _edge_node2;
@@ -204,13 +204,13 @@ EFAedge::reverse_nodes()
 }
 
 bool
-EFAedge::has_intersection() const
+EfaEdge::has_intersection() const
 {
   return (_embedded_nodes.size() > 0);
 }
 
 bool
-EFAedge::has_intersection_at_position(double position, EFAnode * from_node) const
+EfaEdge::has_intersection_at_position(double position, EFAnode * from_node) const
 {
   double tol = 1.e-4;
   bool has_int = false;
@@ -237,7 +237,7 @@ EFAedge::has_intersection_at_position(double position, EFAnode * from_node) cons
 }
 
 double
-EFAedge::get_intersection(unsigned int emb_id, EFAnode * from_node) const
+EfaEdge::get_intersection(unsigned int emb_id, EFAnode * from_node) const
 {
   if (from_node == _edge_node1)
     return _intersection_x[emb_id];
@@ -248,7 +248,7 @@ EFAedge::get_intersection(unsigned int emb_id, EFAnode * from_node) const
 }
 
 double
-EFAedge::distance_from_node1(EFAnode * node) const
+EfaEdge::distance_from_node1(EFAnode * node) const
 {
   double xi = -100.0;
   if (_edge_node1 == node)
@@ -266,7 +266,7 @@ EFAedge::distance_from_node1(EFAnode * node) const
 }
 
 bool
-EFAedge::is_embedded_node(const EFAnode * node) const
+EfaEdge::is_embedded_node(const EFAnode * node) const
 {
   bool is_emb = false;
   for (unsigned int i = 0; i < _embedded_nodes.size(); ++i)
@@ -281,7 +281,7 @@ EFAedge::is_embedded_node(const EFAnode * node) const
 }
 
 unsigned int
-EFAedge::get_embedded_index(EFAnode * node) const
+EfaEdge::get_embedded_index(EFAnode * node) const
 {
   unsigned int index = 99999;
   for (unsigned int i = 0; i < _embedded_nodes.size(); ++i)
@@ -296,7 +296,7 @@ EFAedge::get_embedded_index(EFAnode * node) const
 }
 
 unsigned int
-EFAedge::get_embedded_index(double position, EFAnode* from_node) const
+EfaEdge::get_embedded_index(double position, EFAnode* from_node) const
 {
   unsigned int index = 99999;
   double tol = 1.e-4;
@@ -323,7 +323,7 @@ EFAedge::get_embedded_index(double position, EFAnode* from_node) const
 }
 
 EFAnode *
-EFAedge::get_embedded_node(unsigned int index) const
+EfaEdge::get_embedded_node(unsigned int index) const
 {
   if (index < _embedded_nodes.size())
     return _embedded_nodes[index];
@@ -332,13 +332,13 @@ EFAedge::get_embedded_node(unsigned int index) const
 }
 
 unsigned int
-EFAedge::num_embedded_nodes() const
+EfaEdge::num_embedded_nodes() const
 {
   return _embedded_nodes.size();
 }
 
 void
-EFAedge::consistency_check()
+EfaEdge::consistency_check()
 {
   bool consistent = true;
   if ((_edge_node1->category() == N_CATEGORY_PERMANENT ||
@@ -356,7 +356,7 @@ EFAedge::consistency_check()
 }
 
 void
-EFAedge::switchNode(EFAnode *new_node, EFAnode *old_node)
+EfaEdge::switchNode(EFAnode *new_node, EFAnode *old_node)
 {
   if (_edge_node1 == old_node)
     _edge_node1 = new_node;
@@ -370,7 +370,7 @@ EFAedge::switchNode(EFAnode *new_node, EFAnode *old_node)
 }
 
 bool
-EFAedge::containsNode(const EFAnode *node) const
+EfaEdge::containsNode(const EFAnode *node) const
 {
   if (_edge_node1 == node || _edge_node2 == node ||
       is_embedded_node(node))
@@ -380,14 +380,14 @@ EFAedge::containsNode(const EFAnode *node) const
 }
 
 void
-EFAedge::remove_embedded_node()
+EfaEdge::remove_embedded_node()
 {
   _embedded_nodes.clear();
   _intersection_x.clear();
 }
 
 void
-EFAedge::remove_embedded_node(EFAnode * node)
+EfaEdge::remove_embedded_node(EFAnode * node)
 {
   unsigned int index = 0;
   bool node_found = false;

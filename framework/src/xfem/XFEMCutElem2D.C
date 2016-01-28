@@ -18,7 +18,7 @@
 #include "XFEMMiscFuncs.h"
 #include "petscblaslapack.h"
 
-XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EFAelement2D * const CEMelem, unsigned int n_qpoints):
+XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EfaElement2D * const CEMelem, unsigned int n_qpoints):
   XFEMCutElem(elem, n_qpoints),
   _efa_elem2d(CEMelem, true)
 {
@@ -210,7 +210,7 @@ XFEMCutElem2D::get_frag_faces(std::vector<std::vector<Point> > &frag_faces, Mesh
   }
 }
 
-const EFAelement*
+const EfaElement*
 XFEMCutElem2D::get_efa_elem() const
 {
   return &_efa_elem2d;

@@ -15,7 +15,7 @@
 #ifndef EFAFACE_H
 #define EFAFACE_H
 
-#include "EFAedge.h"
+#include "EfaEdge.h"
 #include "FaceNode.h"
 #include "EFAfragment2D.h"
 
@@ -36,7 +36,7 @@ private:
   unsigned int _num_nodes;
   std::vector<EFAnode*> _nodes;
   unsigned int _num_edges;
-  std::vector<EFAedge*> _edges;
+  std::vector<EfaEdge*> _edges;
   std::vector<FaceNode*> _interior_nodes;
 
 public:
@@ -53,8 +53,8 @@ public:
   void createNodes();
 
   unsigned int num_edges() const;
-  EFAedge* get_edge(unsigned int edge_id) const;
-  void set_edge(unsigned int edge_id, EFAedge* new_edge);
+  EfaEdge* get_edge(unsigned int edge_id) const;
+  void set_edge(unsigned int edge_id, EfaEdge* new_edge);
   void createEdges();
   void combine_two_edges(unsigned int edge_id1, unsigned int edge_id2);
   void sort_edges();
@@ -64,7 +64,7 @@ public:
   bool equivalent(const EFAface* other_face) const;
   bool containsNode(const EFAnode* node) const;
   bool containsFace(const EFAface* other_face) const;
-  bool doesOwnEdge(const EFAedge* other_edge) const;
+  bool doesOwnEdge(const EfaEdge* other_edge) const;
   void remove_embedded_node(EFAnode* emb_node);
   std::vector<EFAface*> split() const;
   EFAface* combine_with(const EFAface* other_face) const;

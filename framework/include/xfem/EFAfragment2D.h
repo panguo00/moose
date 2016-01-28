@@ -15,27 +15,27 @@
 #ifndef EFAFRAGMENT2D_H
 #define EFAFRAGMENT2D_H
 
-#include "EFAedge.h"
+#include "EfaEdge.h"
 #include "EFAfragment.h"
 #include "EFAface.h"
 
-class EFAelement2D;
+class EfaElement2D;
 class EFAface;
 
 class EFAfragment2D : public EFAfragment
 {
 public:
 
-  EFAfragment2D(EFAelement2D * host, bool create_boundary_edges,
-                const EFAelement2D * from_host,
+  EFAfragment2D(EfaElement2D * host, bool create_boundary_edges,
+                const EfaElement2D * from_host,
                 unsigned int frag_id = std::numeric_limits<unsigned int>::max());
-  EFAfragment2D(EFAelement2D* host, const EFAface * from_face);
+  EFAfragment2D(EfaElement2D* host, const EFAface * from_face);
   ~EFAfragment2D();
 
 private:
 
-  EFAelement2D * _host_elem;
-  std::vector<EFAedge*> _boundary_edges;
+  EfaElement2D * _host_elem;
+  std::vector<EfaEdge*> _boundary_edges;
 
 public:
   // override pure virtual methods
@@ -52,10 +52,10 @@ public:
   std::vector<unsigned int> get_interior_edge_id() const;
   bool isSecondaryInteriorEdge(unsigned int edge_id) const;
   unsigned int num_edges() const;
-  EFAedge* get_edge(unsigned int edge_id) const;
-  void add_edge(EFAedge* new_edge);
+  EfaEdge* get_edge(unsigned int edge_id) const;
+  void add_edge(EfaEdge* new_edge);
   std::set<EFAnode*> get_edge_nodes(unsigned int edge_id) const;
-  EFAelement2D * get_host() const;
+  EfaElement2D * get_host() const;
   std::vector<EFAfragment2D*> split();
 };
 

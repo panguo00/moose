@@ -15,7 +15,7 @@
 #ifndef EFAFRAGMENT_H
 #define EFAFRAGMENT_H
 
-#include "EFAedge.h"
+#include "EfaEdge.h"
 
 class EFAfragment
 {

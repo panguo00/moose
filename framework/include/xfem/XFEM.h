@@ -95,7 +95,7 @@ public:
   bool init_crack_intersect_edge(Point cut_origin, RealVectorValue cut_normal,
                                  Point edge_p1, Point edge_p2, Real & dist);
   bool cut_mesh_with_efa();
-  Point get_efa_node_coor(EFAnode* CEMnode, EFAelement* CEMElem,
+  Point get_efa_node_coor(EFAnode* CEMnode, EfaElement* CEMElem,
                           const Elem *elem, MeshBase* displaced_mesh = NULL) const;
 
   /**
@@ -116,7 +116,7 @@ public:
   void get_frag_faces(const Elem* elem, std::vector<std::vector<Point> > &frag_faces,
                       bool displaced_mesh = false) const;
   void store_crack_tip_origin_and_direction();
-  void correct_crack_extension_angle(const Elem * elem, EFAelement2D * CEMElem, EFAedge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep);
+  void correct_crack_extension_angle(const Elem * elem, EfaElement2D * CEMElem, EfaEdge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep);
   void get_crack_tip_origin(std::map<unsigned int, const Elem*> & elem_id_crack_tip, std::vector<Point> &  crack_front_points);
   //void update_crack_propagation_direction(const Elem* elem, Point direction);
   //void clear_crack_propagation_direction();
@@ -133,9 +133,9 @@ public:
 
 private:
 
-  void get_frag_edges(const Elem* elem, EFAelement2D* CEMElem,
+  void get_frag_edges(const Elem* elem, EfaElement2D* CEMElem,
                       std::vector<std::vector<Point> > &frag_edges) const;
-  void get_frag_faces(const Elem* elem, EFAelement3D* CEMElem,
+  void get_frag_faces(const Elem* elem, EfaElement3D* CEMElem,
                       std::vector<std::vector<Point> > &frag_faces) const;
 
 private:

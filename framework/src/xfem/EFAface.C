@@ -31,7 +31,7 @@ EFAface::EFAface(const EFAface & other_face):
   for (unsigned int k = 0; k < other_face._num_nodes; ++k)
   {
     _nodes[k] = other_face._nodes[k];
-    _edges[k] = new EFAedge(*other_face._edges[k]);
+    _edges[k] = new EfaEdge(*other_face._edges[k]);
   }
   for (unsigned int k = 0; k < other_face._interior_nodes.size(); ++k)
     _interior_nodes.push_back(new FaceNode(*other_face._interior_nodes[k]));
@@ -51,7 +51,7 @@ EFAface::EFAface(const EFAfragment2D* frag):
     if (!frag->get_edge(kprev)->containsNode(node))
       node = get_edge(k)->get_node(1);
     _nodes[k] = node;
-    _edges[k] = new EFAedge(*frag->get_edge(k));
+    _edges[k] = new EfaEdge(*frag->get_edge(k));
   }
 }
 
@@ -234,14 +234,14 @@ EFAface::num_edges() const
   return _edges.size();
 }
 
-EFAedge*
+EfaEdge*
 EFAface::get_edge(unsigned int edge_id) const
 {
   return _edges[edge_id];
 }
 
 void
-EFAface::set_edge(unsigned int edge_id, EFAedge* new_edge)
+EFAface::set_edge(unsigned int edge_id, EfaEdge* new_edge)
 {
   _edges[edge_id] = new_edge;
 }
@@ -254,7 +254,7 @@ EFAface::createEdges()
     unsigned int i_plus1(i < (_num_nodes-1) ? i+1 : 0);
     if (_nodes[i] != NULL && _nodes[i_plus1] != NULL)
     {
-      EFAedge * new_edge = new EFAedge(_nodes[i], _nodes[i_plus1]);
+      EfaEdge * new_edge = new EfaEdge(_nodes[i], _nodes[i_plus1]);
       _edges[i] = new_edge;
     }
     else
@@ -284,7 +284,7 @@ EFAface::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
     if (emb_node != _edges[edge_id2]->get_node(0))
       mooseError("in combine_two_edges face edges are not correctly set up");
 
-    EFAedge* full_edge = new EFAedge(new_node1, new_node2);
+    EfaEdge* full_edge = new EfaEdge(new_node1, new_node2);
     full_edge->add_intersection(-1.0, emb_node, new_node1); // dummy intersection_x
 
     delete _edges[edge_id1];
@@ -306,11 +306,11 @@ EFAface::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
 void
 EFAface::sort_edges()
 {
-  std::vector<EFAedge*> ordered_edges(_num_edges, NULL);
+  std::vector<EfaEdge*> ordered_edges(_num_edges, NULL);
   ordered_edges[0] = _edges[0];
   for (unsigned int i = 1; i < _num_edges; ++i)
   {
-    EFAedge* last_edge = ordered_edges[i-1];
+    EfaEdge* last_edge = ordered_edges[i-1];
     for (unsigned int j = 0; j < _num_edges; ++j)
     {
       if (!_edges[j]->equivalent(*last_edge) &&
@@ -408,7 +408,7 @@ EFAface::containsFace(const EFAface* other_face) const
 }
 
 bool
-EFAface::doesOwnEdge(const EFAedge* other_edge) const
+EFAface::doesOwnEdge(const EfaEdge* other_edge) const
 {
   for (unsigned int i = 0; i < _edges.size(); ++i)
     if (_edges[i]->equivalent(*other_edge))
@@ -486,27 +486,27 @@ EFAface::combine_with(const EFAface* other_face) const
     unsigned int other_edge_id0(other_common_edge_id<(other_face->_num_edges-1) ? other_common_edge_id+1 : 0);
     unsigned int other_edge_id1(other_common_edge_id>0 ? other_common_edge_id-1 : other_face->_num_edges-1);
 
-    EFAedge* new_edge0 = new EFAedge(_edges[this_edge_id0]->get_node(0), other_face->_edges[other_edge_id0]->get_node(1));
+    EfaEdge* new_edge0 = new EfaEdge(_edges[this_edge_id0]->get_node(0), other_face->_edges[other_edge_id0]->get_node(1));
     new_edge0->add_intersection(-1.0, common_nodes[0], new_edge0->get_node(0)); // dummy intersection_x
     new_frag->add_edge(new_edge0); // common_nodes[0]'s edge
 
     unsigned int other_iedge(other_edge_id0<(other_face->_num_edges-1) ? other_edge_id0+1 : 0);
     while (!other_face->_edges[other_iedge]->equivalent(*other_face->_edges[other_edge_id1]))
     {
-      new_frag->add_edge(new EFAedge(*other_face->_edges[other_iedge]));
+      new_frag->add_edge(new EfaEdge(*other_face->_edges[other_iedge]));
       other_iedge += 1;
       if (other_iedge == other_face->_num_edges)
         other_iedge = 0;
     } // loop over other_face's edges
 
-    EFAedge* new_edge1 = new EFAedge(other_face->_edges[other_edge_id1]->get_node(0), _edges[this_edge_id1]->get_node(1));
+    EfaEdge* new_edge1 = new EfaEdge(other_face->_edges[other_edge_id1]->get_node(0), _edges[this_edge_id1]->get_node(1));
     new_edge1->add_intersection(-1.0, common_nodes[1], new_edge1->get_node(0)); // dummy intersection_x
     new_frag->add_edge(new_edge1);
 
     unsigned int this_iedge(this_edge_id1<(_num_edges-1) ? this_edge_id1+1 : 0);
     while (!_edges[this_iedge]->equivalent(*_edges[this_edge_id0])) // common_nodes[1]'s edge
     {
-      new_frag->add_edge(new EFAedge(*_edges[this_iedge]));
+      new_frag->add_edge(new EfaEdge(*_edges[this_iedge]));
       this_iedge += 1;
       if (this_iedge == _num_edges)
         this_iedge = 0;

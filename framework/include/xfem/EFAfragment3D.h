@@ -15,23 +15,23 @@
 #ifndef EFAFRAGMENT3D_H
 #define EFAFRAGMENT3D_H
 
-#include "EFAedge.h"
+#include "EfaEdge.h"
 #include "EFAface.h"
 #include "EFAfragment.h"
 
-class EFAelement3D;
+class EfaElement3D;
 
 class EFAfragment3D : public EFAfragment
 {
 public:
 
-  EFAfragment3D(EFAelement3D* host, bool create_faces, const EFAelement3D * from_host,
+  EFAfragment3D(EfaElement3D* host, bool create_faces, const EfaElement3D * from_host,
                 unsigned int frag_id = std::numeric_limits<unsigned int>::max());
   ~EFAfragment3D();
 
 private:
 
-  EFAelement3D * _host_elem;
+  EfaElement3D * _host_elem;
   std::vector<EFAface*> _faces;
   std::vector<std::vector<EFAface*> > _adjacent_face_ix;
 
@@ -54,7 +54,7 @@ public:
   unsigned int get_face_id(EFAface* face) const;
   void add_face(EFAface* new_face);
   std::set<EFAnode*> get_face_nodes(unsigned int face_id) const;
-  EFAelement3D * get_host() const;
+  EfaElement3D * get_host() const;
   std::vector<EFAfragment3D*> split();
   void create_adjacent_face_ix();
   EFAface* get_adjacent_face(unsigned int face_id, unsigned int edge_id) const;
@@ -67,7 +67,7 @@ private:
 
   EFAfragment3D* connect_subfaces(EFAface* start_face, unsigned int startOldFaceID,
                                   std::vector<std::vector<EFAface*> > &subfaces);
-  EFAedge* lonelyEdgeOnFace(unsigned int face_id) const;
+  EfaEdge* lonelyEdgeOnFace(unsigned int face_id) const;
   void combine_two_faces(unsigned int face_id1, unsigned int face_id2, const EFAface* elem_face);
 };
 

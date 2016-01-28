@@ -12,13 +12,13 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EFAelement3D.h"
 #include "EFAfragment3D.h"
 #include "EFAfuncs.h"
 #include <typeinfo>
+#include "EfaElement3D.h"
 
-EFAfragment3D::EFAfragment3D(EFAelement3D * host, bool create_faces,
-                             const EFAelement3D * from_host, unsigned int frag_id):
+EFAfragment3D::EFAfragment3D(EfaElement3D * host, bool create_faces,
+                             const EfaElement3D * from_host, unsigned int frag_id):
   EFAfragment(),
   _host_elem(host)
 {
@@ -281,7 +281,7 @@ EFAfragment3D::get_face_nodes(unsigned int face_id) const
   return face_nodes;
 }
 
-EFAelement3D*
+EfaElement3D*
 EFAfragment3D::get_host() const
 {
   return _host_elem;
@@ -440,7 +440,7 @@ EFAfragment3D::connect_subfaces(EFAface* start_face, unsigned int startOldFaceID
   while (num_contrib_faces != old_num_contrib);
 
   // get the cut plane face
-  std::vector<EFAedge*> cut_plane_edges;
+  std::vector<EfaEdge*> cut_plane_edges;
   EFAfragment3D* new_frag = new EFAfragment3D(_host_elem, false, NULL);
   for (unsigned int i = 0; i < frag_faces.size(); ++i)
     new_frag->add_face(frag_faces[i]);
@@ -448,9 +448,9 @@ EFAfragment3D::connect_subfaces(EFAface* start_face, unsigned int startOldFaceID
 
   for (unsigned int i = 0; i < new_frag->num_faces(); ++i)
   {
-    EFAedge* lonely_edge = new_frag->lonelyEdgeOnFace(i);
+    EfaEdge* lonely_edge = new_frag->lonelyEdgeOnFace(i);
     if (lonely_edge != NULL) // valid edge
-      cut_plane_edges.push_back(new EFAedge(*lonely_edge));
+      cut_plane_edges.push_back(new EfaEdge(*lonely_edge));
   } // i
 
   EFAface* cut_face = new EFAface(cut_plane_edges.size());
@@ -466,7 +466,7 @@ EFAfragment3D::connect_subfaces(EFAface* start_face, unsigned int startOldFaceID
   return new_frag;
 }
 
-EFAedge*
+EfaEdge*
 EFAfragment3D::lonelyEdgeOnFace(unsigned int face_id) const
 {
   // if any face edge is not shared by any other face, we call it a lonely edge

@@ -12,38 +12,44 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef XFEMCUTELEM3D_H
-#define XFEMCUTELEM3D_H
+#ifndef XFEMCUTELEM2D_H
+#define XFEMCUTELEM2D_H
 
 #include "XFEMCutElem.h"
 
 using namespace libMesh;
 
-class XFEMCutElem3D : public XFEMCutElem
+class XFEMCutElem2D : public XFEMCutElem
 {
 public:
-  XFEMCutElem3D(Elem* elem, const EFAelement3D * const CEMelem, unsigned int n_qpoints);
-  ~XFEMCutElem3D();
+
+  XFEMCutElem2D(Elem* elem, const EfaElement2D * const CEMelem, unsigned int n_qpoints);
+  ~XFEMCutElem2D();
 
 private:
 
-  EFAelement3D _efa_elem3d; // 3D EFAelement
+  EfaElement2D _efa_elem2d; // 2D EFAelement
   virtual Point get_node_coords(EFAnode* node, MeshBase* displaced_mesh = NULL) const;
 
 public:
+
   virtual void calc_physical_volfrac();
   virtual void calc_mf_weights();
   virtual Point get_origin(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
   virtual Point get_normal(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
   virtual void get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const;
   virtual void get_frag_faces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const;
-  virtual const EFAelement * get_efa_elem() const;
+  virtual const EfaElement * get_efa_elem() const;
   virtual unsigned int num_cut_planes() const;
 
 private:
-  double polyhedron_volume_3d(double coord[], int order_max, int face_num,
-                              int node[], int node_num, int order[]) const;
-  void i4vec_zero(int n, int a[]) const;
+
+  void new_weight_mf(unsigned int nen, unsigned int nqp, std::vector<Point> &elem_nodes,
+                     std::vector<std::vector<Real> > &wsg);
+  void partial_gauss(unsigned int nen, std::vector<std::vector<Real> > &tsg);
+  void solve_mf(unsigned int nen, unsigned int nqp, std::vector<Point> &elem_nodes,
+                std::vector<std::vector<Real> > &tsg, std::vector<std::vector<Real> > &wsg);
+
 };
 
 #endif

@@ -17,7 +17,7 @@
 #include "XFEMCutElem3D.h"
 #include "EFAfuncs.h"
 
-XFEMCutElem3D::XFEMCutElem3D(Elem* elem, const EFAelement3D * const CEMelem, unsigned int n_qpoints):
+XFEMCutElem3D::XFEMCutElem3D(Elem* elem, const EfaElement3D * const CEMelem, unsigned int n_qpoints):
   XFEMCutElem(elem, n_qpoints),
   _efa_elem3d(CEMelem, true)
 {
@@ -198,7 +198,7 @@ XFEMCutElem3D::get_frag_faces(std::vector<std::vector<Point> > &frag_faces, Mesh
   mooseError("not available for XFEMCutElem3D for now");
 }
 
-const EFAelement*
+const EfaElement*
 XFEMCutElem3D::get_efa_elem() const
 {
   return &_efa_elem3d;

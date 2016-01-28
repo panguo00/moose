@@ -17,14 +17,14 @@
 
 #include "FaceNode.h"
 
-class EFAedge
+class EfaEdge
 {
   public:
 
-  EFAedge(EFAnode * node1, EFAnode * node2);
-  EFAedge(const EFAedge & other_edge);
+  EfaEdge(EFAnode * node1, EFAnode * node2);
+  EfaEdge(const EfaEdge & other_edge);
 
-  ~EFAedge();
+  ~EfaEdge();
 
   private:
 
@@ -35,16 +35,16 @@ class EFAedge
 
   public:
 
-  bool equivalent(const EFAedge & other) const;
-  bool isPartialOverlap(const EFAedge & other) const;
-  bool containsEdge(const EFAedge & other) const;
+  bool equivalent(const EfaEdge & other) const;
+  bool isPartialOverlap(const EfaEdge & other) const;
+  bool containsEdge(const EfaEdge & other) const;
   bool getNodeMasters(EFAnode* node, std::vector<EFAnode*> &master_nodes,
                       std::vector<double> &master_weights) const;
-//  bool operator < (const EFAedge & other) const;
+//  bool operator < (const EfaEdge & other) const;
 
   void add_intersection(double position, EFAnode * embedded_node_tmp, EFAnode * from_node);
   void reset_intersection(double position, EFAnode * embedded_node_tmp, EFAnode * from_node);
-  void copy_intersection(const EFAedge & other, unsigned int from_node_id);
+  void copy_intersection(const EfaEdge & other, unsigned int from_node_id);
   EFAnode * get_node(unsigned int index) const;
   void reverse_nodes();
 

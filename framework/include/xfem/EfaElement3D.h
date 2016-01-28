@@ -15,25 +15,25 @@
 #ifndef EFAELEMENT3D_H
 #define EFAELEMENT3D_H
 
+#include "EfaElement.h"
 #include "VolumeNode.h"
 #include "EFAfragment3D.h"
-#include "EFAelement.h"
 
-class EFAelement3D : public EFAelement
+class EfaElement3D : public EfaElement
 {
 public:
 
-  EFAelement3D(unsigned int eid, unsigned int n_nodes, unsigned int n_faces);
-  EFAelement3D(const EFAelement3D * from_elem, bool convert_to_local);
+  EfaElement3D(unsigned int eid, unsigned int n_nodes, unsigned int n_faces);
+  EfaElement3D(const EfaElement3D * from_elem, bool convert_to_local);
 
-  ~EFAelement3D();
+  ~EfaElement3D();
 
 private:
 
   unsigned int _num_faces;
   std::vector<EFAface*> _faces;
   std::vector<VolumeNode*> _interior_nodes;
-  std::vector<std::vector<EFAelement3D*> > _face_neighbors;
+  std::vector<std::vector<EfaElement3D*> > _face_neighbors;
   std::vector<EFAfragment3D*> _fragments;
   std::vector<std::vector<EFAface*> > _adjacent_face_ix;
 
@@ -50,36 +50,36 @@ public:
                              std::vector<double> &master_weights) const;
   virtual unsigned int num_interior_nodes() const;
 
-  virtual bool overlays_elem(const EFAelement* other_elem) const;
-  virtual unsigned int get_neighbor_index(const EFAelement* neighbor_elem) const;
+  virtual bool overlays_elem(const EfaElement* other_elem) const;
+  virtual unsigned int get_neighbor_index(const EfaElement* neighbor_elem) const;
   virtual void clear_neighbors();
-  virtual void setup_neighbors(std::map<EFAnode*, std::set<EFAelement*> > &InverseConnectivityMap);
+  virtual void setup_neighbors(std::map<EFAnode*, std::set<EfaElement*> > &InverseConnectivityMap);
   virtual void neighbor_sanity_check() const;
 
-  virtual void init_crack_tip(std::set<EFAelement*> &CrackTipElements);
-  virtual bool should_duplicate_for_crack_tip(const std::set<EFAelement*> &CrackTipElements);
-  virtual bool shouldDuplicateCrackTipSplitElem(const std::set<EFAelement*> &CrackTipElements);
+  virtual void init_crack_tip(std::set<EfaElement*> &CrackTipElements);
+  virtual bool should_duplicate_for_crack_tip(const std::set<EfaElement*> &CrackTipElements);
+  virtual bool shouldDuplicateCrackTipSplitElem(const std::set<EfaElement*> &CrackTipElements);
   virtual bool shouldDuplicateForPhantomCorner();
   virtual bool will_crack_tip_extend(std::vector<unsigned int> &split_neighbors) const;
   virtual bool is_crack_tip_elem() const;
 
   virtual unsigned int get_num_cuts() const;
   virtual bool is_final_cut() const;
-  virtual void update_fragments(const std::set<EFAelement*> &CrackTipElements,
+  virtual void update_fragments(const std::set<EfaElement*> &CrackTipElements,
                                 std::map<unsigned int, EFAnode*> &EmbeddedNodes);
   virtual void fragment_sanity_check(unsigned int n_old_frag_faces, unsigned int n_old_frag_cuts) const;
-  virtual void restore_fragment(const EFAelement* const from_elem);
+  virtual void restore_fragment(const EfaElement* const from_elem);
 
-  virtual void create_child(const std::set<EFAelement*> &CrackTipElements,
-                            std::map<unsigned int, EFAelement*> &Elements,
-                            std::map<unsigned int, EFAelement*> &newChildElements,
-                            std::vector<EFAelement*> &ChildElements,
-                            std::vector<EFAelement*> &ParentElements,
+  virtual void create_child(const std::set<EfaElement*> &CrackTipElements,
+                            std::map<unsigned int, EfaElement*> &Elements,
+                            std::map<unsigned int, EfaElement*> &newChildElements,
+                            std::vector<EfaElement*> &ChildElements,
+                            std::vector<EfaElement*> &ParentElements,
                             std::map<unsigned int, EFAnode*> &TempNodes);
   virtual void remove_phantom_embedded_nodes();
   virtual void connect_neighbors(std::map<unsigned int, EFAnode*> &PermanentNodes,
                                  std::map<unsigned int, EFAnode*> &TempNodes,
-                                 std::map<EFAnode*, std::set<EFAelement*> > &InverseConnectivityMap,
+                                 std::map<EFAnode*, std::set<EfaElement*> > &InverseConnectivityMap,
                                  bool merge_phantom_faces);
   virtual void print_elem();
 
@@ -95,11 +95,11 @@ public:
   void createFaces();
   EFAface* get_face(unsigned int face_id) const;
   unsigned int get_face_id(EFAface* face) const;
-  std::vector<unsigned int> get_common_face_id(const EFAelement3D* other_elem) const;
+  std::vector<unsigned int> get_common_face_id(const EfaElement3D* other_elem) const;
   unsigned int getNeighborFaceNodeID(unsigned int face_id, unsigned int node_id,
-                                     EFAelement3D* neighbor_elem) const;
+                                     EfaElement3D* neighbor_elem) const;
   unsigned int getNeighborFaceEdgeID(unsigned int face_id, unsigned int edg_id,
-                                     EFAelement3D* neighbor_elem) const;
+                                     EfaElement3D* neighbor_elem) const;
   void create_adjacent_face_ix();
   EFAface* get_adjacent_face(unsigned int face_id, unsigned int edge_id) const;
 
@@ -111,7 +111,7 @@ public:
   bool is_real_edge_cut(unsigned int ElemFaceID, unsigned int ElemFaceEdgeID, double position) const;
   bool is_face_phantom(unsigned int face_id) const;
   unsigned int num_face_neighbors(unsigned int face_id) const;
-  EFAelement3D* get_face_neighbor(unsigned int face_id, unsigned int neighbor_id) const;
+  EfaElement3D* get_face_neighbor(unsigned int face_id, unsigned int neighbor_id) const;
 
   bool frag_has_tip_faces() const;
   std::vector<unsigned int> get_tip_face_id() const;
