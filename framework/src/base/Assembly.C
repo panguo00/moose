@@ -1573,10 +1573,13 @@ Assembly::clearXFEMWeights()
 void
 Assembly::modifyWeightsDueToXFEM(const Elem *elem)
 {
- if((_xfem_weights.find(elem->id()) != _xfem_weights.end())){
+  if (_current_qrule == _current_qrule_arbitrary)
+    return;
+
+  if((_xfem_weights.find(elem->id()) != _xfem_weights.end()))
+  {
     mooseAssert(_xfem_weights[elem->id()].size()==_current_JxW.size(),"wrong number of entries in xfem_weights");
-      for(unsigned i = 0; i < _xfem_weights[elem->id()].size(); i++){
-        _current_JxW[i] = _current_JxW[i] * _xfem_weights[elem->id()][i];
-      }
-   }
+    for(unsigned i = 0; i < _xfem_weights[elem->id()].size(); i++)
+      _current_JxW[i] = _current_JxW[i] * _xfem_weights[elem->id()][i];
+  }
 }
