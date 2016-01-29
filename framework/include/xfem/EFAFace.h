@@ -41,45 +41,45 @@ private:
 
 public:
 
-  unsigned int num_nodes() const;
-  void set_node(unsigned int node_id, EFANode* node);
-  EFANode* get_node(unsigned int node_id) const;
+  unsigned int numNodes() const;
+  void setNode(unsigned int node_id, EFANode* node);
+  EFANode* getNode(unsigned int node_id) const;
   void switchNode(EFANode *new_node, EFANode *old_node);
   bool getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
                      std::vector<double> &master_weights) const;
-  bool getEdgeNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const;
-  bool getFaceNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const;
-  unsigned int num_interior_nodes() const;
+  bool getEdgeNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) const;
+  bool getFaceNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) const;
+  unsigned int numInteriorNodes() const;
   void createNodes();
 
-  unsigned int num_edges() const;
-  EFAEdge* get_edge(unsigned int edge_id) const;
-  void set_edge(unsigned int edge_id, EFAEdge* new_edge);
+  unsigned int numEdges() const;
+  EFAEdge* getEdge(unsigned int edge_id) const;
+  void setEdge(unsigned int edge_id, EFAEdge* new_edge);
   void createEdges();
-  void combine_two_edges(unsigned int edge_id1, unsigned int edge_id2);
-  void sort_edges();
-  void reverse_edges();
-  bool is_trig_quad() const;
+  void combineTwoEdges(unsigned int edge_id1, unsigned int edge_id2);
+  void sortEdges();
+  void reverseEdges();
+  bool isTriOrQuad() const;
 
   bool equivalent(const EFAFace* other_face) const;
   bool containsNode(const EFANode* node) const;
   bool containsFace(const EFAFace* other_face) const;
-  bool doesOwnEdge(const EFAEdge* other_edge) const;
-  void remove_embedded_node(EFANode* emb_node);
+  bool ownsEdge(const EFAEdge* other_edge) const;
+  void removeEmbeddedNode(EFANode* emb_node);
   std::vector<EFAFace*> split() const;
-  EFAFace* combine_with(const EFAFace* other_face) const;
-  void reset_edge_intersection(const EFAFace* ref_face);
+  EFAFace* combineWithFace(const EFAFace* other_face) const;
+  void resetEdgeIntersection(const EFAFace* ref_face);
 
-  unsigned int get_num_cuts() const;
-  bool has_intersection() const;
-  void copy_intersection(const EFAFace &from_face);
+  unsigned int getNumCuts() const;
+  bool hasIntersection() const;
+  void copyIntersection(const EFAFace &from_face);
   bool isAdjacent(const EFAFace* other_face) const;
   unsigned int adjacentCommonEdge(const EFAFace* other_face) const;
-  bool is_same_orientation(const EFAFace* other_face) const;
-  FaceNode* get_interior_node(unsigned int index) const;
+  bool hasSameOrientation(const EFAFace* other_face) const;
+  FaceNode* getInteriorNode(unsigned int index) const;
 
 private:
-  void mapParaCoorFrom1Dto2D(unsigned int edge_id, double xi_1d,
+  void mapParametricCoordsFrom1DTo2D(unsigned int edge_id, double xi_1d,
                              std::vector<double> &xi_2d) const;
 };
 

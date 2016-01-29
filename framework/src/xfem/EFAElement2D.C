@@ -67,17 +67,17 @@ EFAElement2D::EFAElement2D(const EFAElement2D* from_elem, bool convert_to_local)
 }
 
 EFAElement2D::EFAElement2D(const EFAFace* from_face):
-  EFAElement(0, from_face->num_nodes()),
-  _num_edges(from_face->num_edges()),
+  EFAElement(0, from_face->numNodes()),
+  _num_edges(from_face->numEdges()),
   _edges(_num_edges, NULL),
   _edge_neighbors(_num_edges,std::vector<EFAElement2D*>(1,NULL))
 {
   for (unsigned int i = 0; i < _num_nodes; ++i)
-    _nodes[i] = from_face->get_node(i);
+    _nodes[i] = from_face->getNode(i);
   for (unsigned int i = 0; i < _num_edges; ++i)
-    _edges[i] = new EFAEdge(*from_face->get_edge(i));
-  for (unsigned int i = 0; i < from_face->num_interior_nodes(); ++i)
-    _interior_nodes.push_back(new FaceNode(*from_face->get_interior_node(i)));
+    _edges[i] = new EFAEdge(*from_face->getEdge(i));
+  for (unsigned int i = 0; i < from_face->numInteriorNodes(); ++i)
+    _interior_nodes.push_back(new FaceNode(*from_face->getInteriorNode(i)));
 }
 
 EFAElement2D::~EFAElement2D()

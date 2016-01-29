@@ -1387,10 +1387,10 @@ XFEM::get_frag_faces(const Elem* elem, EFAElement3D* CEMElem, std::vector<std::v
       mooseError("element " << elem->id() << " has more than one fragments at this point");
     for (unsigned int i = 0; i < CEMElem->getFragment(0)->numFaces(); ++i)
     {
-      unsigned int num_face_nodes = CEMElem->getFragmentFace(0,i)->num_nodes();
+      unsigned int num_face_nodes = CEMElem->getFragmentFace(0,i)->numNodes();
       std::vector<Point> p_line(num_face_nodes, Point(0.0,0.0,0.0));
       for (unsigned int j = 0; j < num_face_nodes; ++j)
-        p_line[j] = get_efa_node_coor(CEMElem->getFragmentFace(0,i)->get_node(j), CEMElem, elem);
+        p_line[j] = get_efa_node_coor(CEMElem->getFragmentFace(0,i)->getNode(j), CEMElem, elem);
       frag_faces.push_back(p_line);
     } // i
   }

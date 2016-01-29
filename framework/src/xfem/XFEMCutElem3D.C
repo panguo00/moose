@@ -117,8 +117,8 @@ XFEMCutElem3D::get_origin(unsigned int plane_id, MeshBase* displaced_mesh) const
     {
       EFAFace* face = _efa_elem3d.getFragment(0)->getFace(i);
       std::vector<EFANode*> node_line;
-      for (unsigned int j = 0; j < face->num_nodes(); ++j)
-        node_line.push_back(face->get_node(j));
+      for (unsigned int j = 0; j < face->numNodes(); ++j)
+        node_line.push_back(face->getNode(j));
       cut_plane_nodes.push_back(node_line);
     }
   } // i
@@ -151,8 +151,8 @@ XFEMCutElem3D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
     {
       EFAFace* face = _efa_elem3d.getFragment(0)->getFace(i);
       std::vector<EFANode*> node_line;
-      for (unsigned int j = 0; j < face->num_nodes(); ++j)
-        node_line.push_back(face->get_node(j));
+      for (unsigned int j = 0; j < face->numNodes(); ++j)
+        node_line.push_back(face->getNode(j));
       cut_plane_nodes.push_back(node_line);
     }
   } // i

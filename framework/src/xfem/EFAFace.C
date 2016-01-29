@@ -50,7 +50,7 @@ EFAFace::EFAFace(const EFAFragment2D* frag):
     EFANode* node = frag->get_edge(k)->getNode(0);
     unsigned int kprev(k > 0 ? (k-1) : (frag->num_edges()-1));
     if (!frag->get_edge(kprev)->containsNode(node))
-      node = get_edge(k)->getNode(1);
+      node = getEdge(k)->getNode(1);
     _nodes[k] = node;
     _edges[k] = new EFAEdge(*frag->get_edge(k));
   }
@@ -77,19 +77,19 @@ EFAFace::~EFAFace()
 }
 
 unsigned int
-EFAFace::num_nodes() const
+EFAFace::numNodes() const
 {
   return _nodes.size();
 }
 
 void
-EFAFace::set_node(unsigned int node_id, EFANode* node)
+EFAFace::setNode(unsigned int node_id, EFANode* node)
 {
   _nodes[node_id] = node;
 }
 
 EFANode*
-EFAFace::get_node(unsigned int node_id) const
+EFAFace::getNode(unsigned int node_id) const
 {
   return _nodes[node_id];
 }
@@ -159,12 +159,12 @@ EFAFace::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
 }
 
 bool
-EFAFace::getEdgeNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const
+EFAFace::getEdgeNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) const
 {
-  //get the parametric coords of a node in an element edge
+  //get the parametric coords of a node in an edge
   unsigned int edge_id = 99999;
   bool edge_found = false;
-  if (!is_trig_quad())
+  if (!isTriOrQuad())
     mooseError("EFAface::getEdgeNodeParaCoor can only work for quad or trig faces");
 
   for (unsigned int i = 0; i < _num_edges; ++i)
@@ -180,19 +180,19 @@ EFAFace::getEdgeNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const
   {
     double rel_dist = _edges[edge_id]->distanceFromNode1(node);
     double xi_1d = 2.0*rel_dist - 1.0; // translate to [-1,1] parent coord syst
-    mapParaCoorFrom1Dto2D(edge_id, xi_1d, xi_2d);
+    mapParametricCoordsFrom1DTo2D(edge_id, xi_1d, xi_2d);
   }
   return edge_found;
 }
 
 bool
-EFAFace::getFaceNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const
+EFAFace::getFaceNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) const
 {
   bool node_in_face = false;
-  if (!is_trig_quad())
+  if (!isTriOrQuad())
     mooseError("EFAface::getFaceNodeParaCoor can only work for quad or trig faces");
 
-  if (getEdgeNodeParaCoor(node, xi_2d))
+  if (getEdgeNodeParametricCoords(node, xi_2d))
     node_in_face = true;
   else
   {
@@ -212,7 +212,7 @@ EFAFace::getFaceNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const
 }
 
 unsigned int
-EFAFace::num_interior_nodes() const
+EFAFace::numInteriorNodes() const
 {
   return _interior_nodes.size();
 }
@@ -230,19 +230,19 @@ EFAFace::createNodes()
 }
 
 unsigned int
-EFAFace::num_edges() const
+EFAFace::numEdges() const
 {
   return _edges.size();
 }
 
 EFAEdge*
-EFAFace::get_edge(unsigned int edge_id) const
+EFAFace::getEdge(unsigned int edge_id) const
 {
   return _edges[edge_id];
 }
 
 void
-EFAFace::set_edge(unsigned int edge_id, EFAEdge* new_edge)
+EFAFace::setEdge(unsigned int edge_id, EFAEdge* new_edge)
 {
   _edges[edge_id] = new_edge;
 }
@@ -264,7 +264,7 @@ EFAFace::createEdges()
 }
 
 void
-EFAFace::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
+EFAFace::combineTwoEdges(unsigned int edge_id1, unsigned int edge_id2)
 {
   if (_edges[edge_id1]->containsNode(_edges[edge_id2]->getNode(0)) ||
       _edges[edge_id1]->containsNode(_edges[edge_id2]->getNode(1)))
@@ -305,7 +305,7 @@ EFAFace::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
 }
 
 void
-EFAFace::sort_edges()
+EFAFace::sortEdges()
 {
   std::vector<EFAEdge*> ordered_edges(_num_edges, NULL);
   ordered_edges[0] = _edges[0];
@@ -326,7 +326,7 @@ EFAFace::sort_edges()
 }
 
 void
-EFAFace::reverse_edges()
+EFAFace::reverseEdges()
 {
   // reverse the orientation of the face
   for (unsigned int i = 0; i < _edges.size(); ++i)
@@ -335,7 +335,7 @@ EFAFace::reverse_edges()
 }
 
 bool
-EFAFace::is_trig_quad() const
+EFAFace::isTriOrQuad() const
 {
   if (_num_edges == 3 || _num_edges == 4)
     return true;
@@ -370,27 +370,27 @@ EFAFace::equivalent(const EFAFace* other_face) const
 bool
 EFAFace::containsNode(const EFANode* node) const
 {
-  bool contain = false;
+  bool contains = false;
   for (unsigned int i = 0; i < _num_edges; ++i)
   {
     if (_edges[i]->containsNode(node))
     {
-      contain = true;
+      contains = true;
       break;
     }
-  } // i
-  if (!contain)
+  }
+  if (!contains)
   {
     for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
     {
       if (_interior_nodes[i]->get_node() == node)
       {
-        contain = true;
+        contains = true;
         break;
       }
-    } // i
+    }
   }
-  return contain;
+  return contains;
 }
 
 bool
@@ -409,7 +409,7 @@ EFAFace::containsFace(const EFAFace* other_face) const
 }
 
 bool
-EFAFace::doesOwnEdge(const EFAEdge* other_edge) const
+EFAFace::ownsEdge(const EFAEdge* other_edge) const
 {
   for (unsigned int i = 0; i < _edges.size(); ++i)
     if (_edges[i]->equivalent(*other_edge))
@@ -418,7 +418,7 @@ EFAFace::doesOwnEdge(const EFAEdge* other_edge) const
 }
 
 void
-EFAFace::remove_embedded_node(EFANode* emb_node)
+EFAFace::removeEmbeddedNode(EFANode* emb_node)
 {
   for (unsigned int i = 0; i < _num_edges; ++i)
     _edges[i]->removeEmbeddedNode(emb_node);
@@ -445,9 +445,9 @@ std::vector<EFAFace*>
 EFAFace::split() const
 {
   std::vector<EFAFace*> new_faces;
-  if (get_num_cuts() > 0)
+  if (getNumCuts() > 0)
   {
-    // contruct a fragment from this face
+    // construct a fragment from this face
     EFAFragment2D* frag_tmp = new EFAFragment2D(NULL, this);
     std::vector<EFAFragment2D*> new_frags_tmp = frag_tmp->split();
 
@@ -467,7 +467,7 @@ EFAFace::split() const
 }
 
 EFAFace*
-EFAFace::combine_with(const EFAFace* other_face) const
+EFAFace::combineWithFace(const EFAFace* other_face) const
 {
   // combine this face with another adjacent face
   EFAFace* new_face = NULL;
@@ -515,14 +515,14 @@ EFAFace::combine_with(const EFAFace* other_face) const
 
     new_face = new EFAFace(new_frag);
     delete new_frag;
-    if (new_face->num_nodes() != new_n_nodes)
+    if (new_face->numNodes() != new_n_nodes)
       mooseError("combine_with() sanity check fails");
   }
   return new_face;
 }
 
 void
-EFAFace::reset_edge_intersection(const EFAFace* ref_face)
+EFAFace::resetEdgeIntersection(const EFAFace* ref_face)
 {
   // set up correct edge intersections based on the reference face
   // the reference face must contain the edge of this face that is to be set up
@@ -543,11 +543,11 @@ EFAFace::reset_edge_intersection(const EFAFace* ref_face)
         std::vector<double> node1_xi2d(2,0.0);
         std::vector<double> node2_xi2d(2,0.0);
         std::vector<double> emb_xi2d(2,0.0);
-        if (ref_face->getFaceNodeParaCoor(edge_node1, node1_xi2d) &&
-            ref_face->getFaceNodeParaCoor(edge_node2, node2_xi2d) &&
-            ref_face->getFaceNodeParaCoor(emb_node, emb_xi2d))
+        if (ref_face->getFaceNodeParametricCoords(edge_node1, node1_xi2d) &&
+            ref_face->getFaceNodeParametricCoords(edge_node2, node2_xi2d) &&
+            ref_face->getFaceNodeParametricCoords(emb_node, emb_xi2d))
         {
-          // TODO: this is not corrent for unstructured elements. Need a fix
+          // TODO: this is not correct for unstructured elements. Need a fix
           double dist2node1 = std::sqrt((emb_xi2d[0]-node1_xi2d[0])*(emb_xi2d[0]-node1_xi2d[0])
                                       + (emb_xi2d[1]-node1_xi2d[1])*(emb_xi2d[1]-node1_xi2d[1]));
           double full_dist = std::sqrt((node2_xi2d[0]-node1_xi2d[0])*(node2_xi2d[0]-node1_xi2d[0])
@@ -563,7 +563,7 @@ EFAFace::reset_edge_intersection(const EFAFace* ref_face)
 }
 
 unsigned int
-EFAFace::get_num_cuts() const
+EFAFace::getNumCuts() const
 {
   unsigned int num_cuts = 0;
   for (unsigned int i = 0; i < _edges.size(); ++i)
@@ -575,32 +575,32 @@ EFAFace::get_num_cuts() const
 }
 
 bool
-EFAFace::has_intersection() const
+EFAFace::hasIntersection() const
 {
-  if (get_num_cuts() > 1)
+  if (getNumCuts() > 1)
     return true;
   else
     return false;
 }
 
 void
-EFAFace::copy_intersection(const EFAFace &from_face)
+EFAFace::copyIntersection(const EFAFace &from_face)
 {
   for (unsigned int i = 0; i < _edges.size(); ++i)
     if (from_face._edges[i]->hasIntersection())
       _edges[i]->copyIntersection(*from_face._edges[i], 0);
 
-  if (from_face.num_interior_nodes() > 0)
+  if (from_face.numInteriorNodes() > 0)
     _interior_nodes = from_face._interior_nodes;
 }
 
 bool
 EFAFace::isAdjacent(const EFAFace* other_face) const
 {
-  // two faces are ajacent if they only share one common edge
+  // two faces are adjacent if they only share one common edge
   unsigned int counter = 0;
   for (unsigned int i = 0; i < _num_edges; ++i)
-    if (other_face->doesOwnEdge(_edges[i]))
+    if (other_face->ownsEdge(_edges[i]))
       counter += 1;
 
   if (counter == 1)
@@ -615,7 +615,7 @@ EFAFace::adjacentCommonEdge(const EFAFace* other_face) const
   if (isAdjacent(other_face))
   {
     for (unsigned int i = 0; i < _num_edges; ++i)
-      if (other_face->doesOwnEdge(_edges[i]))
+      if (other_face->ownsEdge(_edges[i]))
         return i;
   }
   else
@@ -624,12 +624,12 @@ EFAFace::adjacentCommonEdge(const EFAFace* other_face) const
 }
 
 bool
-EFAFace::is_same_orientation(const EFAFace* other_face) const
+EFAFace::hasSameOrientation(const EFAFace* other_face) const
 {
   bool same_order = false;
   if (equivalent(other_face))
   {
-    for (unsigned int i = 0; i < other_face->num_nodes(); ++i)
+    for (unsigned int i = 0; i < other_face->numNodes(); ++i)
     {
       if (other_face->_nodes[i] == _nodes[0])
       {
@@ -645,19 +645,19 @@ EFAFace::is_same_orientation(const EFAFace* other_face) const
     } // i
   }
   else
-    std::cout << "WARNING: in is_same_orientation two faces does not overlap" << std::endl;
+    std::cout << "WARNING: in hasSameOrientation two faces does not overlap" << std::endl;
   return same_order;
 }
 
 FaceNode*
-EFAFace::get_interior_node(unsigned int index) const
+EFAFace::getInteriorNode(unsigned int index) const
 {
   return _interior_nodes[index];
 }
 
 void
-EFAFace::mapParaCoorFrom1Dto2D(unsigned int edge_id, double xi_1d,
-                               std::vector<double> &xi_2d) const
+EFAFace::mapParametricCoordsFrom1DTo2D(unsigned int edge_id, double xi_1d,
+                                       std::vector<double> &xi_2d) const
 {
   // given the 1D parent coord of a point in an 2D element edge, translate it to 2D para coords
   xi_2d.resize(2,0.0);
@@ -707,6 +707,6 @@ EFAFace::mapParaCoorFrom1Dto2D(unsigned int edge_id, double xi_1d,
       mooseError("edge_id out of bounds");
   }
   else
-    mooseError("the EFAface::mapParaCoorFrom1Dto2D only works for quad and trig faces");
+    mooseError("the EFAface::mapParametricCoordsFrom1DTo2D only works for quad and tri faces");
 }
 

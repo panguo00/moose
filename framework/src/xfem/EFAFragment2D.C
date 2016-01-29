@@ -47,8 +47,8 @@ EFAFragment2D::EFAFragment2D(EFAElement2D* host, const EFAFace* from_face):
   EFAFragment(),
   _host_elem(host)
 {
-  for (unsigned int i = 0; i < from_face->num_edges(); ++i)
-    _boundary_edges.push_back(new EFAEdge(*from_face->get_edge(i)));
+  for (unsigned int i = 0; i < from_face->numEdges(); ++i)
+    _boundary_edges.push_back(new EFAEdge(*from_face->getEdge(i)));
 }
 
 EFAFragment2D::~EFAFragment2D()

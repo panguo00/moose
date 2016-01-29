@@ -110,14 +110,14 @@ public:
                              unsigned int &FragFaceID, unsigned int &FragFaceEdgeID) const;
   bool isPhysicalEdgeCut(unsigned int ElemFaceID, unsigned int ElemFaceEdgeID, double position) const;
   bool isFacePhantom(unsigned int face_id) const;
-  unsigned int num_face_neighbors(unsigned int face_id) const;
-  EFAElement3D* get_face_neighbor(unsigned int face_id, unsigned int neighbor_id) const;
+  unsigned int numFaceNeighbors(unsigned int face_id) const;
+  EFAElement3D* getFaceNeighbor(unsigned int face_id, unsigned int neighbor_id) const;
 
-  bool frag_has_tip_faces() const;
-  std::vector<unsigned int> get_tip_face_id() const;
-  std::set<EFANode*> get_tip_embedded_nodes() const;
-  bool face_contains_tip(unsigned int face_id) const;
-  bool frag_face_already_cut(unsigned int ElemFaceID) const;
+  bool fragmentHasTipFaces() const;
+  std::vector<unsigned int> getTipFaceIDs() const;
+  std::set<EFANode*> getTipEmbeddedNodes() const;
+  bool faceContainsTip(unsigned int face_id) const;
+  bool fragmentFaceAlreadyCut(unsigned int ElemFaceID) const;
 
   void addFaceEdgeCut(unsigned int face_id, unsigned int edge_id, double position,
                       EFANode* embedded_node, std::map<unsigned int, EFANode*> &EmbeddedNodes,
@@ -131,7 +131,7 @@ private:
   // EFAelement3D specific methods
   void checkNeighborFaceCut(unsigned int face_id, unsigned int edge_id, double position,
                             EFANode* from_node, EFANode* embedded_node, EFANode* &local_embedded);
-  void mapParaCoorFrom2Dto3D(unsigned int face_id, std::vector<double> &xi_2d,
+  void mapParametricCoordinateFrom2DTo3D(unsigned int face_id, std::vector<double> &xi_2d,
                              std::vector<double> &xi_3d) const;
 };
 
