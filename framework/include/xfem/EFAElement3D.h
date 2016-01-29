@@ -40,48 +40,48 @@ private:
 public:
 
   // override virtual methods in base class
-  virtual unsigned int num_frags() const;
-  virtual bool is_partial() const;
-  virtual void get_non_physical_nodes(std::set<EFANode*> &non_physical_nodes) const;
+  virtual unsigned int numFragments() const;
+  virtual bool isPartial() const;
+  virtual void getNonPhysicalNodes(std::set<EFANode*> &non_physical_nodes) const;
 
   virtual void switchNode(EFANode *new_node, EFANode *old_node, bool descend_to_parent);
   virtual void switchEmbeddedNode(EFANode *new_node, EFANode *old_node);
   virtual void getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
                              std::vector<double> &master_weights) const;
-  virtual unsigned int num_interior_nodes() const;
+  virtual unsigned int numInteriorNodes() const;
 
-  virtual bool overlays_elem(const EFAElement* other_elem) const;
-  virtual unsigned int get_neighbor_index(const EFAElement* neighbor_elem) const;
-  virtual void clear_neighbors();
-  virtual void setup_neighbors(std::map<EFANode*, std::set<EFAElement*> > &InverseConnectivityMap);
-  virtual void neighbor_sanity_check() const;
+  virtual bool overlaysElement(const EFAElement* other_elem) const;
+  virtual unsigned int getNeighborIndex(const EFAElement* neighbor_elem) const;
+  virtual void clearNeighbors();
+  virtual void setupNeighbors(std::map<EFANode*, std::set<EFAElement*> > &InverseConnectivityMap);
+  virtual void neighborSanityCheck() const;
 
-  virtual void init_crack_tip(std::set<EFAElement*> &CrackTipElements);
-  virtual bool should_duplicate_for_crack_tip(const std::set<EFAElement*> &CrackTipElements);
-  virtual bool shouldDuplicateCrackTipSplitElem(const std::set<EFAElement*> &CrackTipElements);
+  virtual void initCrackTip(std::set<EFAElement*> &CrackTipElements);
+  virtual bool shouldDuplicateForCrackTip(const std::set<EFAElement*> &CrackTipElements);
+  virtual bool shouldDuplicateCrackTipSplitElement(const std::set<EFAElement*> &CrackTipElements);
   virtual bool shouldDuplicateForPhantomCorner();
-  virtual bool will_crack_tip_extend(std::vector<unsigned int> &split_neighbors) const;
-  virtual bool is_crack_tip_elem() const;
+  virtual bool willCrackTipExtend(std::vector<unsigned int> &split_neighbors) const;
+  virtual bool isCrackTipElement() const;
 
-  virtual unsigned int get_num_cuts() const;
-  virtual bool is_final_cut() const;
-  virtual void update_fragments(const std::set<EFAElement*> &CrackTipElements,
+  virtual unsigned int getNumCuts() const;
+  virtual bool isFinalCut() const;
+  virtual void updateFragments(const std::set<EFAElement*> &CrackTipElements,
                                 std::map<unsigned int, EFANode*> &EmbeddedNodes);
-  virtual void fragment_sanity_check(unsigned int n_old_frag_faces, unsigned int n_old_frag_cuts) const;
-  virtual void restore_fragment(const EFAElement* const from_elem);
+  virtual void fragmentSanityCheck(unsigned int n_old_frag_faces, unsigned int n_old_frag_cuts) const;
+  virtual void restoreFragment(const EFAElement* const from_elem);
 
-  virtual void create_child(const std::set<EFAElement*> &CrackTipElements,
+  virtual void createChild(const std::set<EFAElement*> &CrackTipElements,
                             std::map<unsigned int, EFAElement*> &Elements,
                             std::map<unsigned int, EFAElement*> &newChildElements,
                             std::vector<EFAElement*> &ChildElements,
                             std::vector<EFAElement*> &ParentElements,
                             std::map<unsigned int, EFANode*> &TempNodes);
-  virtual void remove_phantom_embedded_nodes();
-  virtual void connect_neighbors(std::map<unsigned int, EFANode*> &PermanentNodes,
+  virtual void removePhantomEmbeddedNode();
+  virtual void connectNeighbors(std::map<unsigned int, EFANode*> &PermanentNodes,
                                  std::map<unsigned int, EFANode*> &TempNodes,
                                  std::map<EFANode*, std::set<EFAElement*> > &InverseConnectivityMap,
                                  bool merge_phantom_faces);
-  virtual void print_elem();
+  virtual void printElement();
 
   // EFAelement3D specific methods
   EFAFragment3D* get_fragment(unsigned int frag_id) const;

@@ -42,27 +42,27 @@ class EFAEdge
                       std::vector<double> &master_weights) const;
 //  bool operator < (const EFAEdge & other) const;
 
-  void add_intersection(double position, EFANode * embedded_node_tmp, EFANode * from_node);
-  void reset_intersection(double position, EFANode * embedded_node_tmp, EFANode * from_node);
-  void copy_intersection(const EFAEdge & other, unsigned int from_node_id);
-  EFANode * get_node(unsigned int index) const;
-  void reverse_nodes();
+  void addIntersection(double position, EFANode * embedded_node_tmp, EFANode * from_node);
+  void resetIntersection(double position, EFANode * embedded_node_tmp, EFANode * from_node);
+  void copyIntersection(const EFAEdge & other, unsigned int from_node_id);
+  EFANode * getNode(unsigned int index) const;
+  void reverseNodes();
 
-  bool has_intersection() const;
-  bool has_intersection_at_position(double position, EFANode * from_node) const;
-  double get_intersection(unsigned int emb_id, EFANode * from_node) const;
-  double distance_from_node1(EFANode * node) const;
-  bool is_embedded_node(const EFANode * node) const;
-  unsigned int get_embedded_index(EFANode * node) const;
-  unsigned int get_embedded_index(double position, EFANode* from_node) const;
+  bool hasIntersection() const;
+  bool hasIntersectionAtPosition(double position, EFANode * from_node) const;
+  double getIntersection(unsigned int emb_id, EFANode * from_node) const;
+  double distanceFromNode1(EFANode * node) const;
+  bool isEmbeddedNode(const EFANode * node) const;
+  unsigned int getEmbeddedNodeIndex(EFANode * node) const;
+  unsigned int getEmbeddedNodeIndex(double position, EFANode* from_node) const;
 
-  EFANode * get_embedded_node(unsigned int index) const;
-  unsigned int num_embedded_nodes() const;
-  void consistency_check();
+  EFANode * getEmbeddedNode(unsigned int index) const;
+  unsigned int numEmbeddedNodes() const;
+  void consistencyCheck();
   void switchNode(EFANode *new_node, EFANode *old_node);
   bool containsNode(const EFANode *node) const;
-  void remove_embedded_node();
-  void remove_embedded_node(EFANode * node);
+  void removeEmbeddedNodes();
+  void removeEmbeddedNode(EFANode * node);
 };
 
 #endif

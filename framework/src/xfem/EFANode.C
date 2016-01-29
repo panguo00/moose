@@ -21,7 +21,7 @@ EFANode::EFANode(unsigned int nid, N_CATEGORY ncat, EFANode* nparent):
 {};
 
 std::string
-EFANode::id_cat_str()
+EFANode::idCatString()
 {
   std::ostringstream s;
   s << _id;
@@ -53,7 +53,7 @@ EFANode::parent() const
 }
 
 void
-EFANode::remove_parent()
+EFANode::removeParent()
 {
   _parent = NULL;
 }

@@ -35,7 +35,7 @@ EFAFragment3D::EFAFragment3D(EFAElement3D * host, bool create_faces,
     }
     else
     {
-      if (frag_id > from_host->num_frags() - 1)
+      if (frag_id > from_host->numFragments() - 1)
         mooseError("In EFAfragment3D constructor fragment_copy_index out of bounds");
       for (unsigned int i = 0; i < from_host->get_fragment(frag_id)->num_faces(); ++i)
         _faces.push_back(new EFAFace(*from_host->get_frag_face(frag_id,i)));
@@ -135,9 +135,9 @@ EFAFragment3D::remove_invalid_embedded(std::map<unsigned int, EFANode*> &Embedde
     {
       for (unsigned int j = 0; j < _faces[i]->num_edges(); ++j)
       {
-        if (_faces[i]->get_edge(j)->has_intersection())
+        if (_faces[i]->get_edge(j)->hasIntersection())
         {
-          EFANode* emb_node = _faces[i]->get_edge(j)->get_embedded_node(0);
+          EFANode* emb_node = _faces[i]->get_edge(j)->getEmbeddedNode(0);
           emb_inverse_map[emb_node].push_back(_faces[i]);
         }
       } // i
@@ -233,7 +233,7 @@ EFAFragment3D::isThirdInteriorFace(unsigned int face_id) const
   if (!_host_elem)
     mooseError("in isThirdInteriorFace fragment must have host elem");
 
-  for (unsigned int i = 0; i < _host_elem->num_interior_nodes(); ++i)
+  for (unsigned int i = 0; i < _host_elem->numInteriorNodes(); ++i)
   {
     if (_faces[face_id]->containsNode(_host_elem->get_interior_node(i)->get_node()))
     {

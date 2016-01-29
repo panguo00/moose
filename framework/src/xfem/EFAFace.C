@@ -47,10 +47,10 @@ EFAFace::EFAFace(const EFAFragment2D* frag):
 {
   for (unsigned int k = 0; k < frag->num_edges(); ++k)
   {
-    EFANode* node = frag->get_edge(k)->get_node(0);
+    EFANode* node = frag->get_edge(k)->getNode(0);
     unsigned int kprev(k > 0 ? (k-1) : (frag->num_edges()-1));
     if (!frag->get_edge(kprev)->containsNode(node))
-      node = get_edge(k)->get_node(1);
+      node = get_edge(k)->getNode(1);
     _nodes[k] = node;
     _edges[k] = new EFAEdge(*frag->get_edge(k));
   }
@@ -178,7 +178,7 @@ EFAFace::getEdgeNodeParaCoor(EFANode* node, std::vector<double> &xi_2d) const
   }
   if (edge_found)
   {
-    double rel_dist = _edges[edge_id]->distance_from_node1(node);
+    double rel_dist = _edges[edge_id]->distanceFromNode1(node);
     double xi_1d = 2.0*rel_dist - 1.0; // translate to [-1,1] parent coord syst
     mapParaCoorFrom1Dto2D(edge_id, xi_1d, xi_2d);
   }
@@ -223,7 +223,7 @@ EFAFace::createNodes()
   for (unsigned int i = 0; i < _edges.size(); ++i)
   {
     if (_edges[i] != NULL)
-      _nodes[i] = _edges[i]->get_node(0);
+      _nodes[i] = _edges[i]->getNode(0);
     else
       mooseError("in EFAface::createNodes() _edges[i] does not exist");
   }
@@ -266,8 +266,8 @@ EFAFace::createEdges()
 void
 EFAFace::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
 {
-  if (_edges[edge_id1]->containsNode(_edges[edge_id2]->get_node(0)) ||
-      _edges[edge_id1]->containsNode(_edges[edge_id2]->get_node(1)))
+  if (_edges[edge_id1]->containsNode(_edges[edge_id2]->getNode(0)) ||
+      _edges[edge_id1]->containsNode(_edges[edge_id2]->getNode(1)))
   {
     // edge_id1 must precede edge_id2
     unsigned int edge1_next(edge_id1 < (_num_edges-1) ? edge_id1+1 : 0);
@@ -279,14 +279,14 @@ EFAFace::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
     }
 
     // build new edge and delete old ones
-    EFANode* new_node1 = _edges[edge_id1]->get_node(0);
-    EFANode* emb_node = _edges[edge_id1]->get_node(1);
-    EFANode* new_node2 = _edges[edge_id2]->get_node(1);
-    if (emb_node != _edges[edge_id2]->get_node(0))
+    EFANode* new_node1 = _edges[edge_id1]->getNode(0);
+    EFANode* emb_node = _edges[edge_id1]->getNode(1);
+    EFANode* new_node2 = _edges[edge_id2]->getNode(1);
+    if (emb_node != _edges[edge_id2]->getNode(0))
       mooseError("in combine_two_edges face edges are not correctly set up");
 
     EFAEdge* full_edge = new EFAEdge(new_node1, new_node2);
-    full_edge->add_intersection(-1.0, emb_node, new_node1); // dummy intersection_x
+    full_edge->addIntersection(-1.0, emb_node, new_node1); // dummy intersection_x
 
     delete _edges[edge_id1];
     delete _edges[edge_id2];
@@ -298,7 +298,7 @@ EFAFace::combine_two_edges(unsigned int edge_id1, unsigned int edge_id2)
     _num_nodes -= 1;
     _nodes.resize(_num_nodes, NULL);
     for (unsigned int k = 0; k < _num_edges; ++k)
-      _nodes[k] = _edges[k]->get_node(0);
+      _nodes[k] = _edges[k]->getNode(0);
   }
   else
     mooseError("two edges to be combined are not ajacent to each other");
@@ -315,7 +315,7 @@ EFAFace::sort_edges()
     for (unsigned int j = 0; j < _num_edges; ++j)
     {
       if (!_edges[j]->equivalent(*last_edge) &&
-          _edges[j]->containsNode(last_edge->get_node(1)))
+          _edges[j]->containsNode(last_edge->getNode(1)))
       {
         ordered_edges[i] = _edges[j];
         break;
@@ -330,7 +330,7 @@ EFAFace::reverse_edges()
 {
   // reverse the orientation of the face
   for (unsigned int i = 0; i < _edges.size(); ++i)
-    _edges[i]->reverse_nodes();
+    _edges[i]->reverseNodes();
   std::reverse(_edges.begin(), _edges.end());
 }
 
@@ -421,7 +421,7 @@ void
 EFAFace::remove_embedded_node(EFANode* emb_node)
 {
   for (unsigned int i = 0; i < _num_edges; ++i)
-    _edges[i]->remove_embedded_node(emb_node);
+    _edges[i]->removeEmbeddedNode(emb_node);
 
   unsigned int index = 0;
   bool node_found = false;
@@ -475,8 +475,8 @@ EFAFace::combine_with(const EFAFace* other_face) const
   {
     unsigned int this_common_edge_id = adjacentCommonEdge(other_face);
     std::vector<EFANode*> common_nodes;
-    common_nodes.push_back(_edges[this_common_edge_id]->get_node(0));
-    common_nodes.push_back(_edges[this_common_edge_id]->get_node(1));
+    common_nodes.push_back(_edges[this_common_edge_id]->getNode(0));
+    common_nodes.push_back(_edges[this_common_edge_id]->getNode(1));
 
     unsigned int other_common_edge_id = other_face->adjacentCommonEdge(this);
     unsigned int new_n_nodes = _num_edges + other_face->_num_edges - 4;
@@ -487,8 +487,8 @@ EFAFace::combine_with(const EFAFace* other_face) const
     unsigned int other_edge_id0(other_common_edge_id<(other_face->_num_edges-1) ? other_common_edge_id+1 : 0);
     unsigned int other_edge_id1(other_common_edge_id>0 ? other_common_edge_id-1 : other_face->_num_edges-1);
 
-    EFAEdge* new_edge0 = new EFAEdge(_edges[this_edge_id0]->get_node(0), other_face->_edges[other_edge_id0]->get_node(1));
-    new_edge0->add_intersection(-1.0, common_nodes[0], new_edge0->get_node(0)); // dummy intersection_x
+    EFAEdge* new_edge0 = new EFAEdge(_edges[this_edge_id0]->getNode(0), other_face->_edges[other_edge_id0]->getNode(1));
+    new_edge0->addIntersection(-1.0, common_nodes[0], new_edge0->getNode(0)); // dummy intersection_x
     new_frag->add_edge(new_edge0); // common_nodes[0]'s edge
 
     unsigned int other_iedge(other_edge_id0<(other_face->_num_edges-1) ? other_edge_id0+1 : 0);
@@ -500,8 +500,8 @@ EFAFace::combine_with(const EFAFace* other_face) const
         other_iedge = 0;
     } // loop over other_face's edges
 
-    EFAEdge* new_edge1 = new EFAEdge(other_face->_edges[other_edge_id1]->get_node(0), _edges[this_edge_id1]->get_node(1));
-    new_edge1->add_intersection(-1.0, common_nodes[1], new_edge1->get_node(0)); // dummy intersection_x
+    EFAEdge* new_edge1 = new EFAEdge(other_face->_edges[other_edge_id1]->getNode(0), _edges[this_edge_id1]->getNode(1));
+    new_edge1->addIntersection(-1.0, common_nodes[1], new_edge1->getNode(0)); // dummy intersection_x
     new_frag->add_edge(new_edge1);
 
     unsigned int this_iedge(this_edge_id1<(_num_edges-1) ? this_edge_id1+1 : 0);
@@ -529,15 +529,15 @@ EFAFace::reset_edge_intersection(const EFAFace* ref_face)
   // the reference face must be an element face
   for (unsigned int j = 0; j < _num_edges; ++j)
   {
-    if (_edges[j]->has_intersection())
+    if (_edges[j]->hasIntersection())
     {
-      if (_edges[j]->num_embedded_nodes() > 1)
+      if (_edges[j]->numEmbeddedNodes() > 1)
         mooseError("frag face edge can only have 1 emb node at this point");
 
-      EFANode* edge_node1 = _edges[j]->get_node(0);
-      EFANode* edge_node2 = _edges[j]->get_node(1);
-      EFANode* emb_node = _edges[j]->get_embedded_node(0);
-      double inters_x = _edges[j]->get_intersection(0, edge_node1);
+      EFANode* edge_node1 = _edges[j]->getNode(0);
+      EFANode* edge_node2 = _edges[j]->getNode(1);
+      EFANode* emb_node = _edges[j]->getEmbeddedNode(0);
+      double inters_x = _edges[j]->getIntersection(0, edge_node1);
       if (std::abs(inters_x + 1.0) < 1.0e-4) // invalid intersection found
       {
         std::vector<double> node1_xi2d(2,0.0);
@@ -556,7 +556,7 @@ EFAFace::reset_edge_intersection(const EFAFace* ref_face)
         }
         else
           mooseError("reference face does not contain the edge with invalid inters");
-        _edges[j]->reset_intersection(inters_x, emb_node, edge_node1);
+        _edges[j]->resetIntersection(inters_x, emb_node, edge_node1);
       }
     }
   } // j
@@ -568,8 +568,8 @@ EFAFace::get_num_cuts() const
   unsigned int num_cuts = 0;
   for (unsigned int i = 0; i < _edges.size(); ++i)
   {
-    if (_edges[i]->has_intersection())
-      num_cuts += _edges[i]->num_embedded_nodes();
+    if (_edges[i]->hasIntersection())
+      num_cuts += _edges[i]->numEmbeddedNodes();
   }
   return num_cuts;
 }
@@ -587,8 +587,8 @@ void
 EFAFace::copy_intersection(const EFAFace &from_face)
 {
   for (unsigned int i = 0; i < _edges.size(); ++i)
-    if (from_face._edges[i]->has_intersection())
-      _edges[i]->copy_intersection(*from_face._edges[i], 0);
+    if (from_face._edges[i]->hasIntersection())
+      _edges[i]->copyIntersection(*from_face._edges[i], 0);
 
   if (from_face.num_interior_nodes() > 0)
     _interior_nodes = from_face._interior_nodes;

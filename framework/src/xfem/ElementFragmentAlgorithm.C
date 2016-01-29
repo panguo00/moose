@@ -92,7 +92,7 @@ ElementFragmentAlgorithm::add2DElements( std::vector< std::vector<unsigned int> 
       else
         currNode = mit->second;
 
-      newElem->set_node(j, currNode);
+      newElem->setNode(j, currNode);
       _inverse_connectivity[currNode].insert(newElem);
     }
     newElem->createEdges();
@@ -124,7 +124,7 @@ ElementFragmentAlgorithm::add2DElement( std::vector<unsigned int> quad, unsigned
     else
       currNode = mit->second;
 
-    newElem->set_node(j, currNode);
+    newElem->setNode(j, currNode);
     _inverse_connectivity[currNode].insert(newElem);
   }
   newElem->createEdges();
@@ -162,7 +162,7 @@ ElementFragmentAlgorithm::add3DElement( std::vector<unsigned int> quad, unsigned
     else
       currNode = mit->second;
 
-    newElem->set_node(j, currNode);
+    newElem->setNode(j, currNode);
     _inverse_connectivity[currNode].insert(newElem);
   }
   newElem->createFaces();
@@ -176,19 +176,19 @@ ElementFragmentAlgorithm::updateEdgeNeighbors()
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
     EFAElement* elem = eit->second;
-    elem->clear_neighbors();
+    elem->clearNeighbors();
   }
 
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
     EFAElement* curr_elem = eit->second;
-    curr_elem->setup_neighbors(_inverse_connectivity);
+    curr_elem->setupNeighbors(_inverse_connectivity);
   } // loop over all elements
 
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
     EFAElement *curr_elem = eit->second;
-    curr_elem->neighbor_sanity_check();
+    curr_elem->neighborSanityCheck();
   }
 }
 
@@ -200,7 +200,7 @@ ElementFragmentAlgorithm::initCrackTipTopology()
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
     EFAElement *curr_elem = eit->second;
-    curr_elem->init_crack_tip(_crack_tip_elements); // CrackTipElements changed here
+    curr_elem->initCrackTip(_crack_tip_elements); // CrackTipElements changed here
   }
 }
 
@@ -215,7 +215,7 @@ ElementFragmentAlgorithm::addElemEdgeIntersection(unsigned int elemid, unsigned 
   EFAElement2D *curr_elem = dynamic_cast<EFAElement2D*>(eit->second);
   if (!curr_elem)
     CutElemMeshError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
-  curr_elem->add_edge_cut(edgeid, position, NULL, _embedded_nodes, true);
+  curr_elem->addEdgeCut(edgeid, position, NULL, _embedded_nodes, true);
 }
 
 void
@@ -229,7 +229,7 @@ ElementFragmentAlgorithm::addFragEdgeIntersection(unsigned int elemid, unsigned 
   EFAElement2D *elem = dynamic_cast<EFAElement2D*>(eit->second);
   if (!elem)
     CutElemMeshError("addFragEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
-  elem->add_frag_edge_cut(frag_edge_id, position, _embedded_nodes);
+  elem->addFragmentEdgeCut(frag_edge_id, position, _embedded_nodes);
 }
 
 void
@@ -265,7 +265,7 @@ ElementFragmentAlgorithm::updatePhysicalLinksAndFragments()
   for (eit = _elements.begin(); eit != _elements.end(); ++eit)
   {
     EFAElement *curr_elem = eit->second;
-    curr_elem->update_fragments(_crack_tip_elements, _embedded_nodes);
+    curr_elem->updateFragments(_crack_tip_elements, _embedded_nodes);
   } // loop over all elements
 }
 
@@ -350,17 +350,17 @@ ElementFragmentAlgorithm::clearAncestry()
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {
     EFAElement *curr_elem = eit->second;
-    curr_elem->remove_parent_children();
-    for (unsigned int j = 0; j < curr_elem->num_nodes(); j++)
+    curr_elem->clearParentAndChildren();
+    for (unsigned int j = 0; j < curr_elem->numNodes(); j++)
     {
-      EFANode *curr_node = curr_elem->get_node(j);
+      EFANode *curr_node = curr_elem->getNode(j);
       _inverse_connectivity[curr_node].insert(curr_elem);
     }
   }
 
   std::map<unsigned int, EFANode*>::iterator mit;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
-    mit->second->remove_parent();
+    mit->second->removeParent();
 
   for (mit = _temp_nodes.begin(); mit != _temp_nodes.end(); ++mit )
   {
@@ -379,7 +379,7 @@ ElementFragmentAlgorithm::clearAncestry()
 void
 ElementFragmentAlgorithm::restoreFragmentInfo(EFAElement * const elem, const EFAElement * const from_elem)
 {
-  elem->restore_fragment(from_elem);
+  elem->restoreFragment(from_elem);
 }
 
 void
@@ -394,7 +394,7 @@ ElementFragmentAlgorithm::createChildElements()
   for (eit = _elements.begin(); eit != ElementsEnd; ++eit)
   {
     EFAElement *curr_elem = eit->second;
-    curr_elem->create_child(_crack_tip_elements, _elements, newChildElements,
+    curr_elem->createChild(_crack_tip_elements, _elements, newChildElements,
                             _child_elements, _parent_elements, _temp_nodes);
   } // loop over elements
   //Merge newChildElements back in with Elements
@@ -408,7 +408,7 @@ ElementFragmentAlgorithm::connectFragments(bool mergeUncutVirtualEdges)
   for (unsigned int elem_iter = 0; elem_iter < _child_elements.size(); elem_iter++)
   {
     EFAElement *childElem = _child_elements[elem_iter];
-    childElem->connect_neighbors(_permanent_nodes, _temp_nodes,
+    childElem->connectNeighbors(_permanent_nodes, _temp_nodes,
                                  _inverse_connectivity, mergeUncutVirtualEdges);
   } // loop over child elements
 
@@ -452,7 +452,7 @@ ElementFragmentAlgorithm::updateCrackTipElements()
   for (unsigned int elem_iter = 0; elem_iter < _child_elements.size(); elem_iter++)
   {
     EFAElement *childElem = _child_elements[elem_iter];
-    if (childElem->is_crack_tip_elem())
+    if (childElem->isCrackTipElement())
       _crack_tip_elements.insert(childElem);
   } // loop over (new) child elements
 
@@ -539,7 +539,7 @@ ElementFragmentAlgorithm::printMesh()
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {
     EFAElement* currElem = eit->second;
-    currElem->print_elem();
+    currElem->printElement();
   }
 }
 
@@ -561,12 +561,12 @@ ElementFragmentAlgorithm::getElemIdByNodes(unsigned int * node_id)
   {
     EFAElement *curr_elem = eit->second;
     unsigned int counter = 0;
-    for (unsigned int i = 0; i < curr_elem->num_nodes(); ++i)
+    for (unsigned int i = 0; i < curr_elem->numNodes(); ++i)
     {
-      if (curr_elem->get_node(i)->id() == node_id[i])
+      if (curr_elem->getNode(i)->id() == node_id[i])
         counter += 1;
     }
-    if (counter == curr_elem->num_nodes())
+    if (counter == curr_elem->numNodes())
     {
       elem_id = curr_elem->id();
       break;

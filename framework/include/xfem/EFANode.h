@@ -51,11 +51,11 @@ private:
 
 public:
 
-  std::string id_cat_str();
+  std::string idCatString();
   unsigned int id() const;
   N_CATEGORY category() const;
   EFANode* parent() const;
-  void remove_parent();
+  void removeParent();
 };
 
 

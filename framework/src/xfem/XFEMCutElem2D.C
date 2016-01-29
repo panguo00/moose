@@ -70,8 +70,8 @@ XFEMCutElem2D::calc_physical_volfrac()
 
   for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
   {
-    Point edge_p1 = get_node_coords(_efa_elem2d.get_frag_edge(0,i)->get_node(0));
-    Point edge_p2 = get_node_coords(_efa_elem2d.get_frag_edge(0,i)->get_node(1));
+    Point edge_p1 = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(0));
+    Point edge_p2 = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(1));
     frag_area += 0.5*(edge_p1(0)-edge_p2(0))*(edge_p1(1)+edge_p2(1));
   }
   _physical_volfrac = frag_area/_elem_volume;
@@ -87,7 +87,7 @@ XFEMCutElem2D::calc_mf_weights()
   for (unsigned int i = 0; i < _n_nodes; ++i)
     elem_nodes[i] = (*_nodes[i]);
 
-  if (_efa_elem2d.is_partial() && _n_qpoints <= 6) // ONLY work for <= 6 q_points
+  if (_efa_elem2d.isPartial() && _n_qpoints <= 6) // ONLY work for <= 6 q_points
   {
     new_weight_mf(_n_nodes, _n_qpoints, elem_nodes, wsg);
     _new_weights.resize(wsg.size(), 1.0);
@@ -108,8 +108,8 @@ XFEMCutElem2D::get_origin(unsigned int plane_id, MeshBase* displaced_mesh) const
     if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
     {
       std::vector<EFANode*> node_line(2,NULL);
-      node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(0);
-      node_line[1] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
+      node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(0);
+      node_line[1] = _efa_elem2d.getFragmentEdge(0,i)->getNode(1);
       cut_line_nodes.push_back(node_line);
     }
   }
@@ -133,8 +133,8 @@ XFEMCutElem2D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
     if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
     {
       std::vector<EFANode*> node_line(2,NULL);
-      node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(0);
-      node_line[1] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
+      node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(0);
+      node_line[1] = _efa_elem2d.getFragmentEdge(0,i)->getNode(1);
       cut_line_nodes.push_back(node_line);
     }
   }
@@ -165,8 +165,8 @@ XFEMCutElem2D::get_crack_tip_origin_and_direction(unsigned tip_id, Point & origi
     if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
     {
       std::vector<EFANode*> node_line(2,NULL);
-      node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(0);
-      node_line[1] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
+      node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(0);
+      node_line[1] = _efa_elem2d.getFragmentEdge(0,i)->getNode(1);
       if (node_line[1]->id() == tip_id)
       {
         cut_line_nodes.push_back(node_line[0]);
@@ -175,7 +175,7 @@ XFEMCutElem2D::get_crack_tip_origin_and_direction(unsigned tip_id, Point & origi
       else if (node_line[0]->id() == tip_id)
       {
         node_line[1] = node_line[0];
-        node_line[0] = _efa_elem2d.get_frag_edge(0,i)->get_node(1);
+        node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(1);
         cut_line_nodes.push_back(node_line[0]);
         cut_line_nodes.push_back(node_line[1]);
       }
@@ -204,8 +204,8 @@ XFEMCutElem2D::get_frag_faces(std::vector<std::vector<Point> > &frag_faces, Mesh
   for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
   {
     std::vector<Point> edge_points(2, Point(0.0,0.0,0.0));
-    edge_points[0] = get_node_coords(_efa_elem2d.get_frag_edge(0,i)->get_node(0), displaced_mesh);
-    edge_points[1] = get_node_coords(_efa_elem2d.get_frag_edge(0,i)->get_node(1), displaced_mesh);
+    edge_points[0] = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(0), displaced_mesh);
+    edge_points[1] = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(1), displaced_mesh);
     frag_faces.push_back(edge_points);
   }
 }
@@ -246,7 +246,7 @@ XFEMCutElem2D::partial_gauss(unsigned int nen, std::vector<std::vector<Real> > &
   Real jac = 0.0;
 
   for (unsigned int j = 0; j < nnd_pe; ++j)
-    frag_points[j] = get_node_coords(frag->get_edge(j)->get_node(0));
+    frag_points[j] = get_node_coords(frag->get_edge(j)->getNode(0));
 
   // Get centroid coords for partial elements
   Point xcrd(0.0,0.0,0.0);
