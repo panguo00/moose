@@ -66,7 +66,7 @@ XFEMCutElem3D::calc_physical_volfrac()
   // collect fragment info needed by polyhedron_volume_3d()
   std::vector<std::vector<unsigned int> > frag_face_ix;
   std::vector<EFANode*> frag_nodes;
-  _efa_elem3d.get_fragment(0)->get_node_info(frag_face_ix, frag_nodes);
+  _efa_elem3d.getFragment(0)->getNodeInfo(frag_face_ix, frag_nodes);
   int face_num = frag_face_ix.size();
   int node_num = frag_nodes.size();
 
@@ -111,11 +111,11 @@ XFEMCutElem3D::get_origin(unsigned int plane_id, MeshBase* displaced_mesh) const
 {
   Point orig(0.0,0.0,0.0);
   std::vector<std::vector<EFANode*> > cut_plane_nodes;
-  for (unsigned int i = 0; i < _efa_elem3d.get_fragment(0)->num_faces(); ++i)
+  for (unsigned int i = 0; i < _efa_elem3d.getFragment(0)->numFaces(); ++i)
   {
-    if (_efa_elem3d.get_fragment(0)->is_face_interior(i))
+    if (_efa_elem3d.getFragment(0)->is_face_interior(i))
     {
-      EFAFace* face = _efa_elem3d.get_fragment(0)->get_face(i);
+      EFAFace* face = _efa_elem3d.getFragment(0)->getFace(i);
       std::vector<EFANode*> node_line;
       for (unsigned int j = 0; j < face->num_nodes(); ++j)
         node_line.push_back(face->get_node(j));
@@ -145,11 +145,11 @@ XFEMCutElem3D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
 {
   Point normal(0.0,0.0,0.0);
   std::vector<std::vector<EFANode*> > cut_plane_nodes;
-  for (unsigned int i = 0; i < _efa_elem3d.get_fragment(0)->num_faces(); ++i)
+  for (unsigned int i = 0; i < _efa_elem3d.getFragment(0)->numFaces(); ++i)
   {
-    if (_efa_elem3d.get_fragment(0)->is_face_interior(i))
+    if (_efa_elem3d.getFragment(0)->is_face_interior(i))
     {
-      EFAFace* face = _efa_elem3d.get_fragment(0)->get_face(i);
+      EFAFace* face = _efa_elem3d.getFragment(0)->getFace(i);
       std::vector<EFANode*> node_line;
       for (unsigned int j = 0; j < face->num_nodes(); ++j)
         node_line.push_back(face->get_node(j));
@@ -208,8 +208,8 @@ unsigned int
 XFEMCutElem3D::num_cut_planes() const
 {
   unsigned int counter = 0;
-  for (unsigned int i = 0; i < _efa_elem3d.get_fragment(0)->num_faces(); ++i)
-    if (_efa_elem3d.get_fragment(0)->is_face_interior(i))
+  for (unsigned int i = 0; i < _efa_elem3d.getFragment(0)->numFaces(); ++i)
+    if (_efa_elem3d.getFragment(0)->is_face_interior(i))
       counter += 1;
   return counter;
 }

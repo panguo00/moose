@@ -1051,7 +1051,7 @@ EFAElement2D::connectNeighbors(std::map<unsigned int, EFANode*> &PermanentNodes,
     EFANode* childNode = _nodes[j];
     if (childNode->category() == N_CATEGORY_TEMP)
     {
-      // if current child element does not have siblings, and if current temp node is a lonely one
+      // if current child element does not have siblings, and if current temp node is a lone one
       // this temp node should be merged back to its parent permanent node. Otherwise we would have
       // permanent nodes that are not connected to any element
       std::set<EFAElement*> patch_elems = InverseConnectivityMap[childNode->parent()];

@@ -33,7 +33,7 @@ private:
 
   EFAElement3D * _host_elem;
   std::vector<EFAFace*> _faces;
-  std::vector<std::vector<EFAFace*> > _adjacent_face_ix;
+  std::vector<std::vector<EFAFace*> > _faces_adjacent_to_faces;
 
 public:
   // override pure virtual methods
@@ -49,25 +49,25 @@ public:
   bool is_face_interior(unsigned int face_id) const;
   std::vector<unsigned int> get_interior_face_id() const;
   bool isThirdInteriorFace(unsigned int face_id) const;
-  unsigned int num_faces() const;
-  EFAFace* get_face(unsigned int face_id) const;
-  unsigned int get_face_id(EFAFace* face) const;
-  void add_face(EFAFace* new_face);
-  std::set<EFANode*> get_face_nodes(unsigned int face_id) const;
-  EFAElement3D * get_host() const;
+  unsigned int numFaces() const;
+  EFAFace* getFace(unsigned int face_id) const;
+  unsigned int getFaceID(EFAFace* face) const;
+  void addFace(EFAFace* new_face);
+  std::set<EFANode*> getFaceNodes(unsigned int face_id) const;
+  EFAElement3D * getHostElement() const;
   std::vector<EFAFragment3D*> split();
-  void create_adjacent_face_ix();
-  EFAFace* get_adjacent_face(unsigned int face_id, unsigned int edge_id) const;
-  void remove_embedded_node(EFANode* emb_node);
+  void findFacesAdjacentToFaces();
+  EFAFace* getAdjacentFace(unsigned int face_id, unsigned int edge_id) const;
+  void removeEmbeddedNode(EFANode* emb_node);
   bool hasFaceWithOneCut() const;
-  void get_node_info(std::vector<std::vector<unsigned int> > &face_node_ix,
+  void getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_ix,
                      std::vector<EFANode*> &nodes) const;
 
 private:
 
-  EFAFragment3D* connect_subfaces(EFAFace* start_face, unsigned int startOldFaceID,
+  EFAFragment3D* connectSubfaces(EFAFace* start_face, unsigned int startOldFaceID,
                                   std::vector<std::vector<EFAFace*> > &subfaces);
-  EFAEdge* lonelyEdgeOnFace(unsigned int face_id) const;
+  EFAEdge* loneEdgeOnFace(unsigned int face_id) const;
   void combine_two_faces(unsigned int face_id1, unsigned int face_id2, const EFAFace* elem_face);
 };
 

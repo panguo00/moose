@@ -870,7 +870,7 @@ XFEM::mark_cut_faces_by_geometry(Real time)
 
     for (unsigned int i = 0; i < elemCutFaces.size(); ++i) // mark element faces
     {
-      if (!CEMElem->is_face_phantom(elemCutFaces[i].face_id)) // must not be phantom face
+      if (!CEMElem->isFacePhantom(elemCutFaces[i].face_id)) // must not be phantom face
       {
         _efa_mesh.addElemFaceIntersection(elem->id(), elemCutFaces[i].face_id,
                                           elemCutFaces[i].face_edge, elemCutFaces[i].position);
@@ -880,7 +880,7 @@ XFEM::mark_cut_faces_by_geometry(Real time)
 
     for (unsigned int i = 0; i < fragCutFaces.size(); ++i) // MUST DO THIS AFTER MARKING ELEMENT EDGES
     {
-      if (!CEMElem->get_fragment(0)->isThirdInteriorFace(fragCutFaces[i].face_id))
+      if (!CEMElem->getFragment(0)->isThirdInteriorFace(fragCutFaces[i].face_id))
       {
         _efa_mesh.addFragFaceIntersection(elem->id(), fragCutFaces[i].face_id,
                                           fragCutFaces[i].face_edge, fragCutFaces[i].position);
@@ -1385,12 +1385,12 @@ XFEM::get_frag_faces(const Elem* elem, EFAElement3D* CEMElem, std::vector<std::v
   {
     if (CEMElem->numFragments() > 1)
       mooseError("element " << elem->id() << " has more than one fragments at this point");
-    for (unsigned int i = 0; i < CEMElem->get_fragment(0)->num_faces(); ++i)
+    for (unsigned int i = 0; i < CEMElem->getFragment(0)->numFaces(); ++i)
     {
-      unsigned int num_face_nodes = CEMElem->get_frag_face(0,i)->num_nodes();
+      unsigned int num_face_nodes = CEMElem->getFragmentFace(0,i)->num_nodes();
       std::vector<Point> p_line(num_face_nodes, Point(0.0,0.0,0.0));
       for (unsigned int j = 0; j < num_face_nodes; ++j)
-        p_line[j] = get_efa_node_coor(CEMElem->get_frag_face(0,i)->get_node(j), CEMElem, elem);
+        p_line[j] = get_efa_node_coor(CEMElem->getFragmentFace(0,i)->get_node(j), CEMElem, elem);
       frag_faces.push_back(p_line);
     } // i
   }

@@ -35,7 +35,7 @@ private:
   std::vector<VolumeNode*> _interior_nodes;
   std::vector<std::vector<EFAElement3D*> > _face_neighbors;
   std::vector<EFAFragment3D*> _fragments;
-  std::vector<std::vector<EFAFace*> > _adjacent_face_ix;
+  std::vector<std::vector<EFAFace*> > _faces_adjacent_to_faces;
 
 public:
 
@@ -71,45 +71,45 @@ public:
   virtual void restoreFragment(const EFAElement* const from_elem);
 
   virtual void createChild(const std::set<EFAElement*> &CrackTipElements,
-                            std::map<unsigned int, EFAElement*> &Elements,
-                            std::map<unsigned int, EFAElement*> &newChildElements,
-                            std::vector<EFAElement*> &ChildElements,
-                            std::vector<EFAElement*> &ParentElements,
-                            std::map<unsigned int, EFANode*> &TempNodes);
+                           std::map<unsigned int, EFAElement*> &Elements,
+                           std::map<unsigned int, EFAElement*> &newChildElements,
+                           std::vector<EFAElement*> &ChildElements,
+                           std::vector<EFAElement*> &ParentElements,
+                           std::map<unsigned int, EFANode*> &TempNodes);
   virtual void removePhantomEmbeddedNode();
   virtual void connectNeighbors(std::map<unsigned int, EFANode*> &PermanentNodes,
-                                 std::map<unsigned int, EFANode*> &TempNodes,
-                                 std::map<EFANode*, std::set<EFAElement*> > &InverseConnectivityMap,
-                                 bool merge_phantom_faces);
+                                std::map<unsigned int, EFANode*> &TempNodes,
+                                std::map<EFANode*, std::set<EFAElement*> > &InverseConnectivityMap,
+                                bool merge_phantom_faces);
   virtual void printElement();
 
   // EFAelement3D specific methods
-  EFAFragment3D* get_fragment(unsigned int frag_id) const;
-  std::set<EFANode*> get_face_nodes(unsigned int face_id) const;
-  bool getFaceNodeParaCoor(EFANode* node, std::vector<double> &xi_3d) const;
-  VolumeNode* get_interior_node(unsigned int interior_node_id) const;
-  void remove_embedded_node(EFANode* emb_node, bool remove_for_neighbor);
+  EFAFragment3D* getFragment(unsigned int frag_id) const;
+  std::set<EFANode*> getFaceNodes(unsigned int face_id) const;
+  bool getFaceNodeParametricCoordinates(EFANode* node, std::vector<double> &xi_3d) const;
+  VolumeNode* getInteriorNode(unsigned int interior_node_id) const;
+  void removeEmbeddedNode(EFANode* emb_node, bool remove_for_neighbor);
 
-  unsigned int num_faces() const;
-  void set_face(unsigned int face_id, EFAFace* face);
+  unsigned int numFaces() const;
+  void setFace(unsigned int face_id, EFAFace* face);
   void createFaces();
-  EFAFace* get_face(unsigned int face_id) const;
-  unsigned int get_face_id(EFAFace* face) const;
-  std::vector<unsigned int> get_common_face_id(const EFAElement3D* other_elem) const;
+  EFAFace* getFace(unsigned int face_id) const;
+  unsigned int getFaceID(EFAFace* face) const;
+  std::vector<unsigned int> getCommonFaceID(const EFAElement3D* other_elem) const;
   unsigned int getNeighborFaceNodeID(unsigned int face_id, unsigned int node_id,
                                      EFAElement3D* neighbor_elem) const;
   unsigned int getNeighborFaceEdgeID(unsigned int face_id, unsigned int edg_id,
                                      EFAElement3D* neighbor_elem) const;
-  void create_adjacent_face_ix();
-  EFAFace* get_adjacent_face(unsigned int face_id, unsigned int edge_id) const;
+  void findFacesAdjacentToFaces();
+  EFAFace* getAdjacentFace(unsigned int face_id, unsigned int edge_id) const;
 
-  EFAFace* get_frag_face(unsigned int frag_id, unsigned int face_id) const;
+  EFAFace* getFragmentFace(unsigned int frag_id, unsigned int face_id) const;
   std::set<EFANode*> getPhantomNodeOnFace(unsigned int face_id) const;
   bool getFragmentFaceID(unsigned int elem_face_id, unsigned int &frag_face_id) const;
   bool getFragmentFaceEdgeID(unsigned int ElemFaceID, unsigned int ElemFaceEdgeID,
                              unsigned int &FragFaceID, unsigned int &FragFaceEdgeID) const;
-  bool is_real_edge_cut(unsigned int ElemFaceID, unsigned int ElemFaceEdgeID, double position) const;
-  bool is_face_phantom(unsigned int face_id) const;
+  bool isPhysicalEdgeCut(unsigned int ElemFaceID, unsigned int ElemFaceEdgeID, double position) const;
+  bool isFacePhantom(unsigned int face_id) const;
   unsigned int num_face_neighbors(unsigned int face_id) const;
   EFAElement3D* get_face_neighbor(unsigned int face_id, unsigned int neighbor_id) const;
 
