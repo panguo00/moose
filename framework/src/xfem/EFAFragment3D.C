@@ -79,7 +79,7 @@ EFAFragment3D::containsNode(EFANode *node) const
 }
 
 unsigned int
-EFAFragment3D::get_num_cuts() const
+EFAFragment3D::getNumCuts() const
 {
   unsigned int num_cut_faces = 0;
   for (unsigned int i = 0; i < _faces.size(); ++i)
@@ -89,7 +89,7 @@ EFAFragment3D::get_num_cuts() const
 }
 
 std::set<EFANode*>
-EFAFragment3D::get_all_nodes() const
+EFAFragment3D::getAllNodes() const
 {
   std::set<EFANode*> all_nodes;
   for (unsigned int i = 0; i < _faces.size(); ++i)
@@ -122,7 +122,7 @@ EFAFragment3D::isConnected(EFAFragment* other_fragment) const
 }
 
 void
-EFAFragment3D::remove_invalid_embedded(std::map<unsigned int, EFANode*> &EmbeddedNodes)
+EFAFragment3D::removeInvalidEmbeddedNodes(std::map<unsigned int, EFANode*> &EmbeddedNodes)
 {
   // N.B. this method is only called before we update fragments
   // N.B. an embedded node is valid IF at least one of its host faces is exterior and has more than 1 cuts
@@ -235,7 +235,7 @@ EFAFragment3D::isThirdInteriorFace(unsigned int face_id) const
 
   for (unsigned int i = 0; i < _host_elem->numInteriorNodes(); ++i)
   {
-    if (_faces[face_id]->containsNode(_host_elem->getInteriorNode(i)->get_node()))
+    if (_faces[face_id]->containsNode(_host_elem->getInteriorNode(i)->getNode()))
     {
       is_third_cut = true;
       break;
@@ -382,7 +382,7 @@ EFAFragment3D::getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_ix
                            std::vector<EFANode*> &nodes) const
 {
   // get all nodes' pointers - a vector
-  std::set<EFANode*> all_node_set = get_all_nodes();
+  std::set<EFANode*> all_node_set = getAllNodes();
   nodes.resize(all_node_set.size());
   std::copy(all_node_set.begin(), all_node_set.end(), nodes.begin());
 

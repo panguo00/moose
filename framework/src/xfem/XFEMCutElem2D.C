@@ -22,7 +22,7 @@ XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EFAElement2D * const CEMelem, uns
   XFEMCutElem(elem, n_qpoints),
   _efa_elem2d(CEMelem, true)
 {
-  calc_physical_volfrac();
+  computePhysicalVolumeFraction();
 //  calc_mf_weights();
 }
 
@@ -31,7 +31,7 @@ XFEMCutElem2D::~XFEMCutElem2D()
 }
 
 Point
-XFEMCutElem2D::get_node_coords(EFANode* CEMnode, MeshBase* displaced_mesh) const
+XFEMCutElem2D::getNodeCoordinates(EFANode* CEMnode, MeshBase* displaced_mesh) const
 { Point node_coor(0.0,0.0,0.0);
   std::vector<EFANode*> master_nodes;
   std::vector<Point> master_points;
@@ -60,7 +60,7 @@ XFEMCutElem2D::get_node_coords(EFANode* CEMnode, MeshBase* displaced_mesh) const
 }
 
 void
-XFEMCutElem2D::calc_physical_volfrac()
+XFEMCutElem2D::computePhysicalVolumeFraction()
 {
   Real frag_area = 0.0;
   Real el_area = 0.0;
@@ -68,17 +68,17 @@ XFEMCutElem2D::calc_physical_volfrac()
   //Calculate area of entire element and fragment using the formula:
   // A = 1/2 sum_{i=0}^{n-1} (x_i y_{i+1} - x_{i+1} y{i})
 
-  for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
+  for (unsigned int i = 0; i < _efa_elem2d.getFragment(0)->numEdges(); ++i)
   {
-    Point edge_p1 = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(0));
-    Point edge_p2 = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(1));
+    Point edge_p1 = getNodeCoordinates(_efa_elem2d.getFragmentEdge(0,i)->getNode(0));
+    Point edge_p2 = getNodeCoordinates(_efa_elem2d.getFragmentEdge(0,i)->getNode(1));
     frag_area += 0.5*(edge_p1(0)-edge_p2(0))*(edge_p1(1)+edge_p2(1));
   }
   _physical_volfrac = frag_area/_elem_volume;
 }
 
 void
-XFEMCutElem2D::calc_mf_weights()
+XFEMCutElem2D::computeMomentFittingWeights()
 {
   // Purpose: calculate new weights via moment-fitting method
   std::vector<Point> elem_nodes(_n_nodes, Point(0.0,0.0,0.0));
@@ -89,7 +89,7 @@ XFEMCutElem2D::calc_mf_weights()
 
   if (_efa_elem2d.isPartial() && _n_qpoints <= 6) // ONLY work for <= 6 q_points
   {
-    new_weight_mf(_n_nodes, _n_qpoints, elem_nodes, wsg);
+    computeMomentFittingWeights(_n_nodes, _n_qpoints, elem_nodes, wsg);
     _new_weights.resize(wsg.size(), 1.0);
     for (unsigned int i = 0; i < wsg.size(); ++i)
       _new_weights[i] = wsg[i][2]; // weight multiplier
@@ -99,13 +99,13 @@ XFEMCutElem2D::calc_mf_weights()
 }
 
 Point
-XFEMCutElem2D::get_origin(unsigned int plane_id, MeshBase* displaced_mesh) const
+XFEMCutElem2D::getCutPlaneOrigin(unsigned int plane_id, MeshBase* displaced_mesh) const
 {
   Point orig(0.0,0.0,0.0);
   std::vector<std::vector<EFANode*> > cut_line_nodes;
-  for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
+  for (unsigned int i = 0; i < _efa_elem2d.getFragment(0)->numEdges(); ++i)
   {
-    if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
+    if (_efa_elem2d.getFragment(0)->isEdgeInterior(i))
     {
       std::vector<EFANode*> node_line(2,NULL);
       node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(0);
@@ -119,18 +119,18 @@ XFEMCutElem2D::get_origin(unsigned int plane_id, MeshBase* displaced_mesh) const
     exit(1);
   }
   if (plane_id < cut_line_nodes.size()) // valid plane_id
-    orig = get_node_coords(cut_line_nodes[plane_id][0], displaced_mesh);
+    orig = getNodeCoordinates(cut_line_nodes[plane_id][0], displaced_mesh);
   return orig;
 }
 
 Point
-XFEMCutElem2D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
+XFEMCutElem2D::getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh) const
 {
   Point normal(0.0,0.0,0.0);
   std::vector<std::vector<EFANode*> > cut_line_nodes;
-  for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
+  for (unsigned int i = 0; i < _efa_elem2d.getFragment(0)->numEdges(); ++i)
   {
-    if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
+    if (_efa_elem2d.getFragment(0)->isEdgeInterior(i))
     {
       std::vector<EFANode*> node_line(2,NULL);
       node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(0);
@@ -145,8 +145,8 @@ XFEMCutElem2D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
   }
   if (plane_id < cut_line_nodes.size()) // valid plane_id
   {
-    Point cut_line_p1 = get_node_coords(cut_line_nodes[plane_id][0], displaced_mesh);
-    Point cut_line_p2 = get_node_coords(cut_line_nodes[plane_id][1], displaced_mesh);
+    Point cut_line_p1 = getNodeCoordinates(cut_line_nodes[plane_id][0], displaced_mesh);
+    Point cut_line_p2 = getNodeCoordinates(cut_line_nodes[plane_id][1], displaced_mesh);
     Point cut_line = cut_line_p2 - cut_line_p1;
     Real len = std::sqrt(cut_line.size_sq());
     cut_line *= (1.0/len);
@@ -156,13 +156,13 @@ XFEMCutElem2D::get_normal(unsigned int plane_id, MeshBase* displaced_mesh) const
 }
 
 void
-XFEMCutElem2D::get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const
+XFEMCutElem2D::getCrackTipOriginAndDirection(unsigned tip_id, Point & origin, Point & direction) const
 {
   //TODO: two cut plane case is not working
   std::vector<EFANode*> cut_line_nodes;
-  for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
+  for (unsigned int i = 0; i < _efa_elem2d.getFragment(0)->numEdges(); ++i)
   {
-    if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
+    if (_efa_elem2d.getFragment(0)->isEdgeInterior(i))
     {
       std::vector<EFANode*> node_line(2,NULL);
       node_line[0] = _efa_elem2d.getFragmentEdge(0,i)->getNode(0);
@@ -187,8 +187,8 @@ XFEMCutElem2D::get_crack_tip_origin_and_direction(unsigned tip_id, Point & origi
     exit(1);
   }
 
-  Point cut_line_p1 = get_node_coords(cut_line_nodes[0]);
-  Point cut_line_p2 = get_node_coords(cut_line_nodes[1]);
+  Point cut_line_p1 = getNodeCoordinates(cut_line_nodes[0]);
+  Point cut_line_p2 = getNodeCoordinates(cut_line_nodes[1]);
   Point cut_line = cut_line_p2 - cut_line_p1;
   Real len = std::sqrt(cut_line.size_sq());
   cut_line *= (1.0/len);
@@ -198,55 +198,57 @@ XFEMCutElem2D::get_crack_tip_origin_and_direction(unsigned tip_id, Point & origi
 
 
 void
-XFEMCutElem2D::get_frag_faces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh) const
+XFEMCutElem2D::getFragmentFaces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh) const
 {
   frag_faces.clear();
-  for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
+  for (unsigned int i = 0; i < _efa_elem2d.getFragment(0)->numEdges(); ++i)
   {
     std::vector<Point> edge_points(2, Point(0.0,0.0,0.0));
-    edge_points[0] = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(0), displaced_mesh);
-    edge_points[1] = get_node_coords(_efa_elem2d.getFragmentEdge(0,i)->getNode(1), displaced_mesh);
+    edge_points[0] = getNodeCoordinates(_efa_elem2d.getFragmentEdge(0,i)->getNode(0), displaced_mesh);
+    edge_points[1] = getNodeCoordinates(_efa_elem2d.getFragmentEdge(0,i)->getNode(1), displaced_mesh);
     frag_faces.push_back(edge_points);
   }
 }
 
 const EFAElement*
-XFEMCutElem2D::get_efa_elem() const
+XFEMCutElem2D::getEFAElement() const
 {
   return &_efa_elem2d;
 }
 
 unsigned int
-XFEMCutElem2D::num_cut_planes() const
+XFEMCutElem2D::numCutPlanes() const
 {
   unsigned int counter = 0;
-  for (unsigned int i = 0; i < _efa_elem2d.get_fragment(0)->num_edges(); ++i)
-    if (_efa_elem2d.get_fragment(0)->is_edge_interior(i))
+  for (unsigned int i = 0; i < _efa_elem2d.getFragment(0)->numEdges(); ++i)
+    if (_efa_elem2d.getFragment(0)->isEdgeInterior(i))
       counter += 1;
   return counter;
 }
 
 // ****** moment-fitting private methods ******
 void
-XFEMCutElem2D::new_weight_mf(unsigned int nen, unsigned int nqp, std::vector<Point> &elem_nodes,
-                             std::vector<std::vector<Real> > &wsg) // ZZY
+XFEMCutElem2D::computeMomentFittingWeights(unsigned int nen,
+                                           unsigned int nqp,
+                                           std::vector<Point> &elem_nodes,
+                                           std::vector<std::vector<Real> > &wsg)
 {
   std::vector<std::vector<Real> > tsg;
-  partial_gauss(nen, tsg); // get tsg - QPs within partial element
-  solve_mf(nen, nqp, elem_nodes, tsg, wsg); // get wsg - QPs from moment-fitting
+  getPhysicalQuadraturePoints(nen, tsg); // get tsg - QPs within partial element
+  solveMomentFitting(nen, nqp, elem_nodes, tsg, wsg); // get wsg - QPs from moment-fitting
 }
 
 void
-XFEMCutElem2D::partial_gauss(unsigned int nen, std::vector<std::vector<Real> > &tsg) // ZZY
+XFEMCutElem2D::getPhysicalQuadraturePoints(unsigned int nen, std::vector<std::vector<Real> > &tsg)
 {
   // Get the coords for parial element nodes
-  EFAFragment2D* frag = _efa_elem2d.get_fragment(0);
-  unsigned int nnd_pe = frag->num_edges();
+  EFAFragment2D* frag = _efa_elem2d.getFragment(0);
+  unsigned int nnd_pe = frag->numEdges();
   std::vector<Point> frag_points(nnd_pe, Point(0.0,0.0,0.0));// nodal coord of partial elem
   Real jac = 0.0;
 
   for (unsigned int j = 0; j < nnd_pe; ++j)
-    frag_points[j] = get_node_coords(frag->get_edge(j)->getNode(0));
+    frag_points[j] = getNodeCoordinates(frag->getEdge(j)->getNode(0));
 
   // Get centroid coords for partial elements
   Point xcrd(0.0,0.0,0.0);
@@ -276,7 +278,7 @@ XFEMCutElem2D::partial_gauss(unsigned int nen, std::vector<std::vector<Real> > &
       tsg.push_back(tsg_line);
     }
   }
-  else if (nnd_pe >= 5) // parial element is a polygon
+  else if (nnd_pe >= 5) // partial element is a polygon
   {
     for (unsigned int j = 0; j < nnd_pe; ++j) // loop all sub-trigs
     {
@@ -309,28 +311,32 @@ XFEMCutElem2D::partial_gauss(unsigned int nen, std::vector<std::vector<Real> > &
 }
 
 void
-XFEMCutElem2D::solve_mf(unsigned int nen, unsigned int nqp, std::vector<Point> &elem_nodes, std::vector<std::vector<Real> > &tsg, std::vector<std::vector<Real> > &wsg)
+XFEMCutElem2D::solveMomentFitting(unsigned int nen,
+                                  unsigned int nqp,
+                                  std::vector<Point> &elem_nodes,
+                                  std::vector<std::vector<Real> > &tsg,
+                                  std::vector<std::vector<Real> > &wsg)
 {
   // Get physical coords for the new six-point rule
   std::vector<std::vector<Real> > shape(nen,std::vector<Real>(3,0.0));
   std::vector<std::vector<Real> > wss;
 
   if(nen == 4){
-    wss.resize(_g_points.size());
-    for(unsigned int i = 0; i < _g_points.size(); i ++){
+    wss.resize(_qp_points.size());
+    for(unsigned int i = 0; i < _qp_points.size(); i ++){
       wss[i].resize(3);
-      wss[i][0] = _g_points[i](0);
-      wss[i][1] = _g_points[i](1);
-      wss[i][2] = _g_weights[i];
+      wss[i][0] = _qp_points[i](0);
+      wss[i][1] = _qp_points[i](1);
+      wss[i][2] = _qp_weights[i];
     }
   }else if(nen == 3){
-    wss.resize(_g_points.size());
-    for(unsigned int i = 0; i < _g_points.size(); i ++){
+    wss.resize(_qp_points.size());
+    for(unsigned int i = 0; i < _qp_points.size(); i ++){
       wss[i].resize(4);
-      wss[i][0] = _g_points[i](0);
-      wss[i][1] = _g_points[i](1);
-      wss[i][2] = 1.0 - _g_points[i](0) - _g_points[i](1);
-      wss[i][3] = _g_weights[i];
+      wss[i][0] = _qp_points[i](0);
+      wss[i][1] = _qp_points[i](1);
+      wss[i][2] = 1.0 - _qp_points[i](0) - _qp_points[i](1);
+      wss[i][3] = _qp_weights[i];
     }
   }else
     mooseError("Invalid element");

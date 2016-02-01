@@ -41,21 +41,21 @@ public:
   // override pure virtual methods
   virtual void switchNode(EFANode *new_node, EFANode *old_node);
   virtual bool containsNode(EFANode *node) const;
-  virtual unsigned int get_num_cuts() const;
-  virtual std::set<EFANode*> get_all_nodes() const;
+  virtual unsigned int getNumCuts() const;
+  virtual std::set<EFANode*> getAllNodes() const;
   virtual bool isConnected(EFAFragment *other_fragment) const;
-  virtual void remove_invalid_embedded(std::map<unsigned int, EFANode*> &EmbeddedNodes);
+  virtual void removeInvalidEmbeddedNodes(std::map<unsigned int, EFANode*> &EmbeddedNodes);
 
   // EFAfragment2D specific methods
-  void combine_tip_edges();
-  bool is_edge_interior(unsigned int edge_id) const;
-  std::vector<unsigned int> get_interior_edge_id() const;
+  void combineTipEdges();
+  bool isEdgeInterior(unsigned int edge_id) const;
+  std::vector<unsigned int> getInteriorEdgeID() const;
   bool isSecondaryInteriorEdge(unsigned int edge_id) const;
-  unsigned int num_edges() const;
-  EFAEdge* get_edge(unsigned int edge_id) const;
-  void add_edge(EFAEdge* new_edge);
-  std::set<EFANode*> get_edge_nodes(unsigned int edge_id) const;
-  EFAElement2D * get_host() const;
+  unsigned int numEdges() const;
+  EFAEdge* getEdge(unsigned int edge_id) const;
+  void addEdge(EFAEdge* new_edge);
+  std::set<EFANode*> getEdgeNodes(unsigned int edge_id) const;
+  EFAElement2D * getHostElement() const;
   std::vector<EFAFragment2D*> split();
 };
 

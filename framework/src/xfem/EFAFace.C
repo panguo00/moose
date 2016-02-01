@@ -40,19 +40,19 @@ EFAFace::EFAFace(const EFAFace & other_face):
 
 
 EFAFace::EFAFace(const EFAFragment2D* frag):
-  _num_nodes(frag->num_edges()),
+  _num_nodes(frag->numEdges()),
   _nodes(_num_nodes, NULL),
   _num_edges(_num_nodes),
   _edges(_num_edges, NULL)
 {
-  for (unsigned int k = 0; k < frag->num_edges(); ++k)
+  for (unsigned int k = 0; k < frag->numEdges(); ++k)
   {
-    EFANode* node = frag->get_edge(k)->getNode(0);
-    unsigned int kprev(k > 0 ? (k-1) : (frag->num_edges()-1));
-    if (!frag->get_edge(kprev)->containsNode(node))
+    EFANode* node = frag->getEdge(k)->getNode(0);
+    unsigned int kprev(k > 0 ? (k-1) : (frag->numEdges()-1));
+    if (!frag->getEdge(kprev)->containsNode(node))
       node = getEdge(k)->getNode(1);
     _nodes[k] = node;
-    _edges[k] = new EFAEdge(*frag->get_edge(k));
+    _edges[k] = new EFAEdge(*frag->getEdge(k));
   }
 }
 
@@ -133,11 +133,11 @@ EFAFace::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
   {
     for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
     {
-      if (_interior_nodes[i]->get_node() == node)
+      if (_interior_nodes[i]->getNode() == node)
       {
         std::vector<double> emb_xi(2,0.0);
-        emb_xi[0] = _interior_nodes[i]->get_para_coords(0);
-        emb_xi[1] = _interior_nodes[i]->get_para_coords(1);
+        emb_xi[0] = _interior_nodes[i]->getParametricCoordinates(0);
+        emb_xi[1] = _interior_nodes[i]->getParametricCoordinates(1);
         for (unsigned int j = 0; j < _num_nodes; ++j)
         {
           master_nodes.push_back(_nodes[j]);
@@ -198,11 +198,11 @@ EFAFace::getFaceNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) 
   {
     for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
     {
-      if (_interior_nodes[i]->get_node() == node)
+      if (_interior_nodes[i]->getNode() == node)
       {
         xi_2d.resize(2,0.0);
-        xi_2d[0] = _interior_nodes[i]->get_para_coords(0);
-        xi_2d[1] = _interior_nodes[i]->get_para_coords(1);
+        xi_2d[0] = _interior_nodes[i]->getParametricCoordinates(0);
+        xi_2d[1] = _interior_nodes[i]->getParametricCoordinates(1);
         node_in_face = true;
         break;
       }
@@ -383,7 +383,7 @@ EFAFace::containsNode(const EFANode* node) const
   {
     for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
     {
-      if (_interior_nodes[i]->get_node() == node)
+      if (_interior_nodes[i]->getNode() == node)
       {
         contains = true;
         break;
@@ -427,7 +427,7 @@ EFAFace::removeEmbeddedNode(EFANode* emb_node)
   bool node_found = false;
   for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
   {
-    if (_interior_nodes[i]->get_node() == emb_node)
+    if (_interior_nodes[i]->getNode() == emb_node)
     {
       node_found = true;
       index = i;
@@ -489,12 +489,12 @@ EFAFace::combineWithFace(const EFAFace* other_face) const
 
     EFAEdge* new_edge0 = new EFAEdge(_edges[this_edge_id0]->getNode(0), other_face->_edges[other_edge_id0]->getNode(1));
     new_edge0->addIntersection(-1.0, common_nodes[0], new_edge0->getNode(0)); // dummy intersection_x
-    new_frag->add_edge(new_edge0); // common_nodes[0]'s edge
+    new_frag->addEdge(new_edge0); // common_nodes[0]'s edge
 
     unsigned int other_iedge(other_edge_id0<(other_face->_num_edges-1) ? other_edge_id0+1 : 0);
     while (!other_face->_edges[other_iedge]->equivalent(*other_face->_edges[other_edge_id1]))
     {
-      new_frag->add_edge(new EFAEdge(*other_face->_edges[other_iedge]));
+      new_frag->addEdge(new EFAEdge(*other_face->_edges[other_iedge]));
       other_iedge += 1;
       if (other_iedge == other_face->_num_edges)
         other_iedge = 0;
@@ -502,12 +502,12 @@ EFAFace::combineWithFace(const EFAFace* other_face) const
 
     EFAEdge* new_edge1 = new EFAEdge(other_face->_edges[other_edge_id1]->getNode(0), _edges[this_edge_id1]->getNode(1));
     new_edge1->addIntersection(-1.0, common_nodes[1], new_edge1->getNode(0)); // dummy intersection_x
-    new_frag->add_edge(new_edge1);
+    new_frag->addEdge(new_edge1);
 
     unsigned int this_iedge(this_edge_id1<(_num_edges-1) ? this_edge_id1+1 : 0);
     while (!_edges[this_iedge]->equivalent(*_edges[this_edge_id0])) // common_nodes[1]'s edge
     {
-      new_frag->add_edge(new EFAEdge(*_edges[this_iedge]));
+      new_frag->addEdge(new EFAEdge(*_edges[this_iedge]));
       this_iedge += 1;
       if (this_iedge == _num_edges)
         this_iedge = 0;

@@ -15,16 +15,13 @@
 //TODO:
 //Clean up error checking in (!found_edge)
 //Save fragment for uncut element ahead of crack tip to avoid renumbering if only embedded node
-//Improve overlays_elem() check to not pass in edge
 //Add common code to compare neighbors & fragments (replace multiple set_intersection calls)
 
 //Handle cases other than 0 or 2 cut edges/elem (include data structure to link cut edges with cracks?)
 //Allow for more than one cut on an edge
-//Allow for fragments to be cut recursively
-//Support other 2d linear elements (tets)
 //Support 2d higher order elements
-//3D
-//Test more cases
+//3D propagation
+//3D branching
 
 #include <algorithm>
 #include <iomanip>
@@ -32,6 +29,9 @@
 
 #include "EFAfuncs.h"
 #include "ElementFragmentAlgorithm.h"
+#include "EFANode.h"
+#include "EFAElement3D.h"
+#include "EFAElement2D.h"
 
 ElementFragmentAlgorithm::ElementFragmentAlgorithm()
 {}

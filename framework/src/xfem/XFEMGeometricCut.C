@@ -23,7 +23,7 @@ XFEMGeometricCut::XFEMGeometricCut(Real t0, Real t1):
 XFEMGeometricCut::~XFEMGeometricCut()
 {}
 
-Real XFEMGeometricCut::cut_fraction(Real time)
+Real XFEMGeometricCut::cutFraction(Real time)
 {
   Real fraction = 0.0;
   if (time > t_start)
@@ -40,7 +40,7 @@ Real XFEMGeometricCut::cut_fraction(Real time)
   return fraction;
 }
 
-Real XFEMGeometricCut::crossprod_2d(Real ax, Real ay, Real bx, Real by)
+Real XFEMGeometricCut::crossProduct2D(Real ax, Real ay, Real bx, Real by)
 {
   return (ax*by-bx*ay);
 }

@@ -27,7 +27,7 @@ XFEMGeometricCut2D::~XFEMGeometricCut2D()
 {}
 
 bool
-XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
+XFEMGeometricCut2D::cutElementByGeometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
 {
   //Use the algorithm described here to determine whether edges are cut by the cut line:
   //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
@@ -35,7 +35,7 @@ XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> 
   bool cut_elem = false;
   Real tol = 1.e-15;
 
-  Real fraction = cut_fraction(time);
+  Real fraction = cutFraction(time);
 
   unsigned int nsides = elem->n_nodes();
 
@@ -59,17 +59,17 @@ XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> 
     Real cut_origin_to_seg_originx = seg_originx-cut_originx;
     Real cut_origin_to_seg_originy = seg_originy-cut_originy;
 
-    Real cut_dir_cross_seg_dir = crossprod_2d(cut_dirx, cut_diry, seg_dirx, seg_diry);
+    Real cut_dir_cross_seg_dir = crossProduct2D(cut_dirx, cut_diry, seg_dirx, seg_diry);
 
     if (fabs(cut_dir_cross_seg_dir) > tol)
     {
       //Fraction of the distance along the cutting segment where it intersects the edge segment
-      Real cut_int_frac = crossprod_2d(cut_origin_to_seg_originx, cut_origin_to_seg_originy, seg_dirx, seg_diry) /
+      Real cut_int_frac = crossProduct2D(cut_origin_to_seg_originx, cut_origin_to_seg_originy, seg_dirx, seg_diry) /
                           cut_dir_cross_seg_dir;
 
       if (cut_int_frac >= 0.0 && cut_int_frac <= fraction)
       { //Cutting segment intersects the line of the edge segment, but the intersection point may be outside the segment
-        Real seg_int_frac = crossprod_2d(cut_origin_to_seg_originx, cut_origin_to_seg_originy, cut_dirx, cut_diry) /
+        Real seg_int_frac = crossProduct2D(cut_origin_to_seg_originx, cut_origin_to_seg_originy, cut_dirx, cut_diry) /
                             cut_dir_cross_seg_dir;
         if (seg_int_frac >= 0.0 && seg_int_frac <= 1.0) //TODO: revisit end cases for intersections with corners
         {
@@ -90,14 +90,14 @@ XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> 
 }
 
 bool
-XFEMGeometricCut2D::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+XFEMGeometricCut2D::cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
 {
   mooseError("invalid method for 2D mesh cutting");
   return false;
 }
 
 bool
-XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
+XFEMGeometricCut2D::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges,
                                             std::vector<cutEdge> & cutEdges, Real time)
 {
   //Use the algorithm described here to determine whether edges are cut by the cut line:
@@ -106,7 +106,7 @@ XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag
   bool cut_frag = false;
   Real tol = 1.e-15;
 
-  Real fraction = cut_fraction(time);
+  Real fraction = cutFraction(time);
 
   unsigned int nsides = frag_edges.size();
 
@@ -127,17 +127,17 @@ XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag
     Real cut_origin_to_seg_originx = seg_originx-cut_originx;
     Real cut_origin_to_seg_originy = seg_originy-cut_originy;
 
-    Real cut_dir_cross_seg_dir = crossprod_2d(cut_dirx, cut_diry, seg_dirx, seg_diry);
+    Real cut_dir_cross_seg_dir = crossProduct2D(cut_dirx, cut_diry, seg_dirx, seg_diry);
 
     if (fabs(cut_dir_cross_seg_dir) > tol)
     {
       //Fraction of the distance along the cutting segment where it intersects the edge segment
-      Real cut_int_frac = crossprod_2d(cut_origin_to_seg_originx, cut_origin_to_seg_originy, seg_dirx, seg_diry) /
+      Real cut_int_frac = crossProduct2D(cut_origin_to_seg_originx, cut_origin_to_seg_originy, seg_dirx, seg_diry) /
                           cut_dir_cross_seg_dir;
 
       if (cut_int_frac >= 0.0 && cut_int_frac <= fraction)
       { //Cutting segment intersects the line of the edge segment, but the intersection point may be outside the segment
-        Real seg_int_frac = crossprod_2d(cut_origin_to_seg_originx, cut_origin_to_seg_originy, cut_dirx, cut_diry) /
+        Real seg_int_frac = crossProduct2D(cut_origin_to_seg_originx, cut_origin_to_seg_originy, cut_dirx, cut_diry) /
                             cut_dir_cross_seg_dir;
         if (seg_int_frac >= 0.0 && seg_int_frac <= 1.0) //TODO: revisit end cases for intersections with corners
         {
@@ -158,7 +158,7 @@ XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag
 }
 
 bool
-XFEMGeometricCut2D::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
+XFEMGeometricCut2D::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces,
                                             std::vector<cutFace> & cutFaces, Real time)
 {
   mooseError("invalid method for 2D mesh cutting");

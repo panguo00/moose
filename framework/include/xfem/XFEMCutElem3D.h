@@ -16,6 +16,7 @@
 #define XFEMCUTELEM3D_H
 
 #include "XFEMCutElem.h"
+#include "EFAElement3D.h"
 
 using namespace libMesh;
 
@@ -28,17 +29,17 @@ public:
 private:
 
   EFAElement3D _efa_elem3d; // 3D EFAelement
-  virtual Point get_node_coords(EFANode* node, MeshBase* displaced_mesh = NULL) const;
+  virtual Point getNodeCoordinates(EFANode* node, MeshBase* displaced_mesh = NULL) const;
 
 public:
-  virtual void calc_physical_volfrac();
-  virtual void calc_mf_weights();
-  virtual Point get_origin(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
-  virtual Point get_normal(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
-  virtual void get_crack_tip_origin_and_direction(unsigned tip_id, Point & origin, Point & direction) const;
-  virtual void get_frag_faces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const;
-  virtual const EFAElement * get_efa_elem() const;
-  virtual unsigned int num_cut_planes() const;
+  virtual void computePhysicalVolumeFraction();
+  virtual void computeMomentFittingWeights();
+  virtual Point getCutPlaneOrigin(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
+  virtual Point getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh=NULL) const;
+  virtual void getCrackTipOriginAndDirection(unsigned tip_id, Point & origin, Point & direction) const;
+  virtual void getFragmentFaces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const;
+  virtual const EFAElement * getEFAElement() const;
+  virtual unsigned int numCutPlanes() const;
 
 private:
   double polyhedron_volume_3d(double coord[], int order_max, int face_num,

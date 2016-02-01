@@ -24,10 +24,10 @@ EFAFragment::~EFAFragment()
 {}
 
 std::vector<EFANode*>
-EFAFragment::get_common_nodes(EFAFragment* other) const
+EFAFragment::getCommonNodes(EFAFragment* other) const
 {
-  std::set<EFANode*> frag1_nodes = get_all_nodes();
-  std::set<EFANode*> frag2_nodes = other->get_all_nodes();
+  std::set<EFANode*> frag1_nodes = getAllNodes();
+  std::set<EFANode*> frag2_nodes = other->getAllNodes();
   std::vector<EFANode*> common_nodes = get_common_elems(frag1_nodes, frag2_nodes);
   return common_nodes;
 }

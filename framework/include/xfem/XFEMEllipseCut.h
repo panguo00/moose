@@ -11,11 +11,11 @@ public:
   XFEMEllipseCut(std::vector<Real> square_nodes);
   ~XFEMEllipseCut();
 
-  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
+  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
+  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
 
-  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time);
+  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time);
+  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time);
 
 private:
 
@@ -30,7 +30,7 @@ private:
 
 private:
 
-  bool intersect_with_edge(Point p1, Point p2, Point &pint);
+  bool intersectWithEdge(Point p1, Point p2, Point &pint);
   bool isInsideCutPlane(Point p);
 };
   

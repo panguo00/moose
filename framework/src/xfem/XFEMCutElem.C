@@ -29,20 +29,20 @@ XFEMCutElem::~XFEMCutElem()
 }
 
 Real
-XFEMCutElem::get_physical_volfrac() const
+XFEMCutElem::getPhysicalVolumeFraction() const
 {
   return _physical_volfrac;
 }
 
 Real
-XFEMCutElem::get_mf_weights(unsigned int i_qp) const
+XFEMCutElem::getMomentFittingWeight(unsigned int i_qp) const
 {
   return _new_weights[i_qp];
 }
 
-void XFEMCutElem::set_gauss_points_and_weights(const std::vector<Point> &gauss_points, const std::vector<Real> &gauss_weights)
+void XFEMCutElem::setQuadraturePointsAndWeights(const std::vector<Point> &qp_points, const std::vector<Real> &qp_weights)
 {
-  _g_points = gauss_points;
-  _g_weights = gauss_weights;
+  _qp_points = qp_points;
+  _qp_weights = qp_weights;
 }
 

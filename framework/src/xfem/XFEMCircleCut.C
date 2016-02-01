@@ -48,13 +48,13 @@ XFEMCircleCut::XFEMCircleCut(std::vector<Real> circle_nodes):
 XFEMCircleCut::~XFEMCircleCut()
 {}
 
-bool XFEMCircleCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
+bool XFEMCircleCut::cutElementByGeometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting\n");
   return false;
 }
 
-bool XFEMCircleCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+bool XFEMCircleCut::cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
 {
   bool cut_elem = false;
  
@@ -94,7 +94,7 @@ bool XFEMCircleCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> 
         Point p2((*node2)(0), (*node2)(1), (*node2)(2));
 
         Point pint(0.0,0.0,0.0);
-        if (intersect_with_edge(p1,p2,pint))
+        if (intersectWithEdge(p1,p2,pint))
         {
           cut_edges.push_back(j);
           cut_pos.push_back(getRelativePosition(p1,p2,pint));
@@ -119,21 +119,21 @@ bool XFEMCircleCut::cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> 
 }	
 
 
-bool XFEMCircleCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time)
+bool XFEMCircleCut::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time)
 {
   mooseError("invalid method for 3D mesh cutting\n");
   return false;
 }
 
 
-bool XFEMCircleCut::cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time)
+bool XFEMCircleCut::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time)
 {
   return false;
 }
 
-bool XFEMCircleCut::intersect_with_edge(Point p1, Point p2, Point &pint)
+bool XFEMCircleCut::intersectWithEdge(Point p1, Point p2, Point &pint)
 {
-  bool has_inters = false;
+  bool has_intersection = false;
   double plane_point[3] = {_center(0), _center(1), _center(2)};
   double plane_normal[3] = {_normal(0), _normal(1), _normal(2)};
   double edge_point1[3] = {p1(0), p1(1), p1(2)};
@@ -144,10 +144,10 @@ bool XFEMCircleCut::intersect_with_edge(Point p1, Point p2, Point &pint)
     Point temp_p(cut_point[0], cut_point[1], cut_point[2]);
     if( isInsideCutPlane(temp_p) && isInsideEdge(p1, p2, temp_p) ){
       pint = temp_p;
-       has_inters = true;
+       has_intersection = true;
     }
   }
-  return has_inters;
+  return has_intersection;
 }
 
 

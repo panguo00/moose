@@ -240,11 +240,11 @@ EFAElement2D::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
   {
     for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
     {
-      if (_interior_nodes[i]->get_node() == node)
+      if (_interior_nodes[i]->getNode() == node)
       {
         std::vector<double> emb_xi(2,0.0);
-        emb_xi[0] = _interior_nodes[i]->get_para_coords(0);
-        emb_xi[1] = _interior_nodes[i]->get_para_coords(1);
+        emb_xi[0] = _interior_nodes[i]->getParametricCoordinates(0);
+        emb_xi[1] = _interior_nodes[i]->getParametricCoordinates(1);
         for (unsigned int j = 0; j < _num_nodes; ++j)
         {
           master_nodes.push_back(_nodes[j]);
@@ -403,7 +403,7 @@ EFAElement2D::setupNeighbors(std::map<EFANode*, std::set<EFAElement*> > &Inverse
             mooseError("in updateEdgeNeighbors: Cannot have more than 1 fragment");
           else if ((_fragments.size() == 1) && (neigh_elem->numFragments() == 1))
           {
-            if (_fragments[0]->isConnected(neigh_elem->get_fragment(0)))
+            if (_fragments[0]->isConnected(neigh_elem->getFragment(0)))
               is_edge_neighbor = true;
           }
           else //If there are no fragments to match up, consider them neighbors
@@ -648,9 +648,9 @@ EFAElement2D::willCrackTipExtend(std::vector<unsigned int> &split_neighbors) con
                     <<neighbor_elem->numFragments()<<" fragments");
       else if (neighbor_elem->numFragments() == 2)
       {
-        EFAFragment2D* frag1 = neighbor_elem->get_fragment(0);
-        EFAFragment2D* frag2 = neighbor_elem->get_fragment(1);
-        std::vector<EFANode*> neigh_cut_nodes = frag1->get_common_nodes(frag2);
+        EFAFragment2D* frag1 = neighbor_elem->getFragment(0);
+        EFAFragment2D* frag2 = neighbor_elem->getFragment(1);
+        std::vector<EFANode*> neigh_cut_nodes = frag1->getCommonNodes(frag2);
         if (neigh_cut_nodes.size() != 2)
           mooseError("2 frags in a elem does not share 2 common nodes");
         if (_edges[neigh_idx]->isEmbeddedNode(neigh_cut_nodes[0]) ||
@@ -689,9 +689,9 @@ EFAElement2D::isFinalCut() const
   if (_fragments.size() > 0)
   {
     unsigned int num_interior_edges = 0;
-    for (unsigned int i = 0; i < _fragments[0]->num_edges(); ++i)
+    for (unsigned int i = 0; i < _fragments[0]->numEdges(); ++i)
     {
-      if (_fragments[0]->is_edge_interior(i))
+      if (_fragments[0]->isEdgeInterior(i))
         num_interior_edges += 1;
     }
     if (num_interior_edges == 2)
@@ -710,7 +710,7 @@ EFAElement2D::updateFragments(const std::set<EFAElement*> &CrackTipElements,
   if (sit != CrackTipElements.end()) // curr_elem is a crack tip element
   {
     if (_fragments.size() == 1)
-      _fragments[0]->combine_tip_edges();
+      _fragments[0]->combineTipEdges();
     else
       mooseError("crack tip elem " << _id << " must have 1 fragment");
   }
@@ -718,7 +718,7 @@ EFAElement2D::updateFragments(const std::set<EFAElement*> &CrackTipElements,
   // if a fragment only has 1 intersection which is in an interior edge
   // remove this embedded node (MUST DO THIS AFTER combine_tip_edges())
   if (_fragments.size() == 1)
-    _fragments[0]->remove_invalid_embedded(EmbeddedNodes);
+    _fragments[0]->removeInvalidEmbeddedNodes(EmbeddedNodes);
 
   // for an element with no fragment, create one fragment identical to the element
   if (_fragments.size() == 0)
@@ -727,8 +727,8 @@ EFAElement2D::updateFragments(const std::set<EFAElement*> &CrackTipElements,
     mooseError("Element " << _id << " must have 1 fragment at this point");
 
   // count fragment's cut edges
-  unsigned int num_cut_frag_edges = _fragments[0]->get_num_cuts();
-  unsigned int num_frag_edges = _fragments[0]->num_edges();
+  unsigned int num_cut_frag_edges = _fragments[0]->getNumCuts();
+  unsigned int num_frag_edges = _fragments[0]->numEdges();
   if (num_cut_frag_edges > 3)
     mooseError("In element " << _id <<" there are more than 2 cut fragment edges");
 
@@ -776,11 +776,11 @@ EFAElement2D::fragmentSanityCheck(unsigned int n_old_frag_edges,
     num_perm.push_back(0);
     std::set<EFANode*> perm_nodes;
     std::set<EFANode*> emb_nodes;
-    for (unsigned int j = 0; j < _fragments[i]->num_edges(); ++j)
+    for (unsigned int j = 0; j < _fragments[i]->numEdges(); ++j)
     {
       for (unsigned int k = 0; k < 2; ++k)
       {
-        EFANode * temp_node = _fragments[i]->get_edge(j)->getNode(k);
+        EFANode * temp_node = _fragments[i]->getEdge(j)->getNode(k);
         if (temp_node->category() == N_CATEGORY_PERMANENT)
           perm_nodes.insert(temp_node);
         else if (temp_node->category() == N_CATEGORY_EMBEDDED)
@@ -800,25 +800,25 @@ EFAElement2D::fragmentSanityCheck(unsigned int n_old_frag_edges,
   if (n_old_frag_cuts == 0)
   {
     if (_fragments.size() != 1 ||
-        _fragments[0]->num_edges() != n_old_frag_edges)
+        _fragments[0]->numEdges() != n_old_frag_edges)
       mooseError("Incorrect link size for element with 0 cuts");
   }
   else if (n_old_frag_cuts == 1) // crack tip case
   {
     if (_fragments.size() != 1 ||
-        _fragments[0]->num_edges() != n_old_frag_edges+1)
+        _fragments[0]->numEdges() != n_old_frag_edges+1)
       mooseError("Incorrect link size for element with 1 cut");
   }
   else if (n_old_frag_cuts == 2)
   {
     if (_fragments.size() != 2 ||
-       (_fragments[0]->num_edges()+_fragments[1]->num_edges()) != n_old_frag_edges+4)
+       (_fragments[0]->numEdges()+_fragments[1]->numEdges()) != n_old_frag_edges+4)
       mooseError("Incorrect link size for element with 2 cuts");
   }
   else if (n_old_frag_cuts == 3)
   {
     if (_fragments.size() != 3 ||
-       (_fragments[0]->num_edges()+_fragments[1]->num_edges()+_fragments[2]->num_edges()) != n_old_frag_edges+9)
+       (_fragments[0]->numEdges()+_fragments[1]->numEdges()+_fragments[2]->numEdges()) != n_old_frag_edges+9)
       mooseError("Incorrect link size for element with 3 cuts");
   }
   else
@@ -992,7 +992,7 @@ EFAElement2D::connectNeighbors(std::map<unsigned int, EFANode*> &PermanentNodes,
           if (_edges[j]->equivalent(*neighborChildEdge))
             continue;
 
-          if (_fragments[0]->isConnected(childOfNeighborElem->get_fragment(0)))
+          if (_fragments[0]->isConnected(childOfNeighborElem->getFragment(0)))
           {
             unsigned int num_edge_nodes = 2;
             for (unsigned int i = 0; i < num_edge_nodes; ++i)
@@ -1135,10 +1135,10 @@ EFAElement2D::printElement()
   {
     std::cout<<std::setw(4);
     std::cout << " " << j << " | ";
-    for (unsigned int k = 0; k < _fragments[j]->num_edges(); ++k)
+    for (unsigned int k = 0; k < _fragments[j]->numEdges(); ++k)
     {
       EFANode* prt_node = getFragmentEdge(j,k)->getNode(0);
-      unsigned int kprev(k>0 ? k-1 : _fragments[j]->num_edges()-1);
+      unsigned int kprev(k>0 ? k-1 : _fragments[j]->numEdges()-1);
       if (!getFragmentEdge(j,kprev)->containsNode(prt_node))
         prt_node = getFragmentEdge(j,k)->getNode(1);
       std::cout << std::setw(5) << prt_node->idCatString();
@@ -1148,7 +1148,7 @@ EFAElement2D::printElement()
 }
 
 EFAFragment2D*
-EFAElement2D::get_fragment(unsigned int frag_id) const
+EFAElement2D::getFragment(unsigned int frag_id) const
 {
   if (frag_id < _fragments.size())
     return _fragments[frag_id];
@@ -1239,7 +1239,7 @@ EFAEdge*
 EFAElement2D::getFragmentEdge(unsigned int frag_id, unsigned int edge_id) const
 {
   if (frag_id < _fragments.size())
-    return _fragments[frag_id]->get_edge(edge_id);
+    return _fragments[frag_id]->getEdge(edge_id);
   else
     mooseError("frag_id out of bounds in get_frag_edge()");
 }
@@ -1278,9 +1278,9 @@ EFAElement2D::getFragmentEdgeID(unsigned int elem_edge_id, unsigned int &frag_ed
   frag_edge_id = 99999;
   if (_fragments.size() == 1)
   {
-    for (unsigned int j = 0; j < _fragments[0]->num_edges(); ++j)
+    for (unsigned int j = 0; j < _fragments[0]->numEdges(); ++j)
     {
-      if (_edges[elem_edge_id]->containsEdge(*_fragments[0]->get_edge(j)))
+      if (_edges[elem_edge_id]->containsEdge(*_fragments[0]->getEdge(j)))
       {
         frag_edge_id = j;
         frag_edge_found = true;
@@ -1300,9 +1300,9 @@ EFAElement2D::isEdgePhantom(unsigned int edge_id) const
     bool contain_frag_edge = false;
     for (unsigned int i = 0; i < _fragments.size(); ++i)
     {
-      for (unsigned int j = 0; j < _fragments[i]->num_edges(); ++j)
+      for (unsigned int j = 0; j < _fragments[i]->numEdges(); ++j)
       {
-        if (_edges[edge_id]->containsEdge(*_fragments[i]->get_edge(j)))
+        if (_edges[edge_id]->containsEdge(*_fragments[i]->getEdge(j)))
         {
           contain_frag_edge = true;
           break;
@@ -1344,9 +1344,9 @@ EFAElement2D::fragmentHasTipEdges() const
       unsigned int num_frag_edges = 0; // count how many fragment edges this element edge contains
       if (_edges[i]->hasIntersection())
       {
-        for (unsigned int j = 0; j < _fragments[0]->num_edges(); ++j)
+        for (unsigned int j = 0; j < _fragments[0]->numEdges(); ++j)
         {
-          if (_edges[i]->containsEdge(*_fragments[0]->get_edge(j)))
+          if (_edges[i]->containsEdge(*_fragments[0]->getEdge(j)))
             num_frag_edges += 1;
         } // j
         if (num_frag_edges == 2)
@@ -1372,9 +1372,9 @@ EFAElement2D::getTipEdgeID() const
       unsigned int num_frag_edges = 0; // count how many fragment edges this element edge contains
       if (_edges[i]->hasIntersection())
       {
-        for (unsigned int j = 0; j < _fragments[0]->num_edges(); ++j)
+        for (unsigned int j = 0; j < _fragments[0]->numEdges(); ++j)
         {
-          if (_edges[i]->containsEdge(*_fragments[0]->get_edge(j)))
+          if (_edges[i]->containsEdge(*_fragments[0]->getEdge(j)))
             num_frag_edges += 1;
         } // j
         if (num_frag_edges == 2) // element edge contains two fragment edges
@@ -1400,10 +1400,10 @@ EFAElement2D::getTipEmbeddedNode() const
       std::vector<EFAEdge*> frag_edges; // count how many fragment edges this element edge contains
       if (_edges[i]->hasIntersection())
       {
-        for (unsigned int j = 0; j < _fragments[0]->num_edges(); ++j)
+        for (unsigned int j = 0; j < _fragments[0]->numEdges(); ++j)
         {
-          if (_edges[i]->containsEdge(*_fragments[0]->get_edge(j)))
-            frag_edges.push_back(_fragments[0]->get_edge(j));
+          if (_edges[i]->containsEdge(*_fragments[0]->getEdge(j)))
+            frag_edges.push_back(_fragments[0]->getEdge(j));
         } // j
         if (frag_edges.size() == 2) // element edge contains two fragment edges
         {
@@ -1430,9 +1430,9 @@ EFAElement2D::edgeContainsTip(unsigned int edge_id) const
     unsigned int num_frag_edges = 0; // count how many fragment edges this element edge contains
     if (_edges[edge_id]->hasIntersection())
     {
-      for (unsigned int j = 0; j < _fragments[0]->num_edges(); ++j)
+      for (unsigned int j = 0; j < _fragments[0]->numEdges(); ++j)
       {
-        if (_edges[edge_id]->containsEdge(*_fragments[0]->get_edge(j)))
+        if (_edges[edge_id]->containsEdge(*_fragments[0]->getEdge(j)))
           num_frag_edges += 1;
       } // j
       if (num_frag_edges == 2)
@@ -1586,7 +1586,7 @@ EFAElement2D::addFragmentEdgeCut(unsigned int frag_edge_id, double position,
     }
     else // blank edge - in fact, it can only be a blank element interior edge
     {
-      if (!_fragments[0]->is_edge_interior(frag_edge_id) ||
+      if (!_fragments[0]->isEdgeInterior(frag_edge_id) ||
            _fragments[0]->isSecondaryInteriorEdge(frag_edge_id))
         mooseError("Attemping to add intersection to an invalid fragment edge. Element: "
                     << _id << " fragment_edge: " << frag_edge_id);
@@ -1667,8 +1667,8 @@ EFAElement2D::branchingSplit(std::map<unsigned int, EFANode*> &EmbeddedNodes)
   {
     EFAFragment2D* new_frag = new EFAFragment2D(this, false, NULL);
     unsigned int iplus1(i<2 ? i+1 : 0);
-    new_frag->add_edge(new EFAEdge(three_nodes[iplus1], new_emb));
-    new_frag->add_edge(new EFAEdge(new_emb, three_nodes[i]));
+    new_frag->addEdge(new EFAEdge(three_nodes[iplus1], new_emb));
+    new_frag->addEdge(new EFAEdge(new_emb, three_nodes[i]));
 
     unsigned int iedge = 0;
     bool add_more_edges = true;
@@ -1678,12 +1678,12 @@ EFAElement2D::branchingSplit(std::map<unsigned int, EFANode*> &EmbeddedNodes)
       {
         if (_edges[j]->containsNode(three_nodes[iplus1]))
         {
-          new_frag->add_edge(new EFAEdge(three_nodes[i], three_nodes[iplus1]));
+          new_frag->addEdge(new EFAEdge(three_nodes[i], three_nodes[iplus1]));
           add_more_edges = false;
         }
         else
         {
-          new_frag->add_edge(new EFAEdge(three_nodes[i], _edges[j]->getNode(1)));
+          new_frag->addEdge(new EFAEdge(three_nodes[i], _edges[j]->getNode(1)));
         }
         iedge = j;
         break;
@@ -1696,11 +1696,11 @@ EFAElement2D::branchingSplit(std::map<unsigned int, EFANode*> &EmbeddedNodes)
         iedge = 0;
       if (_edges[iedge]->containsNode(three_nodes[iplus1]))
       {
-        new_frag->add_edge(new EFAEdge(_edges[iedge]->getNode(0), three_nodes[iplus1]));
+        new_frag->addEdge(new EFAEdge(_edges[iedge]->getNode(0), three_nodes[iplus1]));
         add_more_edges = false;
       }
       else
-        new_frag->add_edge(new EFAEdge(_edges[iedge]->getNode(0), _edges[iedge]->getNode(1)));
+        new_frag->addEdge(new EFAEdge(_edges[iedge]->getNode(0), _edges[iedge]->getNode(1)));
     }
     new_fragments.push_back(new_frag);
   } // i

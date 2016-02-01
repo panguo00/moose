@@ -15,10 +15,9 @@
 #ifndef XFEM_H
 #define XFEM_H
 
-#include "XFEMCutElem2D.h"
-#include "XFEMCutElem3D.h"
 #include "AuxiliarySystem.h"
 #include "NonlinearSystem.h"
+#include "ElementFragmentAlgorithm.h"
 
 enum XFEM_CUTPLANE_QUANTITY
 {
@@ -37,7 +36,13 @@ enum XFEM_QRULE
   DIRECT
 };
 
+class XFEMCutElem;
 class XFEMGeometricCut;
+class EFANode;
+class EFAEdge;
+class EFAElement;
+class EFAElement2D;
+class EFAElement3D;
 
 /**
  * This is the \p XFEM class.  This class implements
@@ -169,9 +174,6 @@ private:
   std::map<const Elem*, RealVectorValue> _state_marked_elems;
   std::set<const Elem*> _state_marked_frags;
   std::map<const Elem*, unsigned int> _state_marked_elem_sides;
-
-  LocationMap<Node> _new_nodes_map;
-  LocationMap<Node> _new_nodes_map2;
 
   std::map<unique_id_type, unique_id_type> _new_node_to_parent_node;
 

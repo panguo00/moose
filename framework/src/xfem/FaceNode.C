@@ -30,13 +30,13 @@ FaceNode::~FaceNode()
 {}
 
 EFANode *
-FaceNode::get_node()
+FaceNode::getNode()
 {
   return _node;
 }
 
 double
-FaceNode::get_para_coords(unsigned int i)
+FaceNode::getParametricCoordinates(unsigned int i)
 {
   double coord = -100.0;
   if (i == 0)
@@ -44,7 +44,7 @@ FaceNode::get_para_coords(unsigned int i)
   else if (i == 1)
     coord = _eta;
   else
-    mooseError("get_para_coords(): input out of bounds");
+    mooseError("get_getParametricCoordinates input out of bounds");
 
   return coord;
 }

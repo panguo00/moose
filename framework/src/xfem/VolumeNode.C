@@ -32,13 +32,13 @@ VolumeNode::~VolumeNode()
 {}
 
 EFANode *
-VolumeNode::get_node()
+VolumeNode::getNode()
 {
   return _node;
 }
 
 double
-VolumeNode::get_para_coords(unsigned int i)
+VolumeNode::getParametricCoordinates(unsigned int i)
 {
   double coord = -100.0;
   if (i == 0)
@@ -48,7 +48,7 @@ VolumeNode::get_para_coords(unsigned int i)
   else if (i == 2)
     coord = _zeta;
   else
-    mooseError("get_para_coords(): input out of bounds");
+    mooseError("in getParametricCoordinates: input out of bounds");
 
   return coord;
 }

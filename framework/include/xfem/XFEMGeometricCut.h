@@ -44,21 +44,21 @@ public:
   XFEMGeometricCut(Real t0, Real t1);
   virtual ~XFEMGeometricCut();
 
-  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutEdge> & cutEdges,
+  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutEdge> & cutEdges,
                                     Real time) = 0;
-  virtual bool cut_elem_by_geometry(const Elem* elem, std::vector<cutFace> & cutFaces,
+  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces,
                                     Real time) = 0;
 
-  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_edges,
+  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges,
                                     std::vector<cutEdge> & cutEdges, Real time) = 0;
-  virtual bool cut_frag_by_geometry(std::vector<std::vector<Point> > & frag_faces,
+  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces,
                                     std::vector<cutFace> & cutFaces, Real time) = 0;
 
-  Real cut_fraction(Real time);
+  Real cutFraction(Real time);
 
 protected:
   Real t_start, t_end;
-  Real crossprod_2d(Real ax, Real ay, Real bx, Real by);
+  Real crossProduct2D(Real ax, Real ay, Real bx, Real by);
 };
 
 

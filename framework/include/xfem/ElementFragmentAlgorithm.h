@@ -24,12 +24,8 @@
 #include <set>
 #include <limits>
 
-#include "FaceNode.h"
-#include "EFAEdge.h"
-#include "EFAElement2D.h"
-#include "EFAElement3D.h"
-#include "EFAFragment.h"
-#include "EFANode.h"
+class EFANode;
+class EFAElement;
 
 class ElementFragmentAlgorithm
 {

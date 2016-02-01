@@ -84,7 +84,7 @@ public:
   virtual void printElement();
 
   // EFAelement2D specific methods
-  EFAFragment2D* get_fragment(unsigned int frag_id) const;
+  EFAFragment2D* getFragment(unsigned int frag_id) const;
   std::set<EFANode*> getEdgeNodes(unsigned int edge_id) const;
   bool getEdgeNodeParametricCoordinate(EFANode* node, std::vector<double> &para_coor) const;
   FaceNode* getInteriorNode(unsigned int interior_node_id) const;

@@ -35,8 +35,8 @@ class VolumeNode
 
   public:
 
-  EFANode * get_node();
-  double get_para_coords(unsigned int i);
+  EFANode * getNode();
+  double getParametricCoordinates(unsigned int i);
   void switchNode(EFANode* new_old, EFANode* old_node);
 };
 

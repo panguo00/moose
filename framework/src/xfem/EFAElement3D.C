@@ -228,11 +228,11 @@ EFAElement3D::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
   {
     for (unsigned int i = 0; i < _interior_nodes.size(); ++i)
     {
-      if (_interior_nodes[i]->get_node() == node)
+      if (_interior_nodes[i]->getNode() == node)
       {
         std::vector<double> xi_3d(3, -100.0);
         for (unsigned int j = 0; j < 3; ++j)
-          xi_3d[j]  = _interior_nodes[i]->get_para_coords(j);
+          xi_3d[j]  = _interior_nodes[i]->getParametricCoordinates(j);
         for (unsigned int j = 0; j < _num_nodes; ++j)
         {
           master_nodes.push_back(_nodes[j]);
@@ -554,7 +554,7 @@ EFAElement3D::willCrackTipExtend(std::vector<unsigned int> &split_neighbors) con
       {
         EFAFragment3D* neigh_frag1 = neighbor_elem->getFragment(0);
         EFAFragment3D* neigh_frag2 = neighbor_elem->getFragment(1);
-        std::vector<EFANode*> neigh_cut_nodes = neigh_frag1->get_common_nodes(neigh_frag2);
+        std::vector<EFANode*> neigh_cut_nodes = neigh_frag1->getCommonNodes(neigh_frag2);
         unsigned int counter = 0; // counter how many common nodes are contained by current face
         for (unsigned int j = 0; j < neigh_cut_nodes.size(); ++j)
         {
@@ -626,7 +626,7 @@ EFAElement3D::updateFragments(const std::set<EFAElement*> &CrackTipElements,
   // remove the inappropriate embedded nodes on interior faces
   // (MUST DO THIS AFTER combine_tip_faces())
   if (_fragments.size() == 1)
-    _fragments[0]->remove_invalid_embedded(EmbeddedNodes);
+    _fragments[0]->removeInvalidEmbeddedNodes(EmbeddedNodes);
 
   // for an element with no fragment, create one fragment identical to the element
   if (_fragments.size() == 0)
@@ -635,7 +635,7 @@ EFAElement3D::updateFragments(const std::set<EFAElement*> &CrackTipElements,
     mooseError("Element " << _id << " must have 1 fragment at this point");
 
   // count fragment's cut faces
-  unsigned int num_cut_frag_faces = _fragments[0]->get_num_cuts();
+  unsigned int num_cut_frag_faces = _fragments[0]->getNumCuts();
   unsigned int num_frag_faces = _fragments[0]->numFaces();
   if (num_cut_frag_faces > _fragments[0]->numFaces())
     mooseError("In element " << _id <<" there are too many cut fragment faces");
@@ -821,7 +821,7 @@ EFAElement3D::removePhantomEmbeddedNode()
       // get emb nodes to be removed in the face interior
       for (unsigned int j = 0; j < _faces[i]->numInteriorNodes(); ++j)
       {
-        EFANode* face_node = _faces[i]->getInteriorNode(j)->get_node();
+        EFANode* face_node = _faces[i]->getInteriorNode(j)->getNode();
         if (!_fragments[0]->containsNode(face_node))
           nodes_to_delete.push_back(face_node);
       } // j
@@ -1117,8 +1117,8 @@ void
 EFAElement3D::createFaces()
 {
   // create element faces based on existing element nodes
-  int hex_ix[6][4] = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}};
-  int tet_ix[4][3] = {{0,2,1},{0,1,3},{1,2,3},{2,0,3}};
+  int hex_local_node_indices[6][4] = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{2,3,7,6},{3,0,4,7},{4,5,6,7}};
+  int tet_local_node_indices[4][3] = {{0,2,1},{0,1,3},{1,2,3},{2,0,3}};
 
   _faces = std::vector<EFAFace*>(_num_faces, NULL);
   if (_num_nodes == 8)
@@ -1129,7 +1129,7 @@ EFAElement3D::createFaces()
     {
       _faces[i] = new EFAFace(4);
       for (unsigned int j = 0; j < 4; ++j)
-        _faces[i]->setNode(j, _nodes[hex_ix[i][j]]);
+        _faces[i]->setNode(j, _nodes[hex_local_node_indices[i][j]]);
       _faces[i]->createEdges();
     }
   }
@@ -1141,7 +1141,7 @@ EFAElement3D::createFaces()
     {
       _faces[i] = new EFAFace(3);
       for (unsigned int j = 0; j < 3; ++j)
-        _faces[i]->setNode(j, _nodes[tet_ix[i][j]]);
+        _faces[i]->setNode(j, _nodes[tet_local_node_indices[i][j]]);
       _faces[i]->createEdges();
     }
   }

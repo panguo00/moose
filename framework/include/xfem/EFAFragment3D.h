@@ -39,10 +39,10 @@ public:
   // override pure virtual methods
   virtual void switchNode(EFANode *new_node, EFANode *old_node);
   virtual bool containsNode(EFANode *node) const;
-  virtual unsigned int get_num_cuts() const;
-  virtual std::set<EFANode*> get_all_nodes() const;
+  virtual unsigned int getNumCuts() const;
+  virtual std::set<EFANode*> getAllNodes() const;
   virtual bool isConnected(EFAFragment *other_fragment) const;
-  virtual void remove_invalid_embedded(std::map<unsigned int, EFANode*> &EmbeddedNodes);
+  virtual void removeInvalidEmbeddedNodes(std::map<unsigned int, EFANode*> &EmbeddedNodes);
 
   // EFAfragment3D specific methods
   void combine_tip_faces();
