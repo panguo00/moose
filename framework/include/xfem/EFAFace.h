@@ -15,10 +15,12 @@
 #ifndef EFAFACE_H
 #define EFAFACE_H
 
-#include "EFAEdge.h"
-#include "EFAFragment2D.h"
-#include "FaceNode.h"
+#include <cstddef>
+#include <vector>
 
+class EFANode;
+class EFAEdge;
+class FaceNode;
 class EFAFragment2D;
 
 class EFAFace

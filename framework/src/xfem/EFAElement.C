@@ -14,7 +14,7 @@
 
 #include "EFAElement.h"
 
-#include "EFAfuncs.h"
+#include "EFAFuncs.h"
 
 EFAElement::EFAElement(unsigned int eid, unsigned int n_nodes):
   _id(eid),

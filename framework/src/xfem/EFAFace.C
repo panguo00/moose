@@ -14,7 +14,11 @@
 
 #include "EFAFace.h"
 
-#include "EFAfuncs.h"
+#include "EFANode.h"
+#include "EFAEdge.h"
+#include "FaceNode.h"
+#include "EFAFragment2D.h"
+#include "EFAFuncs.h"
 
 EFAFace::EFAFace(unsigned int n_nodes):
   _num_nodes(n_nodes),

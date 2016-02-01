@@ -16,8 +16,10 @@
 #define EFAELEMENT3D_H
 
 #include "EFAElement.h"
-#include "EFAFragment3D.h"
-#include "VolumeNode.h"
+
+class EFAFace;
+class VolumeNode;
+class EFAFragment3D;
 
 class EFAElement3D : public EFAElement
 {

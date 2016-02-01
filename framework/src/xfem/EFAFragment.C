@@ -15,7 +15,7 @@
 #include "EFAFragment.h"
 
 #include "EFAElement.h"
-#include "EFAfuncs.h"
+#include "EFAFuncs.h"
 
 EFAFragment::EFAFragment()
 {}

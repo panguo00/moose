@@ -15,7 +15,9 @@
 #include <cstdlib> // *must* precede <cmath> for proper std:abs() on PGI, Sun Studio CC
 #include <cmath> // for isnan(), when it's defined
 #include "XFEMCutElem3D.h"
-#include "EFAfuncs.h"
+#include "EFAFace.h"
+#include "EFAFragment3D.h"
+#include "EFAFuncs.h"
 
 XFEMCutElem3D::XFEMCutElem3D(Elem* elem, const EFAElement3D * const CEMelem, unsigned int n_qpoints):
   XFEMCutElem(elem, n_qpoints),
@@ -181,7 +183,9 @@ XFEMCutElem3D::getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh
     }
     normal *= (1.0/cut_plane_points.size());
   }
-  normalize(normal);
+  Real len = normal.size();  // BWS was call to normalize func
+  if (len != 0.0)
+    normal /= len;
   return normal;
 }
 

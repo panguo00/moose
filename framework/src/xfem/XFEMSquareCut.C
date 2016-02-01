@@ -14,7 +14,7 @@
 
 #include "libmesh/mesh_base.h"
 #include "XFEMSquareCut.h"
-#include "EFAfuncs.h"
+#include "EFAFuncs.h"
 #include "XFEMMiscFuncs.h"
 
 XFEMSquareCut::XFEMSquareCut(std::vector<Real> square_nodes):

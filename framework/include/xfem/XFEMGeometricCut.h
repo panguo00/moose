@@ -37,6 +37,9 @@ struct cutFace
   std::vector<Real> position;
 };
 
+void normalize(Point & p);
+
+
 class XFEMGeometricCut
 {
 public:

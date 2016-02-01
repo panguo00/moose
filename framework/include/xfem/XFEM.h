@@ -15,8 +15,6 @@
 #ifndef XFEM_H
 #define XFEM_H
 
-#include "AuxiliarySystem.h"
-#include "NonlinearSystem.h"
 #include "ElementFragmentAlgorithm.h"
 
 enum XFEM_CUTPLANE_QUANTITY
@@ -43,6 +41,8 @@ class EFAEdge;
 class EFAElement;
 class EFAElement2D;
 class EFAElement3D;
+class AuxiliarySystem;
+class NonlinearSystem;
 
 /**
  * This is the \p XFEM class.  This class implements

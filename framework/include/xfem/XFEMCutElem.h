@@ -28,10 +28,10 @@
 // C++ Includes   -----------------------------------
 #include <vector>
 
-#include "MaterialData.h"
-#include "ElementFragmentAlgorithm.h"
-
 using namespace libMesh;
+
+class EFANode;
+class EFAElement;
 
 class XFEMCutElem
 {

@@ -28,16 +28,22 @@
 #include "libmesh/parallel.h"
 #include "libmesh/parallel_ghost_sync.h"
 #include "libmesh/remote_elem.h"
-
 #include "libmesh/elem.h"
 #include "libmesh/node.h"
+
+#include "AuxiliarySystem.h"
+#include "NonlinearSystem.h"
 
 #include "XFEM.h"
 #include "XFEMGeometricCut.h"
 #include "XFEMGeometricCut2D.h"
 #include "XFEMCutElem2D.h"
 #include "XFEMCutElem3D.h"
-#include "EFAfuncs.h"
+#include "EFAEdge.h"
+#include "EFAFace.h"
+#include "EFAFragment2D.h"
+#include "EFAFragment3D.h"
+#include "EFAFuncs.h"
 
 #ifdef DEBUG
 // Some extra validation for ParallelMesh
@@ -1275,7 +1281,9 @@ XFEM::isQpPhysical(const Elem* elem, const Point & p) const
       Point origin = xfce->getCutPlaneOrigin(plane_id);
       Point normal = xfce->getCutPlaneNormal(plane_id);
       Point origin2qp = p - origin;
-      normalize(origin2qp);
+      Real len = origin2qp.size();  // BWS was call to normalize func
+      if (len != 0.0)
+        origin2qp /= len;
       if (origin2qp*normal > 0.0)
       {
         flag = 0.0; // QP outside pysical domain

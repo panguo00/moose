@@ -15,10 +15,10 @@
 #ifndef EFAFRAGMENT3D_H
 #define EFAFRAGMENT3D_H
 
-#include "EFAEdge.h"
-#include "EFAFace.h"
 #include "EFAFragment.h"
 
+class EFAEdge;
+class EFAFace;
 class EFAElement3D;
 
 class EFAFragment3D : public EFAFragment

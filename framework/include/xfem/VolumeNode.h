@@ -15,7 +15,7 @@
 #ifndef VOLUMENODE_H
 #define VOLUMENODE_H
 
-#include "EFANode.h"
+class EFANode;
 
 class VolumeNode
 {

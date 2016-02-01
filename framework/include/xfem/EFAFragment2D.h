@@ -15,12 +15,11 @@
 #ifndef EFAFRAGMENT2D_H
 #define EFAFRAGMENT2D_H
 
-#include "EFAEdge.h"
-#include "EFAFace.h"
 #include "EFAFragment.h"
 
-class EFAElement2D;
+class EFAEdge;
 class EFAFace;
+class EFAElement2D;
 
 class EFAFragment2D : public EFAFragment
 {

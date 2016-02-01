@@ -14,7 +14,7 @@
 
 #include "libmesh/mesh_base.h"
 #include "XFEMEllipseCut.h"
-#include "EFAfuncs.h"
+#include "EFAFuncs.h"
 #include "XFEMMiscFuncs.h"
 
 XFEMEllipseCut::XFEMEllipseCut(std::vector<Real> ellipse_nodes):

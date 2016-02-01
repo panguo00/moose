@@ -14,6 +14,8 @@
 
 #include "VolumeNode.h"
 
+#include "EFANode.h"
+
 VolumeNode::VolumeNode(EFANode* node, double xi, double eta, double zeta):
   _node(node),
   _xi(xi),

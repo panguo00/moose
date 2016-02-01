@@ -15,7 +15,7 @@
 #ifndef FACENODE_H
 #define FACENODE_H
 
-#include "EFANode.h"
+class EFANode;
 
 class FaceNode
 {

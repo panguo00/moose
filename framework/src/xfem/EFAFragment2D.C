@@ -14,7 +14,10 @@
 
 #include "EFAFragment2D.h"
 
-#include "EFAfuncs.h"
+#include "EFAEdge.h"
+#include "EFAFace.h"
+#include "FaceNode.h"
+#include "EFAFuncs.h"
 #include <typeinfo>
 
 #include "EFAElement2D.h"

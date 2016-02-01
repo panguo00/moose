@@ -17,8 +17,11 @@
 
 #include "XFEMCutElem2D.h"
 
+#include "EFAEdge.h"
 #include "EFAFragment2D.h"
 #include "XFEMMiscFuncs.h"
+
+#include "libmesh/petsc_macro.h"
 #include "petscblaslapack.h"
 
 XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EFAElement2D * const CEMelem, unsigned int n_qpoints):

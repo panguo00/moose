@@ -14,9 +14,11 @@
 
 #include "EFAFragment3D.h"
 
-#include "EFAfuncs.h"
+#include "EFAEdge.h"
+#include "EFAFace.h"
+#include "EFAFuncs.h"
 #include <typeinfo>
-
+#include "VolumeNode.h"
 #include "EFAElement3D.h"
 
 EFAFragment3D::EFAFragment3D(EFAElement3D * host, bool create_faces,

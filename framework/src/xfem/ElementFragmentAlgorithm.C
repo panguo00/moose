@@ -24,10 +24,13 @@
 //3D branching
 
 #include <algorithm>
-#include <iomanip>
 #include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <limits>
 
-#include "EFAfuncs.h"
+#include "EFAFuncs.h"
 #include "ElementFragmentAlgorithm.h"
 #include "EFANode.h"
 #include "EFAElement3D.h"

@@ -14,6 +14,9 @@
 
 #include "XFEMCutElem.h"
 
+#include "EFANode.h"
+#include "EFAElement.h"
+
 XFEMCutElem::XFEMCutElem(Elem* elem, unsigned int n_qpoints):
   _n_nodes(elem->n_nodes()),
   _n_qpoints(n_qpoints),

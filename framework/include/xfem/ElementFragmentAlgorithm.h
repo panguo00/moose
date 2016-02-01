@@ -16,13 +16,10 @@
 #define ELEMENTFRAGMENTALGORITHM_H
 
 #include <cstddef>
-#include <iostream>
-#include <sstream>
 
 #include <vector>
 #include <map>
 #include <set>
-#include <limits>
 
 class EFANode;
 class EFAElement;

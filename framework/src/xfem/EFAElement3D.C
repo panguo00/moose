@@ -14,7 +14,12 @@
 
 #include "EFAElement3D.h"
 
-#include "EFAfuncs.h"
+#include "EFAEdge.h"
+#include "EFAFace.h"
+#include "FaceNode.h"
+#include "EFAFragment3D.h"
+#include "VolumeNode.h"
+#include "EFAFuncs.h"
 
 EFAElement3D::EFAElement3D(unsigned int eid, unsigned int n_nodes, unsigned int n_faces):
   EFAElement(eid, n_nodes),

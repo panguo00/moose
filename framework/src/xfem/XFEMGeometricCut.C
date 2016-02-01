@@ -44,3 +44,11 @@ Real XFEMGeometricCut::crossProduct2D(Real ax, Real ay, Real bx, Real by)
 {
   return (ax*by-bx*ay);
 }
+
+
+void normalize(Point & p)
+{
+  Real len = p.size();
+  if (len != 0.0)
+    p = (1.0/len)*p;
+}

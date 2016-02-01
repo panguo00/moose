@@ -15,7 +15,7 @@
 #include "XFEMCircleCut.h"
 
 #include "libmesh/mesh_base.h"
-#include "EFAfuncs.h"
+#include "EFAFuncs.h"
 #include "XFEMMiscFuncs.h"
 
 XFEMCircleCut::XFEMCircleCut(std::vector<Real> circle_nodes):

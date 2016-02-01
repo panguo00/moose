@@ -14,6 +14,8 @@
 
 #include "FaceNode.h"
 
+#include "EFANode.h"
+
 FaceNode::FaceNode(EFANode* node, double xi, double eta):
   _node(node),
   _xi(xi),
