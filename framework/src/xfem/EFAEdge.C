@@ -13,6 +13,7 @@
 /****************************************************************/
 
 #include "EFAEdge.h"
+#include "EFANode.h"
 
 EFAEdge::EFAEdge(EFANode * node1, EFANode * node2):
   _edge_node1(node1),

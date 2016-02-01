@@ -15,7 +15,10 @@
 #ifndef EFAEDGE_H
 #define EFAEDGE_H
 
-#include "FaceNode.h"
+#include <cstddef>
+#include <vector>
+
+class EFANode;
 
 class EFAEdge
 {

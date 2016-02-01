@@ -16,8 +16,11 @@
 #define EFAELEMENT2D_H
 
 #include "EFAElement.h"
-#include "EFAFace.h"
-#include "EFAFragment2D.h"
+
+class EFAEdge;
+class EFAFace;
+class FaceNode;
+class EFAFragment2D;
 
 class EFAElement2D : public EFAElement
 {

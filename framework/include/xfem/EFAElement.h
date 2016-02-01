@@ -15,9 +15,12 @@
 #ifndef EFAELEMENT_H
 #define EFAELEMENT_H
 
-#include "EFAEdge.h"
-#include "EFAFragment.h"
-#include "FaceNode.h"
+#include <cstddef>
+#include <vector>
+#include <map>
+#include <set>
+
+#include "EFANode.h"
 
 class EFAElement
 {

@@ -15,7 +15,12 @@
 #ifndef EFAFRAGMENT_H
 #define EFAFRAGMENT_H
 
-#include "EFAEdge.h"
+#include <cstddef>
+#include <vector>
+#include <map>
+#include <set>
+
+class EFANode;
 
 class EFAFragment
 {

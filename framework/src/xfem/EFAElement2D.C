@@ -14,6 +14,10 @@
 
 #include "EFAElement2D.h"
 
+#include "EFAEdge.h"
+#include "FaceNode.h"
+#include "EFAFace.h"
+#include "EFAFragment2D.h"
 #include "EFAfuncs.h"
 
 EFAElement2D::EFAElement2D(unsigned int eid, unsigned int n_nodes):
