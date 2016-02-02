@@ -15,7 +15,6 @@
 #ifndef EFAFRAGMENT_H
 #define EFAFRAGMENT_H
 
-#include <cstddef>
 #include <vector>
 #include <map>
 #include <set>

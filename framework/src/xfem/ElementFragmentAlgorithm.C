@@ -30,11 +30,13 @@
 #include <sstream>
 #include <limits>
 
-#include "EFAFuncs.h"
 #include "ElementFragmentAlgorithm.h"
+
 #include "EFANode.h"
 #include "EFAElement3D.h"
 #include "EFAElement2D.h"
+#include "EFAFuncs.h"
+#include "EFAError.h"
 
 ElementFragmentAlgorithm::ElementFragmentAlgorithm()
 {}
@@ -72,7 +74,7 @@ ElementFragmentAlgorithm::add2DElements( std::vector< std::vector<unsigned int> 
   unsigned int num_nodes = quads[0].size();
 
   if (quads.size() == 0)
-    CutElemMeshError("add2DElements called with empty vector of quads")
+    EFAError("add2DElements called with empty vector of quads");
 
   for(unsigned int i = 0; i < quads.size(); ++i)
   {
@@ -110,7 +112,7 @@ ElementFragmentAlgorithm::add2DElement( std::vector<unsigned int> quad, unsigned
 
   std::map<unsigned int, EFAElement*>::iterator mit = _elements.find(id);
   if (mit != _elements.end())
-    CutElemMeshError("In add2DElement element with id: "<<id<<" already exists")
+    EFAError("In add2DElement element with id: "<<id<<" already exists");
 
   EFAElement2D* newElem = new EFAElement2D(id, num_nodes);
   _elements.insert(std::make_pair(id,newElem));
@@ -144,11 +146,11 @@ ElementFragmentAlgorithm::add3DElement( std::vector<unsigned int> quad, unsigned
   else if (num_nodes == 4)
     num_faces = 4;
   else
-    CutElemMeshError("In add3DElement element with id: "<<id<<" has invalid num_nodes")
+    EFAError("In add3DElement element with id: "<<id<<" has invalid num_nodes");
 
   std::map<unsigned int, EFAElement*>::iterator mit = _elements.find(id);
   if (mit != _elements.end())
-    CutElemMeshError("In add3DElement element with id: "<<id<<" already exists")
+    EFAError("In add3DElement element with id: "<<id<<" already exists");
 
   EFAElement3D* newElem = new EFAElement3D(id, num_nodes, num_faces);
   _elements.insert(std::make_pair(id,newElem));
@@ -213,11 +215,11 @@ ElementFragmentAlgorithm::addElemEdgeIntersection(unsigned int elemid, unsigned 
   // this method is called when we are marking cut edges
   std::map<unsigned int, EFAElement*>::iterator eit = _elements.find(elemid);
   if (eit == _elements.end())
-    CutElemMeshError("Could not find element with id: "<<elemid<<" in addEdgeIntersection")
+    EFAError("Could not find element with id: "<<elemid<<" in addEdgeIntersection");
 
   EFAElement2D *curr_elem = dynamic_cast<EFAElement2D*>(eit->second);
   if (!curr_elem)
-    CutElemMeshError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
+    EFAError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D");
   curr_elem->addEdgeCut(edgeid, position, NULL, _embedded_nodes, true);
 }
 
@@ -227,11 +229,11 @@ ElementFragmentAlgorithm::addFragEdgeIntersection(unsigned int elemid, unsigned 
   // N.B. this method must be called after addEdgeIntersection
   std::map<unsigned int, EFAElement*>::iterator eit = _elements.find(elemid);
   if (eit == _elements.end())
-    CutElemMeshError("Could not find element with id: "<<elemid<<" in addFragEdgeIntersection")
+    EFAError("Could not find element with id: "<<elemid<<" in addFragEdgeIntersection");
 
   EFAElement2D *elem = dynamic_cast<EFAElement2D*>(eit->second);
   if (!elem)
-    CutElemMeshError("addFragEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
+    EFAError("addFragEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D");
   elem->addFragmentEdgeCut(frag_edge_id, position, _embedded_nodes);
 }
 
@@ -242,11 +244,11 @@ ElementFragmentAlgorithm::addElemFaceIntersection(unsigned int elemid, unsigned 
   // this method is called when we are marking cut edges
   std::map<unsigned int, EFAElement*>::iterator eit = _elements.find(elemid);
   if (eit == _elements.end())
-    CutElemMeshError("Could not find element with id: "<<elemid<<" in addEdgeIntersection")
+    EFAError("Could not find element with id: "<<elemid<<" in addEdgeIntersection");
 
   EFAElement3D *curr_elem = dynamic_cast<EFAElement3D*>(eit->second);
   if (!curr_elem)
-    CutElemMeshError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D")
+    EFAError("addElemEdgeIntersection: elem "<<elemid<<" is not of type EFAelement2D");
 
   // add cuts to two face edges at the same time
   curr_elem->addFaceEdgeCut(faceid, edgeid[0], position[0], NULL, _embedded_nodes, true, true);
@@ -344,8 +346,8 @@ ElementFragmentAlgorithm::clearAncestry()
   for (unsigned int i = 0; i < _parent_elements.size(); ++i)
   {
     if (!deleteFromMap(_elements, _parent_elements[i]))
-      CutElemMeshError("Attempted to delete parent element: "<<_parent_elements[i]->id()
-                       <<" from _elements, but couldn't find it")
+      EFAError("Attempted to delete parent element: "<<_parent_elements[i]->id()
+               <<" from _elements, but couldn't find it");
   }
   _parent_elements.clear();
 
@@ -551,7 +553,7 @@ ElementFragmentAlgorithm::getElemByID(unsigned int id)
 {
   std::map<unsigned int, EFAElement*>::iterator mit = _elements.find(id);
   if (mit == _elements.end())
-    CutElemMeshError("in getElemByID() could not find element: "<<id)
+    EFAError("in getElemByID() could not find element: "<<id);
   return mit->second;
 }
 
@@ -587,7 +589,7 @@ ElementFragmentAlgorithm::clearPotentialIsolatedNodes()
   {
     EFANode* parent_node = _new_nodes[i]->parent();
     if (!parent_node)
-      mooseError("a new permanent node must have a parent node!");
+      EFAError("a new permanent node must have a parent node!");
     bool isParentNodeInNewElem = false;
     for (unsigned int j = 0; j < _child_elements.size(); ++j)
     {

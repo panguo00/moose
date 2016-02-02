@@ -12,14 +12,17 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
+#include <typeinfo>
+
 #include "EFAFragment3D.h"
 
+#include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFace.h"
 #include "EFAFuncs.h"
-#include <typeinfo>
 #include "VolumeNode.h"
 #include "EFAElement3D.h"
+#include "EFAError.h"
 
 EFAFragment3D::EFAFragment3D(EFAElement3D * host, bool create_faces,
                              const EFAElement3D * from_host, unsigned int frag_id):
@@ -29,7 +32,7 @@ EFAFragment3D::EFAFragment3D(EFAElement3D * host, bool create_faces,
   if (create_faces)
   {
     if (!from_host)
-      mooseError("EFAfragment3D constructor must have a from_host to copy from");
+      EFAError("EFAfragment3D constructor must have a from_host to copy from");
     if (frag_id == std::numeric_limits<unsigned int>::max()) // copy the from_host itself
     {
       for (unsigned int i = 0; i < from_host->numFaces(); ++i)
@@ -38,7 +41,7 @@ EFAFragment3D::EFAFragment3D(EFAElement3D * host, bool create_faces,
     else
     {
       if (frag_id > from_host->numFragments() - 1)
-        mooseError("In EFAfragment3D constructor fragment_copy_index out of bounds");
+        EFAError("In EFAfragment3D constructor fragment_copy_index out of bounds");
       for (unsigned int i = 0; i < from_host->getFragment(frag_id)->numFaces(); ++i)
         _faces.push_back(new EFAFace(*from_host->getFragmentFace(frag_id,i)));
     }
@@ -106,7 +109,7 @@ EFAFragment3D::isConnected(EFAFragment* other_fragment) const
   bool is_connected = false;
   EFAFragment3D* other_frag3d = dynamic_cast<EFAFragment3D*>(other_fragment);
   if (!other_frag3d)
-    mooseError("in isConnected other_fragment is not of type EFAfragement3D");
+    EFAError("in isConnected other_fragment is not of type EFAfragement3D");
 
   for (unsigned int i = 0; i < _faces.size(); ++i)
   {
@@ -117,7 +120,7 @@ EFAFragment3D::isConnected(EFAFragment* other_fragment) const
         is_connected = true;
         break;
       }
-    } // j
+    }
     if (is_connected) break;
   } // i
   return is_connected;
@@ -153,17 +156,17 @@ EFAFragment3D::removeInvalidEmbeddedNodes(std::map<unsigned int, EFANode*> &Embe
       EFANode* emb_node = it->first;
       std::vector<EFAFace*> &emb_faces = it->second;
       if (emb_faces.size() != 2)
-        mooseError("one embedded node must be owned by 2 faces");
+        EFAError("one embedded node must be owned by 2 faces");
       unsigned int counter = 0;
       for (unsigned int i = 0; i < emb_faces.size(); ++i)
       {
         unsigned int face_id = getFaceID(emb_faces[i]);
         if (!is_face_interior(face_id) && emb_faces[i]->hasIntersection())
           counter += 1; // count the appropriate emb's faces
-      } // i
+      }
       if (counter == 0)
         invalid_emb.push_back(emb_node);
-    } // it
+    }
 
     // delete all invalid emb nodes
     for (unsigned int i = 0; i < invalid_emb.size(); ++i)
@@ -178,7 +181,7 @@ void
 EFAFragment3D::combine_tip_faces()
 {
   if (!_host_elem)
-    mooseError("In combine_tip_faces() the frag must have host_elem");
+    EFAError("In combine_tip_faces() the frag must have host_elem");
 
   bool has_tip_faces = false;
   for (unsigned int i = 0; i < _host_elem->numFaces(); ++i)
@@ -188,10 +191,10 @@ EFAFragment3D::combine_tip_faces()
     {
       if (_host_elem->getFace(i)->containsFace(_faces[j]))
         frag_tip_face_id.push_back(j);
-    } // j
+    }
     if (frag_tip_face_id.size() == 2) // combine the two frag faces on this elem face
       combine_two_faces(frag_tip_face_id[0], frag_tip_face_id[1], _host_elem->getFace(i));
-  } // i, loop over all elem faces
+  }
   // TODO: may need to combine other frag faces that have tip edges
 }
 
@@ -199,7 +202,7 @@ bool
 EFAFragment3D::is_face_interior(unsigned int face_id) const
 {
   if (!_host_elem)
-    mooseError("in is_face_interior() fragment must have host elem");
+    EFAError("in is_face_interior() fragment must have host elem");
 
   bool face_in_elem_face = false;
   for (unsigned int i = 0; i < _host_elem->numFaces(); ++i)
@@ -209,7 +212,7 @@ EFAFragment3D::is_face_interior(unsigned int face_id) const
       face_in_elem_face = true;
       break;
     }
-  } // i
+  }
   if (!face_in_elem_face)
     return true; // yes, is interior
   else
@@ -233,7 +236,7 @@ EFAFragment3D::isThirdInteriorFace(unsigned int face_id) const
 {
   bool is_third_cut = false;
   if (!_host_elem)
-    mooseError("in isThirdInteriorFace fragment must have host elem");
+    EFAError("in isThirdInteriorFace fragment must have host elem");
 
   for (unsigned int i = 0; i < _host_elem->numInteriorNodes(); ++i)
   {
@@ -256,7 +259,7 @@ EFAFace*
 EFAFragment3D::getFace(unsigned int face_id) const
 {
   if (face_id > _faces.size() - 1)
-    mooseError("in EFAfragment3D::get_face, index out of bounds");
+    EFAError("in EFAfragment3D::get_face, index out of bounds");
   return _faces[face_id];
 }
 
@@ -266,7 +269,7 @@ EFAFragment3D::getFaceID(EFAFace* face) const
   for (unsigned int i = 0; i < _faces.size(); ++i)
     if (_faces[i] == face)
       return i;
-  mooseError("face not found in get_face_id()");
+  EFAError("face not found in get_face_id()");
   return 99999;
 }
 

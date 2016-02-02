@@ -1,7 +1,6 @@
 #ifndef XFEMINTEGRATIONFUNCS_H
 #define XFEMINTEGRATIONFUNCS_H
 
-#include <cstddef>
 #include <vector>
 #include "libmesh/point.h"
 

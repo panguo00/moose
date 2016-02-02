@@ -15,8 +15,6 @@
 #ifndef ELEMENTFRAGMENTALGORITHM_H
 #define ELEMENTFRAGMENTALGORITHM_H
 
-#include <cstddef>
-
 #include <vector>
 #include <map>
 #include <set>

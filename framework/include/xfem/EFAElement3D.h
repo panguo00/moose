@@ -17,6 +17,7 @@
 
 #include "EFAElement.h"
 
+class EFANode;
 class EFAFace;
 class VolumeNode;
 class EFAFragment3D;

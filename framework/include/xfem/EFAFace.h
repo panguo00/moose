@@ -15,7 +15,6 @@
 #ifndef EFAFACE_H
 #define EFAFACE_H
 
-#include <cstddef>
 #include <vector>
 
 class EFANode;

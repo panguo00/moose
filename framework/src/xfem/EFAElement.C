@@ -14,6 +14,8 @@
 
 #include "EFAElement.h"
 
+#include "EFANode.h"
+#include "EFAError.h"
 #include "EFAFuncs.h"
 
 EFAElement::EFAElement(unsigned int eid, unsigned int n_nodes):
@@ -74,7 +76,7 @@ EFAElement::createLocalNodeFromGlobalNode(const EFANode * global_node) const
   //Given a global node, create a new local node
   if (global_node->category() != N_CATEGORY_PERMANENT &&
       global_node->category() != N_CATEGORY_TEMP)
-    mooseError("In createLocalNodeFromGlobalNode node is not global");
+    EFAError("In createLocalNodeFromGlobalNode node is not global");
 
   EFANode * new_local_node = NULL;
   unsigned int inode = 0;
@@ -87,7 +89,7 @@ EFAElement::createLocalNodeFromGlobalNode(const EFANode * global_node) const
     }
   }
   if (!new_local_node)
-    mooseError("In createLocalNodeFromGlobalNode could not find global node");
+    EFAError("In createLocalNodeFromGlobalNode could not find global node");
 
   return new_local_node;
 }
@@ -97,13 +99,13 @@ EFAElement::getGlobalNodeFromLocalNode(const EFANode * local_node) const
 {
   //Given a local node, find the global node corresponding to that node
   if (local_node->category() != N_CATEGORY_LOCAL_INDEX)
-    mooseError("In getGlobalNodeFromLocalNode node passed in is not local");
+    EFAError("In getGlobalNodeFromLocalNode node passed in is not local");
 
   EFANode * global_node = _nodes[local_node->id()];
 
   if (global_node->category() != N_CATEGORY_PERMANENT &&
       global_node->category() != N_CATEGORY_TEMP)
-    mooseError("In getGlobalNodeFromLocalNode, the node stored by the element is not global");
+    EFAError("In getGlobalNodeFromLocalNode, the node stored by the element is not global");
 
   return global_node;
 }
@@ -121,7 +123,7 @@ EFAElement::getLocalNodeIndex(EFANode * node) const
     }
   }
   if (local_node_id == 99999)
-    mooseError("In EFAelement::getLocalNodeIndex, cannot find the given node");
+    EFAError("In EFAelement::getLocalNodeIndex, cannot find the given node");
   return local_node_id;
 }
 
@@ -158,7 +160,7 @@ EFAElement::getCrackTipNeighbor(unsigned int index) const
   if (index < _crack_tip_neighbors.size())
     return _crack_tip_neighbors[index];
   else
-    mooseError("in getCrackTipNeighbor index out of bounds");
+    EFAError("in getCrackTipNeighbor index out of bounds");
 }
 
 void
@@ -189,7 +191,7 @@ EFAElement::getChild(unsigned int child_id) const
   if (child_id < _children.size())
     return _children[child_id];
   else
-    mooseError("child_id out of bounds");
+    EFAError("child_id out of bounds");
 }
 
 void
@@ -255,7 +257,7 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
 {
   // Important: this must be run only on child elements that were just created
   if (!_parent)
-    mooseError("no getParent element for child element " << _id << " in mergeNodes");
+    EFAError("no getParent element for child element " << _id << " in mergeNodes");
 
   EFAElement* childElem = this;
   if (childNode != childOfNeighborNode)
@@ -269,7 +271,7 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
           childOfNeighborElem->switchNode(childNode, childOfNeighborNode, true);
           if (!deleteFromMap(PermanentNodes, childOfNeighborNode))
           {
-            mooseError("Attempted to delete node: "<<childOfNeighborNode->id()
+            EFAError("Attempted to delete node: "<<childOfNeighborNode->id()
                         <<" from PermanentNodes, but couldn't find it");
           }
           childOfNeighborNode = childNode;
@@ -279,7 +281,7 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
           childElem->switchNode(childOfNeighborNode, childNode, true);
           if (!deleteFromMap(PermanentNodes, childNode))
           {
-            mooseError("Attempted to delete node: "<<childNode->id()
+            EFAError("Attempted to delete node: "<<childNode->id()
                             <<" from PermanentNodes, but couldn't find it");
           }
           childNode = childOfNeighborNode;
@@ -290,14 +292,14 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
           childOfNeighborElem->switchNode(childNode, childOfNeighborNode, true);
           if (!deleteFromMap(PermanentNodes, childOfNeighborNode)) // delete childOfNeighborNode
           {
-            mooseError("Attempted to delete node: "<<childOfNeighborNode->id()
+            EFAError("Attempted to delete node: "<<childOfNeighborNode->id()
                         <<" from PermanentNodes, but couldn't find it");
           }
           childOfNeighborNode = childNode;
         }
         else
         {
-          mooseError("Attempting to merge nodes: "<<childNode->id()<<" and "
+          EFAError("Attempting to merge nodes: "<<childNode->id()<<" and "
                       <<childOfNeighborNode->id()<<" but both are permanent themselves");
         }
       }
@@ -306,13 +308,13 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
         if (childOfNeighborNode->parent() != childNode &&
             childOfNeighborNode->parent() != childNode->parent())
         {
-          mooseError("Attempting to merge nodes "<<childOfNeighborNode->idCatString()<<" and "
+          EFAError("Attempting to merge nodes "<<childOfNeighborNode->idCatString()<<" and "
                       <<childNode->idCatString()<<" but neither the 2nd node nor its parent is parent of the 1st");
         }
         childOfNeighborElem->switchNode(childNode, childOfNeighborNode, true);
         if (!deleteFromMap(TempNodes, childOfNeighborNode))
         {
-          mooseError("Attempted to delete node: "<<childOfNeighborNode->id()<<" from TempNodes, but couldn't find it");
+          EFAError("Attempted to delete node: "<<childOfNeighborNode->id()<<" from TempNodes, but couldn't find it");
         }
         childOfNeighborNode = childNode;
       }
@@ -322,13 +324,13 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
       if (childNode->parent() != childOfNeighborNode &&
           childNode->parent() != childOfNeighborNode->parent())
       {
-        mooseError("Attempting to merge nodes "<<childNode->id()<<" and "
+        EFAError("Attempting to merge nodes "<<childNode->id()<<" and "
                     <<childOfNeighborNode->id()<<" but neither the 2nd node nor its parent is parent of the 1st");
       }
       childElem->switchNode(childOfNeighborNode, childNode, true);
       if (!deleteFromMap(TempNodes, childNode))
       {
-        mooseError("Attempted to delete node: "<<childNode->id()<<" from TempNodes, but couldn't find it");
+        EFAError("Attempted to delete node: "<<childNode->id()<<" from TempNodes, but couldn't find it");
       }
       childNode = childOfNeighborNode;
     }
@@ -343,17 +345,17 @@ EFAElement::mergeNodes(EFANode* &childNode, EFANode* &childOfNeighborNode, EFAEl
 
       if (childNode->parent() != childOfNeighborNode->parent())
       {
-        mooseError("Attempting to merge nodes "<<childNode->id()<<" and "
+        EFAError("Attempting to merge nodes "<<childNode->id()<<" and "
                     <<childOfNeighborNode->id()<<" but they don't share a common parent");
       }
 
       if (!deleteFromMap(TempNodes, childOfNeighborNode))
       {
-        mooseError("Attempted to delete node: "<<childOfNeighborNode->id()<<" from TempNodes, but couldn't find it");
+        EFAError("Attempted to delete node: "<<childOfNeighborNode->id()<<" from TempNodes, but couldn't find it");
       }
       if (!deleteFromMap(TempNodes, childNode))
       {
-        mooseError("Attempted to delete node: "<<childNode->id()<<" from TempNodes, but couldn't find it");
+        EFAError("Attempted to delete node: "<<childNode->id()<<" from TempNodes, but couldn't find it");
       }
       childOfNeighborNode = newNode;
       childNode = newNode;

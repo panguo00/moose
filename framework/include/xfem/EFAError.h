@@ -12,49 +12,14 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "FaceNode.h"
+//This is the only dependency that ElementFragmentAlgorithm has on MOOSE (or libMesh)
+//To compile standalone, uncomment the following lines and fix the banned keyword that
+//has spaces in it:
 
-#include "EFANode.h"
-#include "EFAError.h"
+//#include <iostream>
+//#define EFAError(msg) do {std::c o u t<<"CutElemMesh ERROR: "<<msg<<std::endl; exit(1);} while (0)
 
-FaceNode::FaceNode(EFANode* node, double xi, double eta):
-  _node(node),
-  _xi(xi),
-  _eta(eta)
-{}
-
-FaceNode::FaceNode(const FaceNode & other_face_node):
-  _node(other_face_node._node),
-  _xi(other_face_node._xi),
-  _eta(other_face_node._eta)
-{}
-
-FaceNode::~FaceNode()
-{}
-
-EFANode *
-FaceNode::getNode()
-{
-  return _node;
-}
-
-double
-FaceNode::getParametricCoordinates(unsigned int i)
-{
-  double coord = -100.0;
-  if (i == 0)
-    coord = _xi;
-  else if (i == 1)
-    coord = _eta;
-  else
-    EFAError("get_getParametricCoordinates input out of bounds");
-
-  return coord;
-}
-
-void
-FaceNode::switchNode(EFANode* new_node, EFANode* old_node)
-{
-  if (_node == old_node)
-    _node = new_node;
-}
+//This version just calls MooseError for error reporting, which is preferred if this is run
+//within the MOOSE environment:
+#include "MooseError.h"
+#define EFAError(msg) mooseError(msg)

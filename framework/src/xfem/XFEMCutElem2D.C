@@ -17,9 +17,11 @@
 
 #include "XFEMCutElem2D.h"
 
+#include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFragment2D.h"
 #include "XFEMMiscFuncs.h"
+#include "MooseError.h"
 
 #include "libmesh/petsc_macro.h"
 #include "petscblaslapack.h"

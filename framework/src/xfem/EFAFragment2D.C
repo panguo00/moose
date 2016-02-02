@@ -12,15 +12,18 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "EFAFragment2D.h"
-
-#include "EFAEdge.h"
-#include "EFAFace.h"
-#include "FaceNode.h"
-#include "EFAFuncs.h"
 #include <typeinfo>
 
 #include "EFAElement2D.h"
+
+#include "EFANode.h"
+#include "FaceNode.h"
+#include "EFAEdge.h"
+#include "EFAFace.h"
+#include "EFAFragment2D.h"
+#include "EFAFuncs.h"
+#include "EFAError.h"
+
 
 EFAFragment2D::EFAFragment2D(EFAElement2D * host, bool create_boundary_edges,
                              const EFAElement2D * from_host, unsigned int frag_id):
@@ -30,7 +33,7 @@ EFAFragment2D::EFAFragment2D(EFAElement2D * host, bool create_boundary_edges,
   if (create_boundary_edges)
   {
     if (!from_host)
-      mooseError("EFAfragment2D constructor must have a from_host to copy from");
+      EFAError("EFAfragment2D constructor must have a from_host to copy from");
     if (frag_id == std::numeric_limits<unsigned int>::max())// copy the from_host itself
     {
       for (unsigned int i = 0; i < from_host->numEdges(); ++i)
@@ -39,7 +42,7 @@ EFAFragment2D::EFAFragment2D(EFAElement2D * host, bool create_boundary_edges,
     else
     {
       if (frag_id > from_host->numFragments() - 1)
-        mooseError("In EFAfragment2D constructor fragment_copy_index out of bounds");
+        EFAError("In EFAfragment2D constructor fragment_copy_index out of bounds");
       for (unsigned int i = 0; i < from_host->getFragment(frag_id)->numEdges(); ++i)
         _boundary_edges.push_back(new EFAEdge(*from_host->getFragmentEdge(frag_id,i)));
     }
@@ -118,7 +121,7 @@ EFAFragment2D::isConnected(EFAFragment* other_fragment) const
   bool is_connected = false;
   EFAFragment2D* other_frag2d = dynamic_cast<EFAFragment2D*>(other_fragment);
   if (!other_frag2d)
-    mooseError("in isConnected other_fragment is not of type EFAfragement2D");
+    EFAError("in isConnected other_fragment is not of type EFAfragement2D");
 
   for (unsigned int i = 0; i < _boundary_edges.size(); ++i)
   {
@@ -129,7 +132,7 @@ EFAFragment2D::isConnected(EFAFragment* other_fragment) const
         is_connected = true;
         break;
       }
-    } // j
+    }
     if (is_connected) break;
   } // i
   return is_connected;
@@ -147,7 +150,7 @@ EFAFragment2D::removeInvalidEmbeddedNodes(std::map<unsigned int, EFANode*> &Embe
       if (isEdgeInterior(i) && _boundary_edges[i]->hasIntersection())
       {
         if (_host_elem->numInteriorNodes() != 1)
-          mooseError("host element must have 1 interior node at this point");
+          EFAError("host element must have 1 interior node at this point");
         deleteFromMap(EmbeddedNodes, _boundary_edges[i]->getEmbeddedNode(0));
         _boundary_edges[i]->removeEmbeddedNodes();
         _host_elem->deleteInteriorNodes();
@@ -163,7 +166,7 @@ EFAFragment2D::combineTipEdges()
   // combine the tip edges in a crack tip fragment
   // N.B. the host elem can only have one elem_tip_edge, otherwise it should have already been completely split
   if (!_host_elem)
-    mooseError("In combine_tip_edges() the frag must have host_elem");
+    EFAError("In combine_tip_edges() the frag must have host_elem");
 
   bool has_tip_edges = false;
   unsigned int elem_tip_edge_id = 99999;
@@ -191,14 +194,14 @@ EFAFragment2D::combineTipEdges()
     // frag_tip_edge_id[0] must precede frag_tip_edge_id[1]
     unsigned int edge0_next(frag_tip_edge_id[0] < (numEdges()-1) ? frag_tip_edge_id[0]+1 : 0);
     if (edge0_next != frag_tip_edge_id[1])
-      mooseError("frag_tip_edge_id[1] must be the next edge of frag_tip_edge_id[0]");
+      EFAError("frag_tip_edge_id[1] must be the next edge of frag_tip_edge_id[0]");
 
     // get the two end nodes of the new edge
     EFANode* node1 = _boundary_edges[frag_tip_edge_id[0]]->getNode(0);
     EFANode* emb_node = _boundary_edges[frag_tip_edge_id[0]]->getNode(1);
     EFANode* node2 = _boundary_edges[frag_tip_edge_id[1]]->getNode(1);
     if (emb_node != _boundary_edges[frag_tip_edge_id[1]]->getNode(0))
-      mooseError("fragment edges are not correctly set up");
+      EFAError("fragment edges are not correctly set up");
 
     // get the new edge with one intersection
     EFAEdge* elem_edge = _host_elem->getEdge(elem_tip_edge_id);
@@ -236,7 +239,7 @@ bool
 EFAFragment2D::isEdgeInterior(unsigned int edge_id) const
 {
   if (!_host_elem)
-    mooseError("in isEdgeInterior fragment must have host elem");
+    EFAError("in isEdgeInterior fragment must have host elem");
 
   bool edge_in_elem_edge = false;
   for (unsigned int i = 0; i < _host_elem->numEdges(); ++i)
@@ -246,7 +249,7 @@ EFAFragment2D::isEdgeInterior(unsigned int edge_id) const
       edge_in_elem_edge = true;
       break;
     }
-  } // i
+  }
   if (!edge_in_elem_edge)
     return true; // yes, is interior
   else
@@ -270,7 +273,7 @@ EFAFragment2D::isSecondaryInteriorEdge(unsigned int edge_id) const
 {
   bool is_second_cut = false;
   if (!_host_elem)
-    mooseError("in isSecondaryInteriorEdge fragment must have host elem");
+    EFAError("in isSecondaryInteriorEdge fragment must have host elem");
 
   for (unsigned int i = 0; i < _host_elem->numInteriorNodes(); ++i)
   {
@@ -293,7 +296,7 @@ EFAEdge*
 EFAFragment2D::getEdge(unsigned int edge_id) const
 {
   if (edge_id > _boundary_edges.size() - 1)
-    mooseError("in EFAfragment2D::get_edge, index out of bounds");
+    EFAError("in EFAfragment2D::get_edge, index out of bounds");
   return _boundary_edges[edge_id];
 }
 
@@ -329,13 +332,15 @@ EFAFragment2D::split()
   for (unsigned int iedge = 0; iedge < _boundary_edges.size(); ++iedge)
   {
     if (_boundary_edges[iedge]->numEmbeddedNodes() > 1)
-      mooseError("A fragment boundary edge can't have more than 1 cuts");
+      EFAError("A fragment boundary edge can't have more than 1 cuts");
     if (_boundary_edges[iedge]->hasIntersection())
       cut_edges.push_back(iedge);
   }
 
   if (cut_edges.size() > 2)
-    mooseError("In split() fragment cannot have more than 2 cut edges");
+  {
+    EFAError("In split() fragment cannot have more than 2 cut edges");
+  }
   else if (cut_edges.size() == 1 || cut_edges.size() == 2)
   {
     unsigned int iedge=0;
@@ -355,7 +360,7 @@ EFAFragment2D::split()
           {
             first_node_on_edge = _boundary_edges[iedge]->getNode(1);
             if (!_boundary_edges[iprevedge]->containsNode(first_node_on_edge))
-              mooseError("Previous edge does not contain either of the nodes in this edge");
+              EFAError("Previous edge does not contain either of the nodes in this edge");
           }
           EFANode * embedded_node1 = _boundary_edges[iedge]->getEmbeddedNode(0);
           new_frag->addEdge(new EFAEdge(first_node_on_edge, embedded_node1));
@@ -374,7 +379,7 @@ EFAFragment2D::split()
           {
             second_node_on_edge = _boundary_edges[iedge]->getNode(0);
             if (!_boundary_edges[inextedge]->containsNode(second_node_on_edge))
-              mooseError("Next edge does not contain either of the nodes in this edge");
+              EFAError("Next edge does not contain either of the nodes in this edge");
           }
           new_frag->addEdge(new EFAEdge(embedded_node2, second_node_on_edge));
         }

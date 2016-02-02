@@ -39,6 +39,7 @@
 #include "XFEMGeometricCut2D.h"
 #include "XFEMCutElem2D.h"
 #include "XFEMCutElem3D.h"
+#include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFace.h"
 #include "EFAFragment2D.h"

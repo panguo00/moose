@@ -15,19 +15,7 @@
 #ifndef EFANODE_H
 #define EFANODE_H
 
-#include <cstddef>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <set>
-#include <limits>
-#include <algorithm>
-#include <iomanip>
-#include <cmath>
-#include "MooseError.h"
-
-#define CutElemMeshError(msg) {std::cout<<"CutElemMesh ERROR: "<<msg<<std::endl; exit(1);}
+#include <string>
 
 enum N_CATEGORY
 {

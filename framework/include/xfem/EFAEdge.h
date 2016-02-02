@@ -15,7 +15,6 @@
 #ifndef EFAEDGE_H
 #define EFAEDGE_H
 
-#include <cstddef>
 #include <vector>
 
 class EFANode;

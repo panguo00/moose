@@ -15,6 +15,7 @@
 #include "VolumeNode.h"
 
 #include "EFANode.h"
+#include "EFAError.h"
 
 VolumeNode::VolumeNode(EFANode* node, double xi, double eta, double zeta):
   _node(node),
@@ -50,7 +51,7 @@ VolumeNode::getParametricCoordinates(unsigned int i)
   else if (i == 2)
     coord = _zeta;
   else
-    mooseError("in getParametricCoordinates: input out of bounds");
+    EFAError("in getParametricCoordinates: input out of bounds");
 
   return coord;
 }

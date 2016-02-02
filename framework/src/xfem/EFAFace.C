@@ -12,6 +12,8 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
+#include <cmath>
+
 #include "EFAFace.h"
 
 #include "EFANode.h"
@@ -19,6 +21,7 @@
 #include "FaceNode.h"
 #include "EFAFragment2D.h"
 #include "EFAFuncs.h"
+#include "EFAError.h"
 
 EFAFace::EFAFace(unsigned int n_nodes):
   _num_nodes(n_nodes),
@@ -129,9 +132,9 @@ EFAFace::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
       if (masters_found)
         break;
       else
-        mooseError("In getMasterInfo: cannot find master nodes in element edges");
+        EFAError("In getMasterInfo: cannot find master nodes in element edges");
     }
-  } // i
+  }
 
   if (!masters_found) // check element interior embedded nodes
   {
@@ -151,13 +154,13 @@ EFAFace::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
           else if (_num_nodes == 3)
             weight = linearTrigShape2D(j, emb_xi);
           else
-            mooseError("EFAface::getMasterInfo() only works for quad and trig EFAface");
+            EFAError("EFAface::getMasterInfo() only works for quad and trig EFAface");
           master_weights.push_back(weight);
-        } // j
+        }
         masters_found = true;
         break;
       }
-    } // i
+    }
   }
   return masters_found;
 }
@@ -169,7 +172,7 @@ EFAFace::getEdgeNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) 
   unsigned int edge_id = 99999;
   bool edge_found = false;
   if (!isTriOrQuad())
-    mooseError("EFAface::getEdgeNodeParaCoor can only work for quad or trig faces");
+    EFAError("EFAface::getEdgeNodeParaCoor can only work for quad or trig faces");
 
   for (unsigned int i = 0; i < _num_edges; ++i)
   {
@@ -194,7 +197,7 @@ EFAFace::getFaceNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) 
 {
   bool node_in_face = false;
   if (!isTriOrQuad())
-    mooseError("EFAface::getFaceNodeParaCoor can only work for quad or trig faces");
+    EFAError("EFAface::getFaceNodeParaCoor can only work for quad or trig faces");
 
   if (getEdgeNodeParametricCoords(node, xi_2d))
     node_in_face = true;
@@ -229,7 +232,7 @@ EFAFace::createNodes()
     if (_edges[i] != NULL)
       _nodes[i] = _edges[i]->getNode(0);
     else
-      mooseError("in EFAface::createNodes() _edges[i] does not exist");
+      EFAError("in EFAface::createNodes() _edges[i] does not exist");
   }
 }
 
@@ -263,7 +266,7 @@ EFAFace::createEdges()
       _edges[i] = new_edge;
     }
     else
-      mooseError("EFAface::createEdges requires exsiting _nodes");
+      EFAError("EFAface::createEdges requires exsiting _nodes");
   }
 }
 
@@ -287,7 +290,7 @@ EFAFace::combineTwoEdges(unsigned int edge_id1, unsigned int edge_id2)
     EFANode* emb_node = _edges[edge_id1]->getNode(1);
     EFANode* new_node2 = _edges[edge_id2]->getNode(1);
     if (emb_node != _edges[edge_id2]->getNode(0))
-      mooseError("in combine_two_edges face edges are not correctly set up");
+      EFAError("in combine_two_edges face edges are not correctly set up");
 
     EFAEdge* full_edge = new EFAEdge(new_node1, new_node2);
     full_edge->addIntersection(-1.0, emb_node, new_node1); // dummy intersection_x
@@ -305,7 +308,7 @@ EFAFace::combineTwoEdges(unsigned int edge_id1, unsigned int edge_id2)
       _nodes[k] = _edges[k]->getNode(0);
   }
   else
-    mooseError("two edges to be combined are not ajacent to each other");
+    EFAError("two edges to be combined are not ajacent to each other");
 }
 
 void
@@ -520,7 +523,7 @@ EFAFace::combineWithFace(const EFAFace* other_face) const
     new_face = new EFAFace(new_frag);
     delete new_frag;
     if (new_face->numNodes() != new_n_nodes)
-      mooseError("combine_with() sanity check fails");
+      EFAError("combine_with() sanity check fails");
   }
   return new_face;
 }
@@ -536,7 +539,7 @@ EFAFace::resetEdgeIntersection(const EFAFace* ref_face)
     if (_edges[j]->hasIntersection())
     {
       if (_edges[j]->numEmbeddedNodes() > 1)
-        mooseError("frag face edge can only have 1 emb node at this point");
+        EFAError("frag face edge can only have 1 emb node at this point");
 
       EFANode* edge_node1 = _edges[j]->getNode(0);
       EFANode* edge_node2 = _edges[j]->getNode(1);
@@ -559,11 +562,11 @@ EFAFace::resetEdgeIntersection(const EFAFace* ref_face)
           inters_x = dist2node1/full_dist;
         }
         else
-          mooseError("reference face does not contain the edge with invalid inters");
+          EFAError("reference face does not contain the edge with invalid inters");
         _edges[j]->resetIntersection(inters_x, emb_node, edge_node1);
       }
     }
-  } // j
+  }
 }
 
 unsigned int
@@ -623,7 +626,7 @@ EFAFace::adjacentCommonEdge(const EFAFace* other_face) const
         return i;
   }
   else
-    mooseError("this face is not adjacent with other_face");
+    EFAError("this face is not adjacent with other_face");
   return 99999;
 }
 
@@ -644,9 +647,9 @@ EFAFace::hasSameOrientation(const EFAFace* other_face) const
           break;
         }
         else if (other_face->_nodes[iplus1] != _nodes[_num_nodes-1])
-          mooseError("two faces overlap but can't find correct common nodes");
+          EFAError("two faces overlap but can't find correct common nodes");
       }
-    } // i
+    }
   }
   else
     std::cout << "WARNING: in hasSameOrientation two faces does not overlap" << std::endl;
@@ -688,7 +691,7 @@ EFAFace::mapParametricCoordsFrom1DTo2D(unsigned int edge_id, double xi_1d,
       xi_2d[1] = -xi_1d;
     }
     else
-      mooseError("edge_id out of bounds");
+      EFAError("edge_id out of bounds");
   }
   else if (_num_edges == 3)
   {
@@ -708,9 +711,9 @@ EFAFace::mapParametricCoordsFrom1DTo2D(unsigned int edge_id, double xi_1d,
       xi_2d[1] = 0.0;
     }
     else
-      mooseError("edge_id out of bounds");
+      EFAError("edge_id out of bounds");
   }
   else
-    mooseError("the EFAface::mapParametricCoordsFrom1DTo2D only works for quad and tri faces");
+    EFAError("the EFAface::mapParametricCoordsFrom1DTo2D only works for quad and tri faces");
 }
 
