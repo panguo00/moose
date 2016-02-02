@@ -12,7 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "libmesh/mesh_base.h"
 #include "XFEMGeometricCut.h"
 
 XFEMGeometricCut::XFEMGeometricCut(Real t0, Real t1):

@@ -12,8 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "libmesh/mesh_base.h"
 #include "XFEMGeometricCut2D.h"
+
+#include "MooseError.h"
 
 XFEMGeometricCut2D::XFEMGeometricCut2D(Real x0_, Real y0_, Real x1_, Real y1_, Real t_start_, Real t_end_):
   XFEMGeometricCut(t_start_, t_end_),

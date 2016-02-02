@@ -14,7 +14,7 @@
 
 #include "XFEMCircleCut.h"
 
-#include "libmesh/mesh_base.h"
+#include "MooseError.h"
 #include "EFAFuncs.h"
 #include "XFEMMiscFuncs.h"
 

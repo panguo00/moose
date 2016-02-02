@@ -18,7 +18,6 @@
 #include "libmesh/libmesh_common.h"
 #include "libmesh/libmesh.h" // libMesh::invalid_uint
 #include "libmesh/elem.h"
-#include "MooseError.h"
 
 using namespace libMesh;
 

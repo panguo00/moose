@@ -13,14 +13,9 @@
 /****************************************************************/
 
 #include "XFEMMiscFuncs.h"
+
 #include "MooseError.h"
 #include "Conversion.h"
-
-#include "libmesh/libmesh_common.h"
-#include "libmesh/libmesh.h" // libMesh::invalid_uint
-#include <iostream>
-#include <vector>
-#include <cmath>
 
 using namespace libMesh;
 

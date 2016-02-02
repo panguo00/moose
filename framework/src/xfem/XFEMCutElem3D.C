@@ -12,9 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <cstdlib> // *must* precede <cmath> for proper std:abs() on PGI, Sun Studio CC
-#include <cmath> // for isnan(), when it's defined
-
 #include "XFEMCutElem3D.h"
 
 #include "EFANode.h"
@@ -22,6 +19,10 @@
 #include "EFAFragment3D.h"
 #include "EFAFuncs.h"
 #include "MooseError.h"
+
+#include "libmesh/mesh.h"
+#include "libmesh/elem.h"
+#include "libmesh/node.h"
 
 XFEMCutElem3D::XFEMCutElem3D(Elem* elem, const EFAElement3D * const CEMelem, unsigned int n_qpoints):
   XFEMCutElem(elem, n_qpoints),

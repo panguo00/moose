@@ -12,8 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <cmath>
-
 #include "EFAFace.h"
 
 #include "EFANode.h"

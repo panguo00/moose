@@ -12,10 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <iomanip>
-#include <cmath>
-
 #include "EFAElement2D.h"
+
+#include <iomanip>
 
 #include "EFANode.h"
 #include "EFAEdge.h"

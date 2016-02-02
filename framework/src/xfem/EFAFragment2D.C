@@ -12,8 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <typeinfo>
-
 #include "EFAElement2D.h"
 
 #include "EFANode.h"
@@ -23,7 +21,6 @@
 #include "EFAFragment2D.h"
 #include "EFAFuncs.h"
 #include "EFAError.h"
-
 
 EFAFragment2D::EFAFragment2D(EFAElement2D * host, bool create_boundary_edges,
                              const EFAElement2D * from_host, unsigned int frag_id):

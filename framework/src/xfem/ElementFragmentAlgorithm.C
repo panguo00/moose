@@ -23,13 +23,6 @@
 //3D propagation
 //3D branching
 
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <limits>
-
 #include "ElementFragmentAlgorithm.h"
 
 #include "EFANode.h"

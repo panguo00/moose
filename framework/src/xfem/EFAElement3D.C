@@ -12,9 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <iomanip>
-
 #include "EFAElement3D.h"
+
+#include <iomanip>
 
 #include "EFANode.h"
 #include "EFAEdge.h"

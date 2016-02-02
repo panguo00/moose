@@ -12,8 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <typeinfo>
-
 #include "EFAFragment3D.h"
 
 #include "EFANode.h"

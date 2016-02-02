@@ -12,9 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <cstdlib> // *must* precede <cmath> for proper std:abs() on PGI, Sun Studio CC
-#include <cmath> // for isnan(), when it's defined
-
 #include "XFEMCutElem2D.h"
 
 #include "EFANode.h"
@@ -23,6 +20,9 @@
 #include "XFEMMiscFuncs.h"
 #include "MooseError.h"
 
+#include "libmesh/mesh.h"
+#include "libmesh/elem.h"
+#include "libmesh/node.h"
 #include "libmesh/petsc_macro.h"
 #include "petscblaslapack.h"
 

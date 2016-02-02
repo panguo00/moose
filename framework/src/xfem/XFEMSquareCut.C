@@ -12,8 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "libmesh/mesh_base.h"
 #include "XFEMSquareCut.h"
+
+#include "MooseError.h"
 #include "EFAFuncs.h"
 #include "XFEMMiscFuncs.h"
 
@@ -171,5 +172,3 @@ XFEMSquareCut::isInsideCutPlane(Point p)
     inside = true;
   return inside;
 }
-
-

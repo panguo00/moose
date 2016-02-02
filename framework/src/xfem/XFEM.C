@@ -12,29 +12,13 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <cstdlib> // *must* precede <cmath> for proper std:abs() on PGI, Sun Studio CC
-#include <cmath> // for isnan(), when it's defined
-#include <limits>
-
-// Local includes
-#include "libmesh/libmesh_config.h"
-
-#include "libmesh/boundary_info.h"
-#include "libmesh/error_vector.h"
-#include "libmesh/libmesh_logging.h"
-#include "libmesh/mesh_base.h"
-#include "libmesh/mesh_communication.h"
-#include "libmesh/mesh_refinement.h"
-#include "libmesh/parallel.h"
-#include "libmesh/parallel_ghost_sync.h"
-#include "libmesh/remote_elem.h"
-#include "libmesh/elem.h"
-#include "libmesh/node.h"
+#include "XFEM.h"
 
 #include "AuxiliarySystem.h"
 #include "NonlinearSystem.h"
 
-#include "XFEM.h"
+#include "libmesh/mesh_communication.h"
+
 #include "XFEMGeometricCut.h"
 #include "XFEMGeometricCut2D.h"
 #include "XFEMCutElem2D.h"
@@ -45,12 +29,6 @@
 #include "EFAFragment2D.h"
 #include "EFAFragment3D.h"
 #include "EFAFuncs.h"
-
-#ifdef DEBUG
-// Some extra validation for ParallelMesh
-#include "libmesh/mesh_tools.h"
-#include "libmesh/parallel_mesh.h"
-#endif // DEBUG
 
 // XFEM mesh modification methods
 XFEM::XFEM (std::vector<MooseSharedPointer<MaterialData> > & material_data, MeshBase* m, MeshBase* m2) :

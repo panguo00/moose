@@ -12,10 +12,11 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "libmesh/mesh_base.h"
 #include "XFEMEllipseCut.h"
+
 #include "EFAFuncs.h"
 #include "XFEMMiscFuncs.h"
+#include "MooseError.h"
 
 XFEMEllipseCut::XFEMEllipseCut(std::vector<Real> ellipse_nodes):
    XFEMGeometricCut(0.0, 0.0),

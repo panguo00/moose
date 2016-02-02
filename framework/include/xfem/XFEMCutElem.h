@@ -15,21 +15,18 @@
 #ifndef XFEMCUTELEM_H
 #define XFEMCUTELEM_H
 
-// Local Includes -----------------------------------
-#include "libmesh/libmesh_common.h"
-#include "libmesh/libmesh.h" // libMesh::invalid_uint
-#include "libmesh/location_maps.h"
-#include "libmesh/mesh.h"
-#include "libmesh/elem.h"
-#include "libmesh/node.h"
-#include "libmesh/vector_value.h"
-#include "libmesh/point_locator_base.h"
-
-// C++ Includes   -----------------------------------
 #include <vector>
+
+#include "MooseTypes.h"
 
 using namespace libMesh;
 
+namespace libMesh
+{
+  class MeshBase;
+  class Elem;
+  class Node;
+}
 class EFANode;
 class EFAElement;
 

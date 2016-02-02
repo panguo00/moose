@@ -20,6 +20,13 @@
 
 using namespace libMesh;
 
+namespace libMesh
+{
+  class MeshBase;
+  class Elem;
+  class Node;
+}
+
 class XFEMCutElem2D : public XFEMCutElem
 {
 public:

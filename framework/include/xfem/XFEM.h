@@ -17,6 +17,9 @@
 
 #include "ElementFragmentAlgorithm.h"
 
+#include "MooseTypes.h"
+#include "libmesh/vector_value.h"
+
 enum XFEM_CUTPLANE_QUANTITY
 {
   XCC_ORIGIN_X,
@@ -43,6 +46,7 @@ class EFAElement2D;
 class EFAElement3D;
 class AuxiliarySystem;
 class NonlinearSystem;
+class MaterialData;
 
 /**
  * This is the \p XFEM class.  This class implements

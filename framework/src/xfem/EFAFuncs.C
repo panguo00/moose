@@ -12,9 +12,6 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <iostream>
-#include <algorithm>
-
 #include "EFAFuncs.h"
 
 double

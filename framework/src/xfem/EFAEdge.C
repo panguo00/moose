@@ -12,9 +12,8 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <cmath>
-
 #include "EFAEdge.h"
+
 #include "EFANode.h"
 #include "EFAError.h"
 

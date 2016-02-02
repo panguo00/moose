@@ -14,6 +14,10 @@
 
 #include "XFEMCutElem.h"
 
+#include "libmesh/mesh.h"
+#include "libmesh/elem.h"
+#include "libmesh/node.h"
+
 #include "EFANode.h"
 #include "EFAElement.h"
 

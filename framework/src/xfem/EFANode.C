@@ -12,9 +12,9 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include <sstream>
-
 #include "EFANode.h"
+
+#include <sstream>
 
 EFANode::EFANode(unsigned int nid, N_CATEGORY ncat, EFANode* nparent):
   _category(ncat),
