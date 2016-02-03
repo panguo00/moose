@@ -19,7 +19,7 @@
 
 class EFAEdge;
 class EFAFace;
-class FaceNode;
+class EFAFaceNode;
 class EFAFragment2D;
 
 class EFAElement2D : public EFAElement
@@ -36,7 +36,7 @@ private:
 
   unsigned int _num_edges;
   std::vector<EFAEdge*> _edges;
-  std::vector<FaceNode*> _interior_nodes;
+  std::vector<EFAFaceNode*> _interior_nodes;
   std::vector<std::vector<EFAElement2D*> >_edge_neighbors;
   std::vector<EFAFragment2D*> _fragments;
 
@@ -90,7 +90,7 @@ public:
   EFAFragment2D* getFragment(unsigned int frag_id) const;
   std::set<EFANode*> getEdgeNodes(unsigned int edge_id) const;
   bool getEdgeNodeParametricCoordinate(EFANode* node, std::vector<double> &para_coor) const;
-  FaceNode* getInteriorNode(unsigned int interior_node_id) const;
+  EFAFaceNode* getInteriorNode(unsigned int interior_node_id) const;
   void deleteInteriorNodes();
 
   unsigned int numEdges() const;

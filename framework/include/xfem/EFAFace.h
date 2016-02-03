@@ -19,7 +19,7 @@
 
 class EFANode;
 class EFAEdge;
-class FaceNode;
+class EFAFaceNode;
 class EFAFragment2D;
 
 class EFAFace
@@ -38,7 +38,7 @@ private:
   std::vector<EFANode*> _nodes;
   unsigned int _num_edges;
   std::vector<EFAEdge*> _edges;
-  std::vector<FaceNode*> _interior_nodes;
+  std::vector<EFAFaceNode*> _interior_nodes;
 
 public:
 
@@ -77,7 +77,7 @@ public:
   bool isAdjacent(const EFAFace* other_face) const;
   unsigned int adjacentCommonEdge(const EFAFace* other_face) const;
   bool hasSameOrientation(const EFAFace* other_face) const;
-  FaceNode* getInteriorNode(unsigned int index) const;
+  EFAFaceNode* getInteriorNode(unsigned int index) const;
 
 private:
   void mapParametricCoordsFrom1DTo2D(unsigned int edge_id, double xi_1d,

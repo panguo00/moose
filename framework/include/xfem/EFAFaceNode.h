@@ -12,53 +12,31 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "VolumeNode.h"
+#ifndef FACENODE_H
+#define FACENODE_H
 
-#include "EFANode.h"
-#include "EFAError.h"
+class EFANode;
 
-VolumeNode::VolumeNode(EFANode* node, double xi, double eta, double zeta):
-  _node(node),
-  _xi(xi),
-  _eta(eta),
-  _zeta(zeta)
-{}
-
-VolumeNode::VolumeNode(const VolumeNode & other_vol_node):
-  _node(other_vol_node._node),
-  _xi(other_vol_node._xi),
-  _eta(other_vol_node._eta),
-  _zeta(other_vol_node._zeta)
-{}
-
-VolumeNode::~VolumeNode()
-{}
-
-EFANode *
-VolumeNode::getNode()
+class EFAFaceNode
 {
-  return _node;
-}
+public:
 
-double
-VolumeNode::getParametricCoordinates(unsigned int i)
-{
-  double coord = -100.0;
-  if (i == 0)
-    coord = _xi;
-  else if (i == 1)
-    coord = _eta;
-  else if (i == 2)
-    coord = _zeta;
-  else
-    EFAError("in getParametricCoordinates: input out of bounds");
+  EFAFaceNode(EFANode* node, double xi, double eta);
+  EFAFaceNode(const EFAFaceNode & other_face_node);
 
-  return coord;
-}
+  ~EFAFaceNode();
 
-void
-VolumeNode::switchNode(EFANode* new_node, EFANode* old_node)
-{
-  if (_node == old_node)
-    _node = new_node;
-}
+private:
+
+  EFANode * _node;
+  double _xi;
+  double _eta;
+
+public:
+
+  EFANode * getNode();
+  double getParametricCoordinates(unsigned int i);
+  void switchNode(EFANode* new_old, EFANode* old_node);
+};
+
+#endif

@@ -14,9 +14,9 @@
 
 #include "EFAFace.h"
 
+#include "EFAFaceNode.h"
 #include "EFANode.h"
 #include "EFAEdge.h"
-#include "FaceNode.h"
 #include "EFAFragment2D.h"
 #include "EFAFuncs.h"
 #include "EFAError.h"
@@ -40,7 +40,7 @@ EFAFace::EFAFace(const EFAFace & other_face):
     _edges[k] = new EFAEdge(*other_face._edges[k]);
   }
   for (unsigned int k = 0; k < other_face._interior_nodes.size(); ++k)
-    _interior_nodes.push_back(new FaceNode(*other_face._interior_nodes[k]));
+    _interior_nodes.push_back(new EFAFaceNode(*other_face._interior_nodes[k]));
 }
 
 
@@ -150,9 +150,9 @@ EFAFace::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
           if (_num_nodes == 4)
             weight = linearQuadShape2D(j, emb_xi);
           else if (_num_nodes == 3)
-            weight = linearTrigShape2D(j, emb_xi);
+            weight = linearTriShape2D(j, emb_xi);
           else
-            EFAError("EFAface::getMasterInfo() only works for quad and trig EFAface");
+            EFAError("EFAface::getMasterInfo() only works for quad and tri EFAface");
           master_weights.push_back(weight);
         }
         masters_found = true;
@@ -170,7 +170,7 @@ EFAFace::getEdgeNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) 
   unsigned int edge_id = 99999;
   bool edge_found = false;
   if (!isTriOrQuad())
-    EFAError("EFAface::getEdgeNodeParaCoor can only work for quad or trig faces");
+    EFAError("EFAface::getEdgeNodeParaCoor can only work for quad or tri faces");
 
   for (unsigned int i = 0; i < _num_edges; ++i)
   {
@@ -195,7 +195,7 @@ EFAFace::getFaceNodeParametricCoords(EFANode* node, std::vector<double> &xi_2d) 
 {
   bool node_in_face = false;
   if (!isTriOrQuad())
-    EFAError("EFAface::getFaceNodeParaCoor can only work for quad or trig faces");
+    EFAError("EFAface::getFaceNodeParaCoor can only work for quad or tri faces");
 
   if (getEdgeNodeParametricCoords(node, xi_2d))
     node_in_face = true;
@@ -654,7 +654,7 @@ EFAFace::hasSameOrientation(const EFAFace* other_face) const
   return same_order;
 }
 
-FaceNode*
+EFAFaceNode*
 EFAFace::getInteriorNode(unsigned int index) const
 {
   return _interior_nodes[index];

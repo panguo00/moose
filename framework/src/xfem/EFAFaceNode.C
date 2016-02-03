@@ -12,31 +12,49 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef FACENODE_H
-#define FACENODE_H
+#include "EFAFaceNode.h"
 
-class EFANode;
+#include "EFANode.h"
+#include "EFAError.h"
 
-class FaceNode
+EFAFaceNode::EFAFaceNode(EFANode* node, double xi, double eta):
+  _node(node),
+  _xi(xi),
+  _eta(eta)
+{}
+
+EFAFaceNode::EFAFaceNode(const EFAFaceNode & other_face_node):
+  _node(other_face_node._node),
+  _xi(other_face_node._xi),
+  _eta(other_face_node._eta)
+{}
+
+EFAFaceNode::~EFAFaceNode()
+{}
+
+EFANode *
+EFAFaceNode::getNode()
 {
-public:
+  return _node;
+}
 
-  FaceNode(EFANode* node, double xi, double eta);
-  FaceNode(const FaceNode & other_face_node);
+double
+EFAFaceNode::getParametricCoordinates(unsigned int i)
+{
+  double coord = -100.0;
+  if (i == 0)
+    coord = _xi;
+  else if (i == 1)
+    coord = _eta;
+  else
+    EFAError("get_getParametricCoordinates input out of bounds");
 
-  ~FaceNode();
+  return coord;
+}
 
-private:
-
-  EFANode * _node;
-  double _xi;
-  double _eta;
-
-public:
-
-  EFANode * getNode();
-  double getParametricCoordinates(unsigned int i);
-  void switchNode(EFANode* new_old, EFANode* old_node);
-};
-
-#endif
+void
+EFAFaceNode::switchNode(EFANode* new_node, EFANode* old_node)
+{
+  if (_node == old_node)
+    _node = new_node;
+}

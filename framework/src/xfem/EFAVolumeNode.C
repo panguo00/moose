@@ -12,34 +12,53 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "XFEMGeometricCut.h"
+#include "EFAVolumeNode.h"
 
-XFEMGeometricCut::XFEMGeometricCut(Real t0, Real t1):
-  t_start(t0),
-  t_end(t1)
+#include "EFANode.h"
+#include "EFAError.h"
+
+EFAVolumeNode::EFAVolumeNode(EFANode* node, double xi, double eta, double zeta):
+  _node(node),
+  _xi(xi),
+  _eta(eta),
+  _zeta(zeta)
 {}
 
-XFEMGeometricCut::~XFEMGeometricCut()
+EFAVolumeNode::EFAVolumeNode(const EFAVolumeNode & other_vol_node):
+  _node(other_vol_node._node),
+  _xi(other_vol_node._xi),
+  _eta(other_vol_node._eta),
+  _zeta(other_vol_node._zeta)
 {}
 
-Real XFEMGeometricCut::cutFraction(Real time)
+EFAVolumeNode::~EFAVolumeNode()
+{}
+
+EFANode *
+EFAVolumeNode::getNode()
 {
-  Real fraction = 0.0;
-  if (time > t_start)
-  {
-    if (time >= t_end)
-    {
-      fraction = 1.0;
-    }
-    else
-    {
-      fraction = (time - t_start) / (t_end - t_start);
-    }
-  }
-  return fraction;
+  return _node;
 }
 
-Real XFEMGeometricCut::crossProduct2D(Real ax, Real ay, Real bx, Real by)
+double
+EFAVolumeNode::getParametricCoordinates(unsigned int i)
 {
-  return (ax*by-bx*ay);
+  double coord = -100.0;
+  if (i == 0)
+    coord = _xi;
+  else if (i == 1)
+    coord = _eta;
+  else if (i == 2)
+    coord = _zeta;
+  else
+    EFAError("in getParametricCoordinates: input out of bounds");
+
+  return coord;
+}
+
+void
+EFAVolumeNode::switchNode(EFANode* new_node, EFANode* old_node)
+{
+  if (_node == old_node)
+    _node = new_node;
 }

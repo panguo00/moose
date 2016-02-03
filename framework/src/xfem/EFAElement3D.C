@@ -16,12 +16,12 @@
 
 #include <iomanip>
 
+#include "EFAFaceNode.h"
+#include "EFAVolumeNode.h"
 #include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFace.h"
-#include "FaceNode.h"
 #include "EFAFragment3D.h"
-#include "VolumeNode.h"
 #include "EFAFuncs.h"
 #include "EFAError.h"
 
@@ -60,7 +60,7 @@ EFAElement3D::EFAElement3D(const EFAElement3D* from_elem, bool convert_to_local)
     for (unsigned int i = 0; i < from_elem->_fragments.size(); ++i)
       _fragments.push_back(new EFAFragment3D(this, true, from_elem, i));
     for (unsigned int i = 0; i < from_elem->_interior_nodes.size(); ++i)
-      _interior_nodes.push_back(new VolumeNode(*from_elem->_interior_nodes[i]));
+      _interior_nodes.push_back(new EFAVolumeNode(*from_elem->_interior_nodes[i]));
 
     // replace all global nodes with local nodes
     for (unsigned int i = 0; i < _num_nodes; ++i)
@@ -724,7 +724,7 @@ EFAElement3D::restoreFragment(const EFAElement* const from_elem)
   if (_interior_nodes.size() != 0)
     EFAError("in restoreFragmentInfo elements must not have any pre-exsiting interior nodes");
   for (unsigned int i = 0; i < from_elem3d->_interior_nodes.size(); ++i)
-    _interior_nodes.push_back(new VolumeNode(*from_elem3d->_interior_nodes[i]));
+    _interior_nodes.push_back(new EFAVolumeNode(*from_elem3d->_interior_nodes[i]));
 
   // restore face intersections
   if (getNumCuts() != 0)
@@ -801,7 +801,7 @@ EFAElement3D::createChild(const std::set<EFAElement*> &CrackTipElements,
 
       // inherit old interior nodes
       for (unsigned int j = 0; j < _interior_nodes.size(); ++j)
-        childElem->_interior_nodes.push_back(new VolumeNode(*_interior_nodes[j]));
+        childElem->_interior_nodes.push_back(new EFAVolumeNode(*_interior_nodes[j]));
     }
   }
   else //num_links == 1 || num_links == 0
@@ -1088,7 +1088,7 @@ EFAElement3D::getFaceNodeParametricCoordinates(EFANode* node, std::vector<double
   return face_found;
 }
 
-VolumeNode*
+EFAVolumeNode*
 EFAElement3D::getInteriorNode(unsigned int interior_node_id) const
 {
   if (interior_node_id < _interior_nodes.size())

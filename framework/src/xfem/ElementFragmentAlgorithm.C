@@ -31,7 +31,8 @@
 #include "EFAFuncs.h"
 #include "EFAError.h"
 
-ElementFragmentAlgorithm::ElementFragmentAlgorithm()
+ElementFragmentAlgorithm::ElementFragmentAlgorithm(std::ostream & os):
+  _ostream(os)
 {}
 
 ElementFragmentAlgorithm::~ElementFragmentAlgorithm()
@@ -426,7 +427,7 @@ ElementFragmentAlgorithm::sanityCheck()
   //Make sure there are no remaining TempNodes
   if (_temp_nodes.size() > 0)
   {
-    std::cout<<"_temp_nodes size > 0.  size="<<_temp_nodes.size()<<std::endl;
+    _ostream << "_temp_nodes size > 0.  size=" << _temp_nodes.size() << std::endl;
     printMesh();
     exit(1);
   }
@@ -454,12 +455,12 @@ ElementFragmentAlgorithm::updateCrackTipElements()
       _crack_tip_elements.insert(childElem);
   } // loop over (new) child elements
 
-  //std::cout<<"Crack tip elements: ";
+  //_ostream << "Crack tip elements: ";
   //for (sit=CrackTipElements.begin(); sit!=CrackTipElements.end(); ++sit)
   //{
-  //  std::cout<<(*sit)->id<<" ";
+  //  _ostream << (*sit)->id<<" ";
   //}
-  //std::cout<<std::endl;
+  //_ostream << std::endl;
 }
 
 
@@ -467,72 +468,72 @@ ElementFragmentAlgorithm::updateCrackTipElements()
 void
 ElementFragmentAlgorithm::printMesh()
 {
-  std::cout<<"============================================================"
-           <<"=================================================="<<std::endl;
-  std::cout<<"                                            CutElemMesh Data"<<std::endl;
-  std::cout<<"============================================================"
-           <<"=================================================="<<std::endl;
-  std::cout << "Permanent Nodes:" << std::endl;
+  _ostream << "============================================================"
+           << "==================================================" << std::endl;
+  _ostream << "                                            CutElemMesh Data" << std::endl;
+  _ostream << "============================================================"
+           << "==================================================" << std::endl;
+  _ostream << "Permanent Nodes:" << std::endl;
   std::map<unsigned int, EFANode*>::iterator mit;
   unsigned int counter = 0;
   for (mit = _permanent_nodes.begin(); mit != _permanent_nodes.end(); ++mit )
   {
-    std::cout << "  " << mit->second->id();
+    _ostream << "  " << mit->second->id();
     counter += 1;
     if (counter % 10 == 0)
-      std::cout << std::endl;
+      _ostream << std::endl;
   }
-  std::cout << std::endl;
-  std::cout << "Temp Nodes:" << std::endl;
+  _ostream << std::endl;
+  _ostream << "Temp Nodes:" << std::endl;
   counter = 0;
   for (mit = _temp_nodes.begin(); mit != _temp_nodes.end(); ++mit )
   {
-    std::cout << "  " << mit->second->id();
+    _ostream << "  " << mit->second->id();
     counter += 1;
     if (counter % 10 == 0)
-      std::cout << std::endl;
+      _ostream << std::endl;
   }
-  std::cout << std::endl;
-  std::cout << "Embedded Nodes:" << std::endl;
+  _ostream << std::endl;
+  _ostream << "Embedded Nodes:" << std::endl;
   counter = 0;
   for (mit = _embedded_nodes.begin(); mit != _embedded_nodes.end(); ++mit )
   {
-    std::cout << "  " << mit->second->id();
+    _ostream << "  " << mit->second->id();
     counter += 1;
     if (counter % 10 == 0)
-      std::cout << std::endl;
+      _ostream << std::endl;
   }
-  std::cout << std::endl;
-  std::cout << "Parent Elements:" << std::endl;
+  _ostream << std::endl;
+  _ostream << "Parent Elements:" << std::endl;
   counter = 0;
   for (unsigned int i = 0; i < _parent_elements.size(); ++i)
   {
-    std::cout << " " << _parent_elements[i]->id();
+    _ostream << " " << _parent_elements[i]->id();
     counter += 1;
     if (counter % 10 == 0)
-      std::cout << std::endl;
+      _ostream << std::endl;
   }
-  std::cout << std::endl;
-  std::cout << "Child Elements:" << std::endl;
+  _ostream << std::endl;
+  _ostream << "Child Elements:" << std::endl;
   counter = 0;
   for (unsigned int i = 0; i < _child_elements.size(); ++i)
   {
-    std::cout << " " << _child_elements[i]->id();
+    _ostream << " " << _child_elements[i]->id();
     counter += 1;
     if (counter % 10 == 0)
-      std::cout << std::endl;
+      _ostream << std::endl;
   }
-  std::cout << std::endl;
-  std::cout << "Elements:" << std::endl;
-  std::cout << "  id "
-            << "|  nodes                "
-            << "|  embedded nodes       "
-            << "|  edge neighbors       "
-            << "|  frag "
-            << "|  frag link      ...   "
-            << std::endl;
-  std::cout<<"------------------------------------------------------------"
-           <<"--------------------------------------------------"<<std::endl;
+  _ostream << std::endl;
+  _ostream << "Elements:" << std::endl;
+  _ostream << "  id "
+           << "|  nodes                "
+           << "|  embedded nodes       "
+           << "|  edge neighbors       "
+           << "|  frag "
+           << "|  frag link      ...   "
+           << std::endl;
+  _ostream << "------------------------------------------------------------"
+           << "--------------------------------------------------" << std::endl;
   std::map<unsigned int, EFAElement*>::iterator eit;
   for (eit = _elements.begin(); eit != _elements.end(); ++eit )
   {

@@ -23,6 +23,7 @@
 #include "XFEMGeometricCut2D.h"
 #include "XFEMCutElem2D.h"
 #include "XFEMCutElem3D.h"
+#include "XFEMFuncs.h"
 #include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFace.h"
@@ -31,10 +32,12 @@
 #include "EFAFuncs.h"
 
 // XFEM mesh modification methods
-XFEM::XFEM (std::vector<MooseSharedPointer<MaterialData> > & material_data, MeshBase* m, MeshBase* m2) :
+XFEM::XFEM (MooseApp & app, std::vector<MooseSharedPointer<MaterialData> > & material_data, MeshBase* m, MeshBase* m2) :
+  ConsoleStreamInterface(app),
   _material_data(material_data),
   _mesh(m),
-  _mesh2(m2)
+  _mesh2(m2),
+  _efa_mesh(const_cast<std::ostringstream&>(_console.stream()))
 {
 }
 
@@ -253,8 +256,6 @@ void XFEM::initSolution(NonlinearSystem & nl, AuxiliarySystem & aux)
 //  NumericVector<Number> & c_solution = *nl.sys().solution;
   NumericVector<Number> & current_solution = *nl.sys().current_local_solution;
   NumericVector<Number> & old_solution = *nl.sys().old_local_solution;
-//  std::cout<<"pre mod current soln: "<<current_solution;
-//  std::cout<<"pre mod old soln: "<<old_solution;
 
   for (std::map<unique_id_type, unique_id_type>::iterator nit = _new_node_to_parent_node.begin();
        nit != _new_node_to_parent_node.end(); ++nit)
@@ -263,18 +264,15 @@ void XFEM::initSolution(NonlinearSystem & nl, AuxiliarySystem & aux)
     {
       Node* new_node = getNodeFromUniqueID(nit->first);
       Node* parent_node = getNodeFromUniqueID(nit->second);
-//      std::cout<<"BWS new node : "<<new_node->id() << " parent node: "<<parent_node->id()<<std::endl;
       Point *new_point = new Point(*new_node);
       Point *parent_point = new Point(*parent_node);
       if (*new_point != *parent_point)
         mooseError("Points don't match");
       unsigned int new_node_dof = new_node->dof_number(nl.number(), nl_vars[ivar]->number(),0);
       unsigned int parent_node_dof = parent_node->dof_number(nl.number(), nl_vars[ivar]->number(),0);
-//      std::cout<<"BWS setting soln : "<<new_node_dof<<" "<<parent_node_dof<<" "<<current_solution(parent_node_dof)<<std::endl;
       if (parent_node->processor_id() == _mesh->processor_id())
       {
         current_solution.set(new_node_dof, current_solution(parent_node_dof));
-//      std::cout<<"BWS setting old soln : "<<new_node_dof<<" "<<parent_node_dof<<" "<<old_solution(parent_node_dof)<<std::endl;
         old_solution.set(new_node_dof, old_solution(parent_node_dof));
       }
     }
@@ -282,8 +280,6 @@ void XFEM::initSolution(NonlinearSystem & nl, AuxiliarySystem & aux)
 
   current_solution.close();
   old_solution.close();
-//  std::cout<<"post mod current soln: "<<current_solution;
-//  std::cout<<"post mod old soln: "<<old_solution;
 }
 
 Node * XFEM::getNodeFromUniqueID(unique_id_type uid)
@@ -808,7 +804,7 @@ XFEM::mark_cut_edges_by_state(Real time)
             break;
           }
         }
-      } // i
+      }
     }
 
     marked_edges = true;
@@ -920,12 +916,10 @@ XFEM::cut_mesh_with_efa()
   _efa_mesh.updatePhysicalLinksAndFragments();
   // DEBUG
 //  _efa_mesh.printMesh();
-//  std::cout<<"BWS before updateTopology"<<std::endl;
 
   _efa_mesh.updateTopology();
   // DEBUG
 //  _efa_mesh.printMesh();
-//  std::cout<<"BWS cut done"<<std::endl;
 
   //Add new nodes
   const std::vector<EFANode*> NewNodes = _efa_mesh.getNewNodes();
@@ -935,17 +929,15 @@ XFEM::cut_mesh_with_efa()
     unsigned int parent_id = NewNodes[i]->parent()->id();
 
     Node *parent_node = _mesh->node_ptr(parent_id);
-//    std::cout<<"BWS n_nodes: "<<_mesh->n_nodes()<<std::endl;
     Point *new_point = new Point(*parent_node);
     Node *new_node = Node::build(*new_point,_mesh->n_nodes()).release();
     new_node->processor_id() = parent_node->processor_id();
     _mesh->add_node(new_node);
-//    new_node->set_old_dof_object();
     _new_node_to_parent_node[new_node->unique_id()] = parent_node->unique_id();
 
     new_node->set_n_systems(parent_node->n_systems());
     efa_id_to_new_node.insert(std::make_pair(new_node_id,new_node));
-    std::cout<<"XFEM added new node: "<<new_node->id()+1<<std::endl;
+    _console<<"XFEM added new node: "<<new_node->id()+1<<std::endl;
     mesh_changed = true;
     if (_mesh2)
     {
@@ -955,23 +947,11 @@ XFEM::cut_mesh_with_efa()
       Node *new_node2 = Node::build(*new_point2,_mesh2->n_nodes()).release();
       new_node2->processor_id() = parent_node2->processor_id();
       _mesh2->add_node(new_node2);
-//      new_node2->set_old_dof_object();
 
       new_node2->set_n_systems(parent_node2->n_systems());
       efa_id_to_new_node2.insert(std::make_pair(new_node_id,new_node2));
-//      std::cout<<"XFEM2 added new node: "<<new_node2->id()+1<<std::endl;
     }
   }
-
-//  std::cout<<"BWS _new_node_to_parent_node:"<<std::endl;
-//  for (std::map<Node*, Node*>::iterator nit = _new_node_to_parent_node.begin();
-//       nit != _new_node_to_parent_node.end(); ++nit)
-//  {
-//    Node * new_node = nit->first;
-//    Node * parent_node = nit->second;
-//    std::cout<<"BWS new node : "<<new_node->id() << " parent node: "<<parent_node->id()<<std::endl;
-//  }
-
 
   //Add new elements
   const std::vector<EFAElement*> NewElements = _efa_mesh.getChildElements();
@@ -1048,7 +1028,7 @@ XFEM::cut_mesh_with_efa()
       _elem_crack_origin_direction_map[libmesh_elem] = crack_data;
     }
 
-    std::cout<<"XFEM added elem "<<libmesh_elem->id()+1<<std::endl;
+    _console<<"XFEM added elem "<<libmesh_elem->id()+1<<std::endl;
 
     XFEMCutElem * xfce = NULL;
     if (_mesh->mesh_dimension() == 2)
@@ -1117,7 +1097,7 @@ XFEM::cut_mesh_with_efa()
     }
 
     mesh_changed = true;
-  } // i
+  }
 
   //delete elements
   const std::vector<EFAElement*> DeleteElements = _efa_mesh.getParentElements();
@@ -1136,7 +1116,7 @@ XFEM::cut_mesh_with_efa()
     elem_to_delete->nullify_neighbors();
     _mesh->boundary_info->remove(elem_to_delete);
     _mesh->delete_elem(elem_to_delete);
-    std::cout<<"XFEM deleted elem "<<elem_to_delete->id()+1<<std::endl;
+    _console<<"XFEM deleted elem "<<elem_to_delete->id()+1<<std::endl;
     mesh_changed = true;
 
     if (_mesh2)
@@ -1145,7 +1125,7 @@ XFEM::cut_mesh_with_efa()
       elem_to_delete2->nullify_neighbors();
       _mesh2->boundary_info->remove(elem_to_delete2);
       _mesh2->delete_elem(elem_to_delete2);
-      std::cout<<"XFEM2 deleted elem "<<elem_to_delete2->id()+1<<std::endl;
+      _console<<"XFEM2 deleted elem "<<elem_to_delete2->id()+1<<std::endl;
     }
   }
 
@@ -1260,9 +1240,7 @@ XFEM::isQpPhysical(const Elem* elem, const Point & p) const
       Point origin = xfce->getCutPlaneOrigin(plane_id);
       Point normal = xfce->getCutPlaneNormal(plane_id);
       Point origin2qp = p - origin;
-      Real len = origin2qp.size();  // BWS was call to normalize func
-      if (len != 0.0)
-        origin2qp /= len;
+      normalizePoint(origin2qp);
       if (origin2qp*normal > 0.0)
       {
         flag = 0.0; // QP outside pysical domain

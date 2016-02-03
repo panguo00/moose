@@ -3777,9 +3777,9 @@ FEProblem::createXFEM()
   if (!_xfem)
   {
     if (!_displaced_mesh)
-      _xfem = new XFEM(_material_data, &_mesh.getMesh());
+      _xfem = new XFEM(getMooseApp(), _material_data, &_mesh.getMesh());
     else
-      _xfem = new XFEM(_material_data, &_mesh.getMesh(), &_displaced_mesh->getMesh());
+      _xfem = new XFEM(getMooseApp(), _material_data, &_mesh.getMesh(), &_displaced_mesh->getMesh());
   }
   return _xfem;
 }

@@ -16,9 +16,9 @@
 
 #include <iomanip>
 
+#include "EFAFaceNode.h"
 #include "EFANode.h"
 #include "EFAEdge.h"
-#include "FaceNode.h"
 #include "EFAFace.h"
 #include "EFAFragment2D.h"
 #include "EFAFuncs.h"
@@ -59,7 +59,7 @@ EFAElement2D::EFAElement2D(const EFAElement2D* from_elem, bool convert_to_local)
     for (unsigned int i = 0; i < from_elem->_fragments.size(); ++i)
       _fragments.push_back(new EFAFragment2D(this, true, from_elem, i));
     for (unsigned int i = 0; i < from_elem->_interior_nodes.size(); ++i)
-      _interior_nodes.push_back(new FaceNode(*from_elem->_interior_nodes[i]));
+      _interior_nodes.push_back(new EFAFaceNode(*from_elem->_interior_nodes[i]));
 
     // replace all global nodes with local nodes
     for (unsigned int i = 0; i < _num_nodes; ++i)
@@ -85,7 +85,7 @@ EFAElement2D::EFAElement2D(const EFAFace* from_face):
   for (unsigned int i = 0; i < _num_edges; ++i)
     _edges[i] = new EFAEdge(*from_face->getEdge(i));
   for (unsigned int i = 0; i < from_face->numInteriorNodes(); ++i)
-    _interior_nodes.push_back(new FaceNode(*from_face->getInteriorNode(i)));
+    _interior_nodes.push_back(new EFAFaceNode(*from_face->getInteriorNode(i)));
 }
 
 EFAElement2D::~EFAElement2D()
@@ -260,7 +260,7 @@ EFAElement2D::getMasterInfo(EFANode* node, std::vector<EFANode*> &master_nodes,
           if (_num_nodes == 4)
             weight = linearQuadShape2D(j, emb_xi);
           else if (_num_nodes == 3)
-            weight = linearTrigShape2D(j, emb_xi);
+            weight = linearTriShape2D(j, emb_xi);
           else
             EFAError("unknown 2D element");
           master_weights.push_back(weight);
@@ -850,7 +850,7 @@ EFAElement2D::restoreFragment(const EFAElement* const from_elem)
   if (_interior_nodes.size() != 0)
     EFAError("in restoreFragmentInfo elements must not have any pre-exsiting interior nodes");
   for (unsigned int i = 0; i < from_elem2d->_interior_nodes.size(); ++i)
-    _interior_nodes.push_back(new FaceNode(*from_elem2d->_interior_nodes[i]));
+    _interior_nodes.push_back(new EFAFaceNode(*from_elem2d->_interior_nodes[i]));
 
   // restore edge intersections
   if (getNumCuts() != 0)
@@ -937,7 +937,7 @@ EFAElement2D::createChild(const std::set<EFAElement*> &CrackTipElements,
 
       // inherit old interior nodes
       for (unsigned int j = 0; j < _interior_nodes.size(); ++j)
-        childElem->_interior_nodes.push_back(new FaceNode(*_interior_nodes[j]));
+        childElem->_interior_nodes.push_back(new EFAFaceNode(*_interior_nodes[j]));
     }
   }
   else //num_links == 1 || num_links == 0
@@ -1197,7 +1197,7 @@ EFAElement2D::getEdgeNodeParametricCoordinate(EFANode* node, std::vector<double>
   return edge_found;
 }
 
-FaceNode*
+EFAFaceNode*
 EFAElement2D::getInteriorNode(unsigned int interior_node_id) const
 {
   if (interior_node_id < _interior_nodes.size())
@@ -1615,7 +1615,7 @@ EFAElement2D::addFragmentEdgeCut(unsigned int frag_edge_id, double position,
       {
         double xi  = (1.0-position)*node1_para_coor[0] + position*node2_para_coor[0];
         double eta = (1.0-position)*node1_para_coor[1] + position*node2_para_coor[1];
-        _interior_nodes.push_back(new FaceNode(local_embedded, xi, eta));
+        _interior_nodes.push_back(new EFAFaceNode(local_embedded, xi, eta));
       }
       else
         EFAError("elem: "<<_id<<" cannot get the para coords of two end embedded nodes");
@@ -1667,7 +1667,7 @@ EFAElement2D::branchingSplit(std::map<unsigned int, EFANode*> &EmbeddedNodes)
   unsigned int new_node_id = getNewID(EmbeddedNodes);
   EFANode* new_emb = new EFANode(new_node_id, N_CATEGORY_EMBEDDED);
   EmbeddedNodes.insert(std::make_pair(new_node_id, new_emb));
-  _interior_nodes.push_back(new FaceNode(new_emb, center_xi[0], center_xi[1]));
+  _interior_nodes.push_back(new EFAFaceNode(new_emb, center_xi[0], center_xi[1]));
 
   // generate the three fragments
   std::vector<EFAFragment2D*> new_fragments;

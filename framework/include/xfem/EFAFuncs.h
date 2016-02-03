@@ -73,7 +73,7 @@ std::vector<T> get_common_elems(std::set<T> &v1, std::set<T> &v2)
 
 double linearQuadShape2D(unsigned int node_id, std::vector<double> &xi_2d);
 
-double linearTrigShape2D(unsigned int node_id, std::vector<double> &xi_2d);
+double linearTriShape2D(unsigned int node_id, std::vector<double> &xi_2d);
 
 double linearHexShape3D(unsigned int node_id, std::vector<double> &xi_3d);
 

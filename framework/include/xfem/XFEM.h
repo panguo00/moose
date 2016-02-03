@@ -17,6 +17,7 @@
 
 #include "ElementFragmentAlgorithm.h"
 
+#include "ConsoleStreamInterface.h"
 #include "MooseTypes.h"
 #include "libmesh/vector_value.h"
 
@@ -44,6 +45,7 @@ class EFAEdge;
 class EFAElement;
 class EFAElement2D;
 class EFAElement3D;
+class MooseApp;
 class AuxiliarySystem;
 class NonlinearSystem;
 class MaterialData;
@@ -57,7 +59,7 @@ class MaterialData;
 
 // ------------------------------------------------------------
 // XFEM class definition
-class XFEM
+class XFEM : public ConsoleStreamInterface
 {
 public:
 
@@ -65,7 +67,7 @@ public:
    * Constructor
    */
   explicit
-  XFEM(std::vector<MooseSharedPointer<MaterialData> > & material_data, MeshBase* mesh, MeshBase* mesh2=NULL);
+  XFEM(MooseApp & app, std::vector<MooseSharedPointer<MaterialData> > & material_data, MeshBase* mesh, MeshBase* mesh2=NULL);
 
 
   /**

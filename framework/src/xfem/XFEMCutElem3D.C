@@ -18,6 +18,7 @@
 #include "EFAFace.h"
 #include "EFAFragment3D.h"
 #include "EFAFuncs.h"
+#include "XFEMFuncs.h"
 #include "MooseError.h"
 
 #include "libmesh/mesh.h"
@@ -188,9 +189,7 @@ XFEMCutElem3D::getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh
     }
     normal *= (1.0/cut_plane_points.size());
   }
-  Real len = normal.size();  // BWS was call to normalize func
-  if (len != 0.0)
-    normal /= len;
+  normalizePoint(normal);
   return normal;
 }
 

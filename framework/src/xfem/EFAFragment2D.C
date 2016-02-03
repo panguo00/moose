@@ -15,10 +15,11 @@
 #include "EFAElement2D.h"
 
 #include "EFANode.h"
-#include "FaceNode.h"
 #include "EFAEdge.h"
 #include "EFAFace.h"
 #include "EFAFragment2D.h"
+
+#include "EFAFaceNode.h"
 #include "EFAFuncs.h"
 #include "EFAError.h"
 

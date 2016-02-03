@@ -19,7 +19,7 @@
 
 class EFANode;
 class EFAFace;
-class VolumeNode;
+class EFAVolumeNode;
 class EFAFragment3D;
 
 class EFAElement3D : public EFAElement
@@ -35,7 +35,7 @@ private:
 
   unsigned int _num_faces;
   std::vector<EFAFace*> _faces;
-  std::vector<VolumeNode*> _interior_nodes;
+  std::vector<EFAVolumeNode*> _interior_nodes;
   std::vector<std::vector<EFAElement3D*> > _face_neighbors;
   std::vector<EFAFragment3D*> _fragments;
   std::vector<std::vector<EFAFace*> > _faces_adjacent_to_faces;
@@ -90,7 +90,7 @@ public:
   EFAFragment3D* getFragment(unsigned int frag_id) const;
   std::set<EFANode*> getFaceNodes(unsigned int face_id) const;
   bool getFaceNodeParametricCoordinates(EFANode* node, std::vector<double> &xi_3d) const;
-  VolumeNode* getInteriorNode(unsigned int interior_node_id) const;
+  EFAVolumeNode* getInteriorNode(unsigned int interior_node_id) const;
   void removeEmbeddedNode(EFANode* emb_node, bool remove_for_neighbor);
 
   unsigned int numFaces() const;

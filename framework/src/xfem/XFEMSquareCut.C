@@ -16,7 +16,7 @@
 
 #include "MooseError.h"
 #include "EFAFuncs.h"
-#include "XFEMMiscFuncs.h"
+#include "XFEMFuncs.h"
 
 XFEMSquareCut::XFEMSquareCut(std::vector<Real> square_nodes):
   XFEMGeometricCut(0.0, 0.0),
@@ -41,7 +41,7 @@ XFEMSquareCut::XFEMSquareCut(std::vector<Real> square_nodes):
     _normal += ray1.cross(ray2);
   }
   _normal *= 0.25;
-  normalize(_normal);
+  normalizePoint(_normal);
 }
 
 XFEMSquareCut::~XFEMSquareCut()
@@ -163,8 +163,8 @@ XFEMSquareCut::isInsideCutPlane(Point p)
     Point middle2p = p - 0.5*(_vertices[i] + _vertices[iplus1]);
     Point side_tang = _vertices[iplus1] - _vertices[i];
     Point side_norm = side_tang.cross(_normal);
-    normalize(middle2p); // normalize
-    normalize(side_norm); // normalize
+    normalizePoint(middle2p);
+    normalizePoint(side_norm);
     if (middle2p*side_norm <= 0.0)
       counter += 1;
   }

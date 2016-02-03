@@ -16,7 +16,7 @@
 
 #include "MooseError.h"
 #include "EFAFuncs.h"
-#include "XFEMMiscFuncs.h"
+#include "XFEMFuncs.h"
 
 XFEMCircleCut::XFEMCircleCut(std::vector<Real> circle_nodes):
    XFEMGeometricCut(0.0, 0.0), 
@@ -34,7 +34,7 @@ XFEMCircleCut::XFEMCircleCut(std::vector<Real> circle_nodes):
   Point ray2 = _vertices[1] - _center;
   
   _normal = ray1.cross(ray2);
-  normalize(_normal);
+  normalizePoint(_normal);
   
   Real R1 = std::sqrt(ray1.size_sq());
   Real R2 = std::sqrt(ray2.size_sq());

@@ -1,5 +1,5 @@
-#ifndef XFEMINTEGRATIONFUNCS_H
-#define XFEMINTEGRATIONFUNCS_H
+#ifndef XFEMFUNCS_H
+#define XFEMFUNCS_H
 
 #include <vector>
 #include "libmesh/point.h"
@@ -31,5 +31,7 @@ Real getRelativePosition(Point p1, Point p2, Point p);
 bool line_exp_is_degenerate_nd(int dim_num, double p1[], double p2[]);
 
 int plane_normal_line_exp_int_3d(double pp[3], double normal[3], double p1[3], double p2[3], double pint[3]);
+
+void normalizePoint(Point & p);
 
 #endif

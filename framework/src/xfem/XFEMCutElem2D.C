@@ -17,7 +17,7 @@
 #include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFragment2D.h"
-#include "XFEMMiscFuncs.h"
+#include "XFEMFuncs.h"
 #include "MooseError.h"
 
 #include "libmesh/mesh.h"
@@ -269,7 +269,7 @@ XFEMCutElem2D::getPhysicalQuadraturePoints(unsigned int nen, std::vector<std::ve
   {
     std::vector<std::vector<Real> > sg2;
     std::vector<std::vector<Real> > shape(nnd_pe,std::vector<Real>(3,0.0));
-    stdQuadr2D(nnd_pe, 2, sg2); //
+    stdQuadr2D(nnd_pe, 2, sg2);
     for (unsigned int l = 0; l < sg2.size(); ++l)
     {
       shapeFunc2D(nnd_pe, sg2[l], frag_points, shape, jac, true); // Get shape
@@ -279,7 +279,7 @@ XFEMCutElem2D::getPhysicalQuadraturePoints(unsigned int nen, std::vector<std::ve
         tsg_line[0] += shape[k][2]*frag_points[k](0);
         tsg_line[1] += shape[k][2]*frag_points[k](1);
       }
-      if (nnd_pe == 3) // trig partial elem
+      if (nnd_pe == 3) // tri partial elem
         tsg_line[2] = sg2[l][3]*jac; // total weights
       else // quad partial elem
         tsg_line[2] = sg2[l][2]*jac; // total weights
@@ -288,26 +288,26 @@ XFEMCutElem2D::getPhysicalQuadraturePoints(unsigned int nen, std::vector<std::ve
   }
   else if (nnd_pe >= 5) // partial element is a polygon
   {
-    for (unsigned int j = 0; j < nnd_pe; ++j) // loop all sub-trigs
+    for (unsigned int j = 0; j < nnd_pe; ++j) // loop all sub-tris
     {
       std::vector<std::vector<Real> > shape(3, std::vector<Real>(3,0.0));
-      std::vector<Point> subtrig_points(3, Point(0.0,0.0,0.0)); // sub-trig nodal coords
+      std::vector<Point> subtri_points(3, Point(0.0,0.0,0.0)); // sub-tri nodal coords
 
       int jplus1(j < nnd_pe-1 ? j+1 : 0);
-      subtrig_points[0] = xcrd;
-      subtrig_points[1] = frag_points[j];
-      subtrig_points[2] = frag_points[jplus1];
+      subtri_points[0] = xcrd;
+      subtri_points[1] = frag_points[j];
+      subtri_points[2] = frag_points[jplus1];
 
       std::vector<std::vector<Real> > sg2;
       stdQuadr2D(3, 2, sg2); // get sg2
-      for (unsigned int l = 0; l < sg2.size(); ++l) // loop all int pts on a sub-trig
+      for (unsigned int l = 0; l < sg2.size(); ++l) // loop all int pts on a sub-tri
       {
-        shapeFunc2D(3, sg2[l], subtrig_points, shape, jac, true); // Get shape
+        shapeFunc2D(3, sg2[l], subtri_points, shape, jac, true); // Get shape
         std::vector<Real> tsg_line(3,0.0);
-        for (unsigned int k = 0; k < 3; ++k) // loop sub-trig nodes
+        for (unsigned int k = 0; k < 3; ++k) // loop sub-tri nodes
         {
-          tsg_line[0] += shape[k][2]*subtrig_points[k](0);
-          tsg_line[1] += shape[k][2]*subtrig_points[k](1);
+          tsg_line[0] += shape[k][2]*subtri_points[k](0);
+          tsg_line[1] += shape[k][2]*subtri_points[k](1);
         }
         tsg_line[2] = sg2[l][3]*jac;
         tsg.push_back(tsg_line);

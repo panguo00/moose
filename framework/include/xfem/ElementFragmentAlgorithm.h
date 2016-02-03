@@ -29,11 +29,12 @@ public:
   /**
    * Constructor
    **/
-  ElementFragmentAlgorithm();
+  ElementFragmentAlgorithm(std::ostream & os);
 
   ~ElementFragmentAlgorithm();
 
 private:
+  std::ostream & _ostream;
   //unsigned int MaxElemId;
   std::map< unsigned int, EFANode*> _permanent_nodes;
   std::map< unsigned int, EFANode*> _embedded_nodes;

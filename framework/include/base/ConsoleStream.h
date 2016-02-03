@@ -56,6 +56,8 @@ public:
   template<typename StreamType>
   const ConsoleStream & operator<<(StreamType s) const;
 
+  const std::ostringstream & stream() const {return _oss;}
+
   /**
    * This overload is here to handle the the std::endl manipulator
    */

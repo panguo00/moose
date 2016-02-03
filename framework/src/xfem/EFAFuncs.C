@@ -22,7 +22,7 @@ linearQuadShape2D(unsigned int node_id, std::vector<double> &xi_2d)
 }
 
 double
-linearTrigShape2D(unsigned int node_id, std::vector<double> &xi_2d)
+linearTriShape2D(unsigned int node_id, std::vector<double> &xi_2d)
 {
   std::vector<double> area_xi(3,0.0);
   area_xi[0] = xi_2d[0];

@@ -15,7 +15,7 @@
 #include "XFEMEllipseCut.h"
 
 #include "EFAFuncs.h"
-#include "XFEMMiscFuncs.h"
+#include "XFEMFuncs.h"
 #include "MooseError.h"
 
 XFEMEllipseCut::XFEMEllipseCut(std::vector<Real> ellipse_nodes):
@@ -40,7 +40,7 @@ XFEMEllipseCut::XFEMEllipseCut(std::vector<Real> ellipse_nodes):
      mooseError("this method only works a elliptic cut, users should provide two points at the long and short axis\n"); 
 
   _normal = ray1.cross(ray2);
-  normalize(_normal);
+  normalizePoint(_normal);
   
   Real R1 = std::sqrt(ray1.size_sq());
   Real R2 = std::sqrt(ray2.size_sq());
@@ -57,8 +57,8 @@ XFEMEllipseCut::XFEMEllipseCut(std::vector<Real> ellipse_nodes):
         _short_axis = R1;
    }
    
-  normalize(_unit_vec1);
-  normalize(_unit_vec2);
+  normalizePoint(_unit_vec1);
+  normalizePoint(_unit_vec2);
 
 }
 

@@ -14,11 +14,11 @@
 
 #include "EFAFragment3D.h"
 
+#include "EFAVolumeNode.h"
 #include "EFANode.h"
 #include "EFAEdge.h"
 #include "EFAFace.h"
 #include "EFAFuncs.h"
-#include "VolumeNode.h"
 #include "EFAElement3D.h"
 #include "EFAError.h"
 

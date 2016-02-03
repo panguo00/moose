@@ -12,7 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#include "XFEMMiscFuncs.h"
+#include "XFEMFuncs.h"
 
 #include "MooseError.h"
 #include "Conversion.h"
@@ -90,7 +90,7 @@ void dunavant_rule2(const Real* wts, const Real* a, const Real* b, const unsigne
 
 void stdQuadr2D(unsigned int nen, unsigned int iord, std::vector<std::vector<Real> > &sg2)
 {
-  // Purpose: get Guass integration points for 2D quad and trig elems
+  // Purpose: get Guass integration points for 2D quad and tri elems
   // N.B. only works for n_qp <= 6
 
   Real lr4[4] = {-1.0,1.0,-1.0,1.0}; // libmesh order
@@ -300,7 +300,7 @@ void shapeFunc2D(unsigned int nen, std::vector<Real> &ss, std::vector<Point> &xl
     Real xsjr = 1.0;
     if (xsj != 0.0)
         xsjr = 1.0/xsj;
-    // xsj  *= 0.5; // we do not have this 0.5 here because in stdQuad2D the sum of all weights in trig is 0.5
+    // xsj  *= 0.5; // we do not have this 0.5 here because in stdQuad2D the sum of all weights in tri is 0.5
     shp[0][2] = ss[0];
     shp[1][2] = ss[1];
     shp[2][2] = ss[2];
@@ -324,7 +324,7 @@ void shapeFunc2D(unsigned int nen, std::vector<Real> &ss, std::vector<Point> &xl
     }
   }
   else
-    mooseError("ShapeFunc2D only works for linear quads and trigs!");
+    mooseError("ShapeFunc2D only works for linear quads and tris!");
 }
 
 double r8vec_norm(int n, double a[])
@@ -486,3 +486,9 @@ int plane_normal_line_exp_int_3d(double pp[3], double normal[3], double p1[3], d
 # undef DIM_NUM
 }
 
+void normalizePoint(Point & p)
+{
+  Real len = p.size();
+  if (len != 0.0)
+    p = (1.0/len)*p;
+}
