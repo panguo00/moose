@@ -195,9 +195,9 @@ void stdQuadr2D(unsigned int nen, unsigned int iord, std::vector<std::vector<Rea
       const Real b[n_wts] = {0., 0.}; // not used
       const unsigned int permutation_ids[n_wts] = {3, 3};
 
-      std::vector<Point> points; 
+      std::vector<Point> points;
       std::vector<Real> weights;
-      dunavant_rule2(wts, a, b, permutation_ids, n_wts, points, weights); // 6 total points 
+      dunavant_rule2(wts, a, b, permutation_ids, n_wts, points, weights); // 6 total points
 
       sg2.resize(6);
       for (unsigned int i = 0; i < 6; ++i)
@@ -361,27 +361,6 @@ double r8vec_dot_product(int n, double a1[], double a2[])
   for (unsigned int i = 0; i < n; ++i)
     value += a1[i] * a2[i];
   return value;
-}
-
-bool isInsideEdge(Point p1, Point p2, Point p)
-{
-  Point p1_to_p2 = p2 - p1;
-  Point p_to_p1 = p1 - p;
-  Point p_to_p2 = p2 - p;
-  Real dotp1 = p_to_p1*p1_to_p2;
-  Real dotp2 = p_to_p2*p1_to_p2;
-  if (dotp1*dotp2 <= 0.0)
-    return true;
-  else
-    return false;
-}
-
-Real getRelativePosition(Point p1, Point p2, Point p)
-{
-  // get the relative position of p from p1
-  Real full_len = std::sqrt((p2 - p1).size_sq());
-  Real len_p1_p = std::sqrt((p - p1).size_sq());
-  return len_p1_p/full_len;
 }
 
 bool line_exp_is_degenerate_nd(int dim_num, double p1[], double p2[])

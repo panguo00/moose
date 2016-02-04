@@ -71,9 +71,9 @@ XFEMAction::act()
 
     _xfem_cut_data = getParam<std::vector<Real> >("cut_data");
 
-    xfem->set_xfem_qrule(_xfem_qrule);
+    xfem->setXFEMQRule(_xfem_qrule);
 
-    xfem->set_crack_growth_method(_xfem_use_crack_growth_increment, _xfem_crack_growth_increment);
+    xfem->setCrackGrowthMethod(_xfem_use_crack_growth_increment, _xfem_crack_growth_increment);
 
     if (_xfem_cut_type == "line_segment_2d")
     {

@@ -1,3 +1,17 @@
+/****************************************************************/
+/*               DO NOT MODIFY THIS HEADER                      */
+/* MOOSE - Multiphysics Object Oriented Simulation Environment  */
+/*                                                              */
+/*           (c) 2010 Battelle Energy Alliance, LLC             */
+/*                   ALL RIGHTS RESERVED                        */
+/*                                                              */
+/*          Prepared by Battelle Energy Alliance, LLC           */
+/*            Under Contract No. DE-AC07-05ID14517              */
+/*            With the U. S. Department of Energy               */
+/*                                                              */
+/*            See COPYRIGHT for full restrictions               */
+/****************************************************************/
+
 #ifndef XFEMFUNCS_H
 #define XFEMFUNCS_H
 
@@ -23,10 +37,6 @@ void r8vec_copy(int n, double a1[], double a2[]);
 bool r8vec_eq (int n, double a1[], double a2[]);
 
 double r8vec_dot_product(int n, double a1[], double a2[]);
-
-bool isInsideEdge(Point p1, Point p2, Point p);
-
-Real getRelativePosition(Point p1, Point p2, Point p);
 
 bool line_exp_is_degenerate_nd(int dim_num, double p1[], double p2[]);
 

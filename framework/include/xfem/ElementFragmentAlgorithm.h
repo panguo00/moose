@@ -19,8 +19,8 @@
 #include <map>
 #include <set>
 
-class EFANode;
-class EFAElement;
+#include "EFANode.h"
+#include "EFAElement.h"
 
 class ElementFragmentAlgorithm
 {

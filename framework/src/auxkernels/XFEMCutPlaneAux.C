@@ -42,7 +42,7 @@ XFEMCutPlaneAux::XFEMCutPlaneAux(const InputParameters & parameters)
 Real
 XFEMCutPlaneAux::computeValue()
 {
-  Real value = _xfem->get_cut_plane(_current_elem, _quantity, _plane_id);
+  Real value = _xfem->getCutPlane(_current_elem, _quantity, _plane_id);
 
   return value;
 }

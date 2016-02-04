@@ -97,17 +97,22 @@ public:
 
   Node * getNodeFromUniqueID(unique_id_type uid);
 
-  void build_efa_mesh();
-  bool mark_cut_edges(Real time);
-  bool mark_cut_edges_by_geometry(Real time);
-  bool mark_cut_edges_by_state(Real time);
-  bool mark_cut_faces_by_geometry(Real time);
-  bool mark_cut_faces_by_state();
-  bool init_crack_intersect_edge(Point cut_origin, RealVectorValue cut_normal,
-                                 Point edge_p1, Point edge_p2, Real & dist);
-  bool cut_mesh_with_efa();
-  Point get_efa_node_coor(EFANode* CEMnode, EFAElement* CEMElem,
-                          const Elem *elem, MeshBase* displaced_mesh = NULL) const;
+  void buildEFAMesh();
+  bool markCuts(Real time);
+  bool markCutEdgesByGeometry(Real time);
+  bool markCutEdgesByState(Real time);
+  bool markCutFacesByGeometry(Real time);
+  bool markCutFacesByState();
+  bool initCutIntersectionEdge(Point cut_origin,
+		                       RealVectorValue cut_normal,
+                               Point &edge_p1,
+							   Point &edge_p2,
+							   Real &dist);
+  bool cutMeshWithEFA();
+  Point getEFANodeCoords(EFANode* CEMnode,
+		                 EFAElement* CEMElem,
+                         const Elem *elem,
+						 MeshBase* displaced_mesh = NULL) const;
 
   /**
    * Get the volume fraction of an element that is physical
@@ -119,35 +124,48 @@ public:
   /**
    * Get specified component of normal or origin for cut plane for a given element
    */
-  Real get_cut_plane(const Elem* elem, const XFEM_CUTPLANE_QUANTITY quantity,
-                     unsigned int plane_id) const;
+  Real getCutPlane(const Elem* elem,
+		           const XFEM_CUTPLANE_QUANTITY quantity,
+                   unsigned int plane_id) const;
 
-  bool is_elem_at_crack_tip(const Elem* elem) const;
-  bool is_elem_cut(const Elem* elem) const;
-  void get_frag_faces(const Elem* elem, std::vector<std::vector<Point> > &frag_faces,
+  bool isElemAtCrackTip(const Elem* elem) const;
+  bool isElemCut(const Elem* elem) const;
+  void getFragmentFaces(const Elem* elem, std::vector<std::vector<Point> > &frag_faces,
                       bool displaced_mesh = false) const;
-  void store_crack_tip_origin_and_direction();
-  void correct_crack_extension_angle(const Elem * elem, EFAElement2D * CEMElem, EFAEdge * orig_edge, Point normal, Point crack_tip_origin, Point crack_tip_direction, Real & distance_keep, unsigned int & edge_id_keep, Point & normal_keep);
-  void get_crack_tip_origin(std::map<unsigned int, const Elem*> & elem_id_crack_tip, std::vector<Point> &  crack_front_points);
+  void storeCrackTipOriginAndDirection();
+
+  void correctCrackExtensionDirection(const Elem * elem,
+                                      EFAElement2D * CEMElem,
+                                      EFAEdge * orig_edge,
+                                      Point normal,
+                                      Point crack_tip_origin,
+                                      Point crack_tip_direction,
+                                      Real & distance_keep,
+                                      unsigned int & edge_id_keep,
+                                      Point & normal_keep);
+
+  void getCrackTipOrigin(std::map<unsigned int, const Elem*> & elem_id_crack_tip, std::vector<Point> &  crack_front_points);
   //void update_crack_propagation_direction(const Elem* elem, Point direction);
   //void clear_crack_propagation_direction();
   /**
    * Set and get xfem cut data and type
    */
-  std::vector<Real>& get_xfem_cut_data();
-  void set_xfem_cut_data(std::vector<Real> &cut_data);
-  std::string & get_xfem_cut_type();
-  void set_xfem_cut_type(std::string & cut_type);
-  XFEM_QRULE & get_xfem_qrule();
-  void set_xfem_qrule(std::string & xfem_qrule);
-  void set_crack_growth_method(bool use_crack_growth_increment, Real crack_growth_increment);
+  std::vector<Real>& getXFEMCutData();
+  void setXFEMCutData(std::vector<Real> &cut_data);
+  std::string & getXFEMCutType();
+  void setXFEMCutType(std::string & cut_type);
+  XFEM_QRULE & getXFEMQRule();
+  void setXFEMQRule(std::string & xfem_qrule);
+  void setCrackGrowthMethod(bool use_crack_growth_increment, Real crack_growth_increment);
 
 private:
 
-  void get_frag_edges(const Elem* elem, EFAElement2D* CEMElem,
-                      std::vector<std::vector<Point> > &frag_edges) const;
-  void get_frag_faces(const Elem* elem, EFAElement3D* CEMElem,
-                      std::vector<std::vector<Point> > &frag_faces) const;
+  void getFragmentEdges(const Elem* elem,
+		                EFAElement2D* CEMElem,
+                        std::vector<std::vector<Point> > &frag_edges) const;
+  void getFragmentFaces(const Elem* elem,
+		                EFAElement3D* CEMElem,
+                        std::vector<std::vector<Point> > &frag_faces) const;
 
 private:
   std::vector<MooseSharedPointer<MaterialData> > & _material_data;
@@ -174,7 +192,7 @@ private:
   std::set<const Elem*> _crack_tip_elems;
 
   std::map<const Elem*, std::vector<Point> > _elem_crack_origin_direction_map;
- 
+
   //std::map<const Elem*, Point> _crack_propagation_direction_map;
 
   std::map<const Elem*, RealVectorValue> _state_marked_elems;

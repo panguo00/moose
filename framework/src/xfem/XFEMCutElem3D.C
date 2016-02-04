@@ -56,10 +56,7 @@ XFEMCutElem3D::getNodeCoordinates(EFANode* CEMnode, MeshBase* displaced_mesh) co
       master_points.push_back(node_p);
     }
     else
-    {
-      libMesh::err << " ERROR: master nodes must be local" << std::endl;
-      exit(1);
-    }
+      mooseError("master nodes must be local");
   }
   for (unsigned int i = 0; i < master_nodes.size(); ++i)
     node_coor += master_weights[i]*master_points[i];
@@ -131,10 +128,7 @@ XFEMCutElem3D::getCutPlaneOrigin(unsigned int plane_id, MeshBase* displaced_mesh
     }
   }
   if (cut_plane_nodes.size() == 0)
-  {
-    libMesh::err << " ERROR: no cut plane found in this element"<<std::endl;
-    exit(1);
-  }
+    mooseError("no cut plane found in this element");
   if (plane_id < cut_plane_nodes.size()) // valid plane_id
   {
     std::vector<Point> cut_plane_points;
@@ -165,10 +159,7 @@ XFEMCutElem3D::getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh
     }
   }
   if (cut_plane_nodes.size() == 0)
-  {
-    libMesh::err << " ERROR: no cut plane found in this element"<<std::endl;
-    exit(1);
-  }
+    mooseError("no cut plane found in this element");
   if (plane_id < cut_plane_nodes.size()) // valid plane_id
   {
     std::vector<Point> cut_plane_points;

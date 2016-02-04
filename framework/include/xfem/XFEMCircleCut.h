@@ -1,21 +1,28 @@
+/****************************************************************/
+/*               DO NOT MODIFY THIS HEADER                      */
+/* MOOSE - Multiphysics Object Oriented Simulation Environment  */
+/*                                                              */
+/*           (c) 2010 Battelle Energy Alliance, LLC             */
+/*                   ALL RIGHTS RESERVED                        */
+/*                                                              */
+/*          Prepared by Battelle Energy Alliance, LLC           */
+/*            Under Contract No. DE-AC07-05ID14517              */
+/*            With the U. S. Department of Energy               */
+/*                                                              */
+/*            See COPYRIGHT for full restrictions               */
+/****************************************************************/
 
 #ifndef XFEM_CIRCLE_CUT_H
 #define XFEM_CIRCLE_CUT_H
 
-#include "XFEMGeometricCut.h"
+#include "XFEMGeometricCut3D.h"
 
-class XFEMCircleCut : public XFEMGeometricCut
+class XFEMCircleCut : public XFEMGeometricCut3D
 {
 public:
 
   XFEMCircleCut(std::vector<Real> square_nodes);
   ~XFEMCircleCut();
-
-  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
-
-  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges, std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces, std::vector<cutFace> & cutFaces, Real time);
 
 private:
 
@@ -25,11 +32,9 @@ private:
   Real _radius;
   Real _angle;
 
-private:
+  virtual bool intersectWithEdge(Point p1, Point p2, Point &pint);
 
-  bool intersectWithEdge(Point p1, Point p2, Point &pint);
-  bool isInsideCutPlane(Point p);
+  virtual bool isInsideCutPlane(Point p);
 };
 
 #endif
-

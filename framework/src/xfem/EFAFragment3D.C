@@ -381,7 +381,7 @@ EFAFragment3D::hasFaceWithOneCut() const
 }
 
 void
-EFAFragment3D::getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_ix,
+EFAFragment3D::getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_indices,
                            std::vector<EFANode*> &nodes) const
 {
   // get all nodes' pointers - a vector
@@ -390,17 +390,17 @@ EFAFragment3D::getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_ix
   std::copy(all_node_set.begin(), all_node_set.end(), nodes.begin());
 
   // get face connectivity
-  face_node_ix.clear();
+  face_node_indices.clear();
   for (unsigned int i = 0; i < _faces.size(); ++i)
   {
-    std::vector<unsigned int> line_face_ix;
+    std::vector<unsigned int> line_face_indices;
     for (unsigned int j = 0; j < _faces[i]->numNodes(); ++j)
     {
       EFANode* node = _faces[i]->getNode(j);
       unsigned int vec_index = std::find(nodes.begin(), nodes.end(), node) - nodes.begin();
-      line_face_ix.push_back(vec_index);
+      line_face_indices.push_back(vec_index);
     }
-    face_node_ix.push_back(line_face_ix);
+    face_node_indices.push_back(line_face_indices);
   }
 }
 

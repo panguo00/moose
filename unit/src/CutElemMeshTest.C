@@ -12,6 +12,7 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 #include "CutElemMeshTest.h"
+#include "MooseUtils.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( CutElemMeshTest );
 
@@ -22,7 +23,7 @@ CutElemMeshTest::CutElemMeshTest()
 CutElemMeshTest::~CutElemMeshTest()
 {}
 
-void 
+void
 CutElemMeshTest::CutElemCheckNodes(std::map<unsigned int, EFANode*> & nodes, std::vector<unsigned int> & gold)
 {
   std::map<unsigned int, EFANode*>::iterator mit;
@@ -35,7 +36,7 @@ CutElemMeshTest::CutElemCheckNodes(std::map<unsigned int, EFANode*> & nodes, std
     CPPUNIT_ASSERT(test[i] == gold[i]);
 }
 
-void 
+void
 CutElemMeshTest::CutElemCheckElements(std::vector<EFAElement*> & elems, std::vector<unsigned int> & gold)
 {
   std::vector<EFAElement*>::iterator it;
@@ -48,7 +49,7 @@ CutElemMeshTest::CutElemCheckElements(std::vector<EFAElement*> & elems, std::vec
     CPPUNIT_ASSERT(test[i] == gold[i]);
 }
 
-void 
+void
 CutElemMeshTest::CutElemCheckElements(std::set<EFAElement*> & elems, std::vector<unsigned int> & gold)
 {
   std::set<EFAElement*>::iterator it;
@@ -101,8 +102,8 @@ CutElemMeshTest::case1Common(ElementFragmentAlgorithm &MyMesh)
 void
 CutElemMeshTest::CutElemMeshTest1a()
 {
-  std::cout<<"\n ***** Running case 1a *****"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
+//  Moose::out<<"\n ***** Running case 1a *****"<<std::endl;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case1Common(MyMesh);
 
   //creates all new elements (children)
@@ -110,9 +111,9 @@ CutElemMeshTest::CutElemMeshTest1a()
   //sets the links in the children according to the new temporary nodes
   MyMesh.updateTopology();
 
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
   //CPPUNIT_ASSERT(false);
- 
+
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
   unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7};
@@ -147,8 +148,8 @@ CutElemMeshTest::CutElemMeshTest1a()
 void
 CutElemMeshTest::CutElemMeshTest1b()
 {
-  std::cout<<"\n ***** Running case 1b *****"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
+//  Moose::out<<"\n ***** Running case 1b *****"<<std::endl;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case1Common(MyMesh);
 
   //creates all new elements (children)
@@ -164,7 +165,7 @@ CutElemMeshTest::CutElemMeshTest1b()
 
   MyMesh.updateTopology();
 
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -254,29 +255,49 @@ CutElemMeshTest::case2Intersections(ElementFragmentAlgorithm &MyMesh)
 void
 CutElemMeshTest::CutElemMeshTest2a()
 {
-  std::cout<<"\n ***** Running case 2a *****"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
+//  Moose::out<<"\n ***** Running case 2a *****"<<std::endl;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case2Mesh(MyMesh);
   case2Intersections(MyMesh);
   MyMesh.updateTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
+
+  //Test permanent nodes
+  std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
+  unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+  std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
+  CutElemCheckNodes(permanent_nodes, pn_gold);
+
+  //Test temp nodes
+  std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
+  unsigned int tn[] = {};
+  std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
+  CutElemCheckNodes(temp_nodes, tn_gold);
+
+  //Test embedded nodes
+  std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+  unsigned int en[] = {0, 1, 2, 3};
+  std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
+  CutElemCheckNodes(embedded_nodes, en_gold);
+
+  //Test child elements
+  std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
+  unsigned int ce[] = {3, 4, 5, 6, 7, 8};
+  std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
+  CutElemCheckElements(child_elem, ce_gold);
+
+  //Test parent elements
+  std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
+  unsigned int pe[] = {0, 1, 2};
+  std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
+  CutElemCheckElements(parent_elem, pe_gold);
 }
 
 void CutElemMeshTest::CutElemMeshTest2b()
 {
-  std::cout<<"\n ***** Running case 2b *****"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
-  case2Mesh(MyMesh);
-  case2Intersections(MyMesh);
-  MyMesh.updateTopology(false);
-  MyMesh.printMesh();
-}
-
-void CutElemMeshTest::CutElemMeshTest2c()
-{
-  std::cout<<"\n ***** Running case 2c *****"<<std::endl;
-  std::cout<<"\nCut first element:"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
+//  Moose::out<<"\n ***** Running case 2b *****"<<std::endl;
+//  Moose::out<<"\nCut first element:"<<std::endl;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case2Mesh(MyMesh);
 
   MyMesh.addElemEdgeIntersection((unsigned int) 0,0,0.5);
@@ -286,42 +307,169 @@ void CutElemMeshTest::CutElemMeshTest2c()
   MyMesh.updateTopology(false);
 //  MyMesh.printMesh();
 
-//  std::cout<<"\nCut second element:"<<std::endl;
+  {
+    //Test permanent nodes
+    std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
+    unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
+    CutElemCheckNodes(permanent_nodes, pn_gold);
+
+    //Test temp nodes
+    std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
+    unsigned int tn[] = {};
+    std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
+    CutElemCheckNodes(temp_nodes, tn_gold);
+
+    //Test embedded nodes
+    std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+    unsigned int en[] = {0, 1};
+    std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
+    CutElemCheckNodes(embedded_nodes, en_gold);
+
+    //Test child elements
+    std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
+    unsigned int ce[] = {3, 4, 5};
+    std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
+    CutElemCheckElements(child_elem, ce_gold);
+
+    //Test parent elements
+    std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
+    unsigned int pe[] = {0, 2};
+    std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
+    CutElemCheckElements(parent_elem, pe_gold);
+  }
+
+//  Moose::out<<"\nCut second element:"<<std::endl;
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
-  std::cout<<"\nCut second element:"<<std::endl;
+//  Moose::out<<"\nCut second element:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 1,1,0.5);
 
   MyMesh.updatePhysicalLinksAndFragments();
   MyMesh.updateTopology(false);
 //  MyMesh.printMesh();
 
-//  std::cout<<"\nCut third element:"<<std::endl;
+  {
+    //Test permanent nodes
+    std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
+    unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
+    CutElemCheckNodes(permanent_nodes, pn_gold);
+
+    //Test temp nodes
+    std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
+    unsigned int tn[] = {};
+    std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
+    CutElemCheckNodes(temp_nodes, tn_gold);
+
+    //Test embedded nodes
+    std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+    unsigned int en[] = {0, 1, 2};
+    std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
+    CutElemCheckNodes(embedded_nodes, en_gold);
+
+    //Test child elements
+    std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
+    unsigned int ce[] = {6, 7, 8, 9, 10};
+    std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
+    CutElemCheckElements(child_elem, ce_gold);
+
+    //Test parent elements
+    std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
+    unsigned int pe[] = {1, 3, 4, 5};
+    std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
+    CutElemCheckElements(parent_elem, pe_gold);
+  }
+
+//  Moose::out<<"\nCut third element:"<<std::endl;
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
-  std::cout<<"\nCut third element:"<<std::endl;
+//  Moose::out<<"\nCut third element:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 6,2,0.5);// I cheated here
 
   MyMesh.updatePhysicalLinksAndFragments();
   MyMesh.updateTopology(false);
 //  MyMesh.printMesh();
 
-//  std::cout<<"\nFinal:"<<std::endl;
+  {
+    //Test permanent nodes
+    std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
+    unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
+    std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
+    CutElemCheckNodes(permanent_nodes, pn_gold);
+
+    //Test temp nodes
+    std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
+    unsigned int tn[] = {};
+    std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
+    CutElemCheckNodes(temp_nodes, tn_gold);
+
+    //Test embedded nodes
+    std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+    unsigned int en[] = {0, 1, 2, 3};
+    std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
+    CutElemCheckNodes(embedded_nodes, en_gold);
+
+    //Test child elements
+    std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
+    unsigned int ce[] = {11, 12, 13, 14, 15};
+    std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
+    CutElemCheckElements(child_elem, ce_gold);
+
+    //Test parent elements
+    std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
+    unsigned int pe[] = {6, 8, 9, 10};
+    std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
+    CutElemCheckElements(parent_elem, pe_gold);
+  }
+
+//  Moose::out<<"\nFinal:"<<std::endl;
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
+  {
+    //Test permanent nodes
+    std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
+    unsigned int pn[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
+    std::vector<unsigned int> pn_gold (pn, pn + sizeof(pn) / sizeof(unsigned int) );
+    CutElemCheckNodes(permanent_nodes, pn_gold);
+
+    //Test temp nodes
+    std::map<unsigned int, EFANode*> temp_nodes = MyMesh.getTempNodes();
+    unsigned int tn[] = {};
+    std::vector<unsigned int> tn_gold (tn, tn + sizeof(tn) / sizeof(unsigned int) );
+    CutElemCheckNodes(temp_nodes, tn_gold);
+
+    //Test embedded nodes
+    std::map<unsigned int, EFANode*> embedded_nodes = MyMesh.getEmbeddedNodes();
+    unsigned int en[] = {0, 1, 2, 3};
+    std::vector<unsigned int> en_gold (en, en + sizeof(en) / sizeof(unsigned int) );
+    CutElemCheckNodes(embedded_nodes, en_gold);
+
+    //Test child elements
+    std::vector<EFAElement*> child_elem = MyMesh.getChildElements();
+    unsigned int ce[] = {};
+    std::vector<unsigned int> ce_gold (ce, ce + sizeof(ce) / sizeof(unsigned int) );
+    CutElemCheckElements(child_elem, ce_gold);
+
+    //Test parent elements
+    std::vector<EFAElement*> parent_elem = MyMesh.getParentElements();
+    unsigned int pe[] = {};
+    std::vector<unsigned int> pe_gold (pe, pe + sizeof(pe) / sizeof(unsigned int) );
+    CutElemCheckElements(parent_elem, pe_gold);
+  }
 }
 
 void CutElemMeshTest::CutElemMeshTest3()
 {
-  std::cout<<"\n ***** Running case 3 *****"<<std::endl;
+//  Moose::out<<"\n ***** Running case 3 *****"<<std::endl;
 
   // 0 ----- 1 ----- 2
   // |       |       |
@@ -348,7 +496,7 @@ void CutElemMeshTest::CutElemMeshTest3()
   std::vector<unsigned int> v4 (q4, q4 + sizeof(q4) / sizeof(unsigned int) );
   quads2.push_back(v4);
 
-  ElementFragmentAlgorithm MyMesh;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   MyMesh.add2DElements( quads );
   MyMesh.add2DElements( quads2 ); //do in 2 batches just to test that it works
 
@@ -375,7 +523,7 @@ void CutElemMeshTest::CutElemMeshTest3()
   MyMesh.updatePhysicalLinksAndFragments();
   MyMesh.updateTopology();
 
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -410,9 +558,9 @@ void CutElemMeshTest::CutElemMeshTest3()
 
 void CutElemMeshTest::CutElemMeshTest4()
 {
-  std::cout<<"\n ***** Running case 4 *****"<<std::endl;
+//  Moose::out<<"\n ***** Running case 4 *****"<<std::endl;
 
-  ElementFragmentAlgorithm MyMesh;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
 
   {
     unsigned int qary[] = {0, 1, 2, 3};
@@ -522,7 +670,7 @@ void CutElemMeshTest::CutElemMeshTest4()
   MyMesh.updatePhysicalLinksAndFragments();
   MyMesh.updateTopology();
 
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -604,12 +752,12 @@ void CutElemMeshTest::CutElemMeshTest5a()
   // |       |   |   |       |
   // 8 ----- 9 --x--10 -----11
 
-  ElementFragmentAlgorithm MyMesh;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case5Mesh(MyMesh);
 
   // add the horizontal cut
-  std::cout<<"\n ***** Running case 5a *****"<<std::endl;
-  std::cout<<"\nFirst cut:"<<std::endl;
+//  Moose::out<<"\n ***** Running case 5a *****"<<std::endl;
+//  Moose::out<<"\nFirst cut:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 0,0,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 0,2,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 1,2,0.5);
@@ -620,7 +768,7 @@ void CutElemMeshTest::CutElemMeshTest5a()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -653,7 +801,7 @@ void CutElemMeshTest::CutElemMeshTest5a()
   CutElemCheckElements(parent_elem, pe_gold);
 
   // add the lower part of the vertical cut
-  std::cout<<"\nSecond cut:"<<std::endl;
+//  Moose::out<<"\nSecond cut:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 4,1,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 4,3,0.5);
 
@@ -662,7 +810,7 @@ void CutElemMeshTest::CutElemMeshTest5a()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes2 = MyMesh.getPermanentNodes();
@@ -695,7 +843,7 @@ void CutElemMeshTest::CutElemMeshTest5a()
   CutElemCheckElements(parent_elem2, pe_gold2);
 
   // add the upper vertical cut
-  std::cout<<"\nThird cut:"<<std::endl;
+//  Moose::out<<"\nThird cut:"<<std::endl;
   MyMesh.addFragEdgeIntersection((unsigned int) 14,3,0.5); // I cheated here
 
   MyMesh.updatePhysicalLinksAndFragments();
@@ -703,7 +851,7 @@ void CutElemMeshTest::CutElemMeshTest5a()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes3 = MyMesh.getPermanentNodes();
@@ -748,12 +896,12 @@ void CutElemMeshTest::CutElemMeshTest5b()
   // |       |   |   |       |
   // 8 ----- 9 --x--10 -----11
 
-  ElementFragmentAlgorithm MyMesh;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case5Mesh(MyMesh);
 
   // add the horizontal cut
-  std::cout<<"\n ***** Running case 5b *****"<<std::endl;
-  std::cout<<"\nFirst cut:"<<std::endl;
+//  Moose::out<<"\n ***** Running case 5b *****"<<std::endl;
+//  Moose::out<<"\nFirst cut:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 0,0,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 0,2,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 1,2,0.5);
@@ -764,7 +912,7 @@ void CutElemMeshTest::CutElemMeshTest5b()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -797,7 +945,7 @@ void CutElemMeshTest::CutElemMeshTest5b()
   CutElemCheckElements(parent_elem, pe_gold);
 
   // add the upper part of the vertical cut
-  std::cout<<"\nSecond cut:"<<std::endl;
+//  Moose::out<<"\nSecond cut:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 9,1,0.5);
   MyMesh.addFragEdgeIntersection((unsigned int) 9,2,0.5); // I cheated here
 
@@ -806,7 +954,7 @@ void CutElemMeshTest::CutElemMeshTest5b()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes2 = MyMesh.getPermanentNodes();
@@ -839,7 +987,7 @@ void CutElemMeshTest::CutElemMeshTest5b()
   CutElemCheckElements(parent_elem2, pe_gold2);
 
   // add the lower vertical cut
-  std::cout<<"\nThird cut:"<<std::endl;
+//  Moose::out<<"\nThird cut:"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 12,1,0.5); // I cheated here
 
   MyMesh.updatePhysicalLinksAndFragments();
@@ -847,7 +995,7 @@ void CutElemMeshTest::CutElemMeshTest5b()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes3 = MyMesh.getPermanentNodes();
@@ -892,11 +1040,11 @@ void CutElemMeshTest::CutElemMeshTest5c()
   // |       |   |   |       |
   // 8 ----- 9 --x--10 -----11
 
-  ElementFragmentAlgorithm MyMesh;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case5Mesh(MyMesh);
 
   // add the horizontal cut
-  std::cout<<"\n ***** Running case 5c *****"<<std::endl;
+//  Moose::out<<"\n ***** Running case 5c *****"<<std::endl;
   MyMesh.addElemEdgeIntersection((unsigned int) 0,0,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 0,2,0.5);
   MyMesh.addElemEdgeIntersection((unsigned int) 1,1,0.5);
@@ -909,7 +1057,7 @@ void CutElemMeshTest::CutElemMeshTest5c()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -984,10 +1132,10 @@ CutElemMeshTest::case6Mesh(ElementFragmentAlgorithm &MyMesh)
 void
 CutElemMeshTest::CutElemMeshTest6a()
 {
-  std::cout<<"\n ***** Running case 6a *****"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
+//  Moose::out<<"\n ***** Running case 6a *****"<<std::endl;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case6Mesh(MyMesh);
-//  std::cout << " ***** original mesh *****" << std::endl;
+//  Moose::out << " ***** original mesh *****" << std::endl;
 //  MyMesh.printMesh();
 
   std::vector<unsigned int> cut_edge_id(2,0);
@@ -1008,7 +1156,7 @@ CutElemMeshTest::CutElemMeshTest6a()
   MyMesh.clearAncestry();
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
-//  std::cout << " ***** new mesh *****" << std::endl;
+//  Moose::out << " ***** new mesh *****" << std::endl;
   // second time, just test
   MyMesh.updatePhysicalLinksAndFragments();
   MyMesh.updateTopology();
@@ -1016,15 +1164,15 @@ CutElemMeshTest::CutElemMeshTest6a()
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();
 
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   // print crack tip elems
-  std::cout << " ***** crack tip elements *****" << std::endl;
+//  Moose::out << " ***** crack tip elements *****" << std::endl;
   std::set<EFAElement*> crack_tip_elem = MyMesh.getCrackTipElements();
-  std::set<EFAElement*>::iterator it;
-  for (it = crack_tip_elem.begin(); it != crack_tip_elem.end(); ++it)
-    std::cout << (*it)->id() << " ";
-  std::cout << std::endl;
+//  std::set<EFAElement*>::iterator it;
+//  for (it = crack_tip_elem.begin(); it != crack_tip_elem.end(); ++it)
+//    Moose::out << (*it)->id() << " ";
+//  Moose::out << std::endl;
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -1065,8 +1213,8 @@ CutElemMeshTest::CutElemMeshTest6a()
 void
 CutElemMeshTest::CutElemMeshTest6b()
 {
-  std::cout<<"\n ***** Running case 6b *****"<<std::endl;
-  ElementFragmentAlgorithm MyMesh;
+//  Moose::out<<"\n ***** Running case 6b *****"<<std::endl;
+  ElementFragmentAlgorithm MyMesh(Moose::out);
   case6Mesh(MyMesh);
 
   std::vector<unsigned int> cut_edge_id(2,0);
@@ -1122,8 +1270,7 @@ CutElemMeshTest::CutElemMeshTest6b()
 
   MyMesh.updatePhysicalLinksAndFragments();
   MyMesh.updateTopology();
-  std::cout << "***** right after updateTopology *****" << std::endl;
-  MyMesh.printMesh();
+//  MyMesh.printMesh();
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes = MyMesh.getPermanentNodes();
@@ -1167,16 +1314,16 @@ CutElemMeshTest::CutElemMeshTest6b()
   MyMesh.updateEdgeNeighbors();
   MyMesh.initCrackTipTopology();*/
 
-  std::cout << "***** final mesh *****" << std::endl;
-  MyMesh.printMesh();
+//  Moose::out << "***** final mesh *****" << std::endl;
+//  MyMesh.printMesh();
 
  // print crack tip elems
-  std::cout << " ***** crack tip elements *****" << std::endl;
+//  Moose::out << " ***** crack tip elements *****" << std::endl;
   std::set<EFAElement*> crack_tip_elem = MyMesh.getCrackTipElements();
-  std::set<EFAElement*>::iterator it;
-  for (it = crack_tip_elem.begin(); it != crack_tip_elem.end(); ++it)
-    std::cout << (*it)->id() << " ";
-  std::cout << std::endl;
+//  std::set<EFAElement*>::iterator it;
+//  for (it = crack_tip_elem.begin(); it != crack_tip_elem.end(); ++it)
+//    Moose::out << (*it)->id() << " ";
+//  Moose::out << std::endl;
 
   //Test permanent nodes
   std::map<unsigned int, EFANode*> permanent_nodes2 = MyMesh.getPermanentNodes();

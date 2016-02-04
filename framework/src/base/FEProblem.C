@@ -697,7 +697,7 @@ FEProblem::prepare(const Elem * elem, THREAD_ID tid)
 {
   if (haveXFEM() &&
       elem->is_semilocal(_mesh.processor_id()) &&
-      _xfem->is_elem_cut(elem))
+      _xfem->isElemCut(elem))
   {
     if (_xfem_weights[elem->id()].size() == 0)
       computeXFEMWeights(elem,tid);
@@ -3799,7 +3799,7 @@ FEProblem::computeXFEMWeights(const Elem * elem, THREAD_ID tid)
 
   _xfem_weights[elem->id()].resize((_assembly[tid]->qRule())->n_points(), 1.0);
 
-  switch (_xfem->get_xfem_qrule())
+  switch (_xfem->getXFEMQRule())
   {
     case VOLFRAC:
     {

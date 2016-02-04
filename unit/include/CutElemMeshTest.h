@@ -30,7 +30,6 @@ class CutElemMeshTest : public CppUnit::TestFixture
   CPPUNIT_TEST( CutElemMeshTest1b );
   CPPUNIT_TEST( CutElemMeshTest2a );
   CPPUNIT_TEST( CutElemMeshTest2b );
-  CPPUNIT_TEST( CutElemMeshTest2c );
   CPPUNIT_TEST( CutElemMeshTest3 );
   CPPUNIT_TEST( CutElemMeshTest4 );
   CPPUNIT_TEST( CutElemMeshTest5a );
@@ -54,7 +53,6 @@ public:
   void case2Mesh(ElementFragmentAlgorithm &MyMesh);
   void CutElemMeshTest2a();
   void CutElemMeshTest2b();
-  void CutElemMeshTest2c();
 
   void CutElemMeshTest3();
 

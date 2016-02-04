@@ -37,7 +37,7 @@ XFEMMarkerAux::XFEMMarkerAux(const InputParameters & parameters)
 Real
 XFEMMarkerAux::computeValue()
 {
-  bool isCTE = _xfem->is_elem_at_crack_tip(_current_elem);
+  bool isCTE = _xfem->isElemAtCrackTip(_current_elem);
   Real value = 0.0;
   if (isCTE)
   {

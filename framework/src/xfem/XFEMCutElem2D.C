@@ -31,7 +31,6 @@ XFEMCutElem2D::XFEMCutElem2D(Elem* elem, const EFAElement2D * const CEMelem, uns
   _efa_elem2d(CEMelem, true)
 {
   computePhysicalVolumeFraction();
-//  calc_mf_weights();
 }
 
 XFEMCutElem2D::~XFEMCutElem2D()
@@ -57,11 +56,8 @@ XFEMCutElem2D::getNodeCoordinates(EFANode* CEMnode, MeshBase* displaced_mesh) co
       master_points.push_back(node_p);
     }
     else
-    {
-      libMesh::err << " ERROR: master nodes must be local"<<std::endl;
-      exit(1);
-    }
-  } // i
+      mooseError("master nodes must be local");
+  }
   for (unsigned int i = 0; i < master_nodes.size(); ++i)
     node_coor += master_weights[i]*master_points[i];
   return node_coor;
@@ -122,10 +118,7 @@ XFEMCutElem2D::getCutPlaneOrigin(unsigned int plane_id, MeshBase* displaced_mesh
     }
   }
   if (cut_line_nodes.size() == 0)
-  {
-    libMesh::err << " ERROR: no cut line found in this element"<<std::endl;
-    exit(1);
-  }
+    mooseError("no cut line found in this element");
   if (plane_id < cut_line_nodes.size()) // valid plane_id
     orig = getNodeCoordinates(cut_line_nodes[plane_id][0], displaced_mesh);
   return orig;
@@ -147,10 +140,7 @@ XFEMCutElem2D::getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh
     }
   }
   if (cut_line_nodes.size() == 0)
-  {
-    libMesh::err << " ERROR: no cut line found in this element"<<std::endl;
-    exit(1);
-  }
+    mooseError("no cut line found in this element");
   if (plane_id < cut_line_nodes.size()) // valid plane_id
   {
     Point cut_line_p1 = getNodeCoordinates(cut_line_nodes[plane_id][0], displaced_mesh);
@@ -190,10 +180,7 @@ XFEMCutElem2D::getCrackTipOriginAndDirection(unsigned tip_id, Point & origin, Po
     }
   }
   if (cut_line_nodes.size() == 0)
-  {
-    libMesh::err << " ERROR: no cut line found in this element"<<std::endl;
-    exit(1);
-  }
+    mooseError("no cut line found in this element");
 
   Point cut_line_p1 = getNodeCoordinates(cut_line_nodes[0]);
   Point cut_line_p2 = getNodeCoordinates(cut_line_nodes[1]);

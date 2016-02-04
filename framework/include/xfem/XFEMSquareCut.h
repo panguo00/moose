@@ -15,32 +15,18 @@
 #ifndef XFEM_SQUARE_CUT_H
 #define XFEM_SQUARE_CUT_H
 
-#include "XFEMGeometricCut.h"
+#include "XFEMGeometricCut3D.h"
 
-class XFEMSquareCut : public XFEMGeometricCut
+class XFEMSquareCut : public XFEMGeometricCut3D
 {
 public:
 
   XFEMSquareCut(std::vector<Real> square_nodes);
   ~XFEMSquareCut();
 
-  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time);
-
-  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges,
-                            std::vector<cutEdge> & cutEdges, Real time);
-  virtual bool cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces,
-                            std::vector<cutFace> & cutFaces, Real time);
-
 private:
-
   std::vector<Point> _vertices;
-  Point _center;
-  Point _normal;
 
-private:
-
-  bool intersectWithEdge(Point p1, Point p2, Point &pint);
   bool isInsideCutPlane(Point p);
 };
 

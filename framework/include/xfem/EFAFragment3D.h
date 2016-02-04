@@ -60,7 +60,7 @@ public:
   EFAFace* getAdjacentFace(unsigned int face_id, unsigned int edge_id) const;
   void removeEmbeddedNode(EFANode* emb_node);
   bool hasFaceWithOneCut() const;
-  void getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_ix,
+  void getNodeInfo(std::vector<std::vector<unsigned int> > &face_node_indices,
                      std::vector<EFANode*> &nodes) const;
 
 private:
