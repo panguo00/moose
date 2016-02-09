@@ -74,6 +74,7 @@
 #include "Control.h"
 #include "ScalarInitialCondition.h"
 #include "InternalSideIndicator.h"
+#include "XFEM.h"
 
 #include "libmesh/exodusII_io.h"
 #include "libmesh/quadrature.h"

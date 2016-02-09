@@ -31,7 +31,6 @@
 #include "PetscSupport.h"
 #include "MooseApp.h"
 #include "ExecuteMooseObjectWarehouse.h"
-#include "XFEM.h"
 
 // libMesh includes
 #include "libmesh/enum_quadrature_type.h"
@@ -60,6 +59,7 @@ class Indicator;
 class InternalSideIndicator;
 class Marker;
 class Material;
+class XFEM;
 
 // libMesh forward declarations
 namespace libMesh
