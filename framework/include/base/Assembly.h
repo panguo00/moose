@@ -687,7 +687,7 @@ protected:
    * Ok - here's the design.  One ElementFEShapeData class will be stored per element in _fe_shape_data_cache.
    * When reinit() is called on an element we will retrieve the ElementFEShapeData class associated with that
    * element.  If it's NULL we'll make one.  Then we'll store a copy of the shape functions computed on that
-   * element within shape_data and JxW and q_points within EleementFEShapeData.
+   * element within shape_data and JxW and q_points within ElementFEShapeData.
    */
   class ElementFEShapeData
   {
