@@ -27,12 +27,8 @@ public:
 private:
 
   std::vector<Point> _vertices;
-  Point _center;
-  Point _normal;
   Real _radius;
   Real _angle;
-
-  virtual bool intersectWithEdge(Point p1, Point p2, Point &pint);
 
   virtual bool isInsideCutPlane(Point p);
 };

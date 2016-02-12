@@ -46,28 +46,6 @@ XFEMCircleCut::XFEMCircleCut(std::vector<Real> circle_nodes):
 XFEMCircleCut::~XFEMCircleCut()
 {}
 
-//BWS TODO: This is identical to the one in XFEMGeometricCut3D, but the penny crack test fails if I don't overwrite it
-bool
-XFEMCircleCut::intersectWithEdge(Point p1, Point p2, Point &pint)
-{
-  bool has_intersection = false;
-  double plane_point[3] = {_center(0), _center(1), _center(2)};
-  double plane_normal[3] = {_normal(0), _normal(1), _normal(2)};
-  double edge_point1[3] = {p1(0), p1(1), p1(2)};
-  double edge_point2[3] = {p2(0), p2(1), p2(2)};
-  double cut_point[3] = {0.0,0.0,0.0};
-
-  if(plane_normal_line_exp_int_3d(plane_point, plane_normal, edge_point1, edge_point2, cut_point) == 1) {
-    Point temp_p(cut_point[0], cut_point[1], cut_point[2]);
-    if( isInsideCutPlane(temp_p) && isInsideEdge(p1, p2, temp_p) )
-    {
-      pint = temp_p;
-      has_intersection = true;
-    }
-  }
-  return has_intersection;
-}
-
 bool XFEMCircleCut::isInsideCutPlane(Point p){
     Point ray = p - _center;
     if( std::abs(ray*_normal)<1e-15 && std::sqrt(ray.size_sq()) < _radius )
