@@ -72,7 +72,7 @@ bool XFEMEllipseCut::isInsideCutPlane(Point p){
        double yloc = ray*_unit_vec2;
 
        if(std::sqrt( xloc*xloc/(_long_axis*_long_axis) + yloc*yloc/(_short_axis*_short_axis) ) < 1)
-	 return true;
+         return true;
     }
     return false;
 }

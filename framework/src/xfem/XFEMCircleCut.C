@@ -71,7 +71,7 @@ XFEMCircleCut::intersectWithEdge(Point p1, Point p2, Point &pint)
 bool XFEMCircleCut::isInsideCutPlane(Point p){
     Point ray = p - _center;
     if( std::abs(ray*_normal)<1e-15 && std::sqrt(ray.size_sq()) < _radius )
-	return true;
+      return true;
     return false;
 }
 

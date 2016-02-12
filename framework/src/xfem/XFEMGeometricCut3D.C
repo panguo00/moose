@@ -82,7 +82,7 @@ XFEMGeometricCut3D::cutElementByGeometry(const Elem* elem,
         {
           cut_edges.push_back(j);
           cut_pos.push_back(getRelativePosition(p1,p2,pint));
-	}
+        }
       }
 
       if (cut_edges.size() == 2)

@@ -411,14 +411,14 @@ EFAElement3D::initCrackTip(std::set<EFAElement*> &CrackTipElements)
         //Flag neighbors as crack tip split elements and add this element as their crack tip neighbor.
         if  (_face_neighbors[face_iter][0]->overlaysElement(this) ||
              _face_neighbors[face_iter][1]->overlaysElement(this))
-	  EFAError("Element has a neighbor that overlays itself");
+          EFAError("Element has a neighbor that overlays itself");
 
         //Make sure the current elment hasn't been flagged as a tip element
         if (_crack_tip_split_element)
           EFAError("crack_tip_split_element already flagged.  In elem: "<<_id
-		   << " flags: "<<_crack_tip_split_element
-		   <<" "<<_face_neighbors[face_iter][0]->isCrackTipSplit()
-		   <<" "<<_face_neighbors[face_iter][1]->isCrackTipSplit());
+                   << " flags: "<<_crack_tip_split_element
+                   <<" "<<_face_neighbors[face_iter][0]->isCrackTipSplit()
+                   <<" "<<_face_neighbors[face_iter][1]->isCrackTipSplit());
 
         _face_neighbors[face_iter][0]->setCrackTipSplit();
         _face_neighbors[face_iter][1]->setCrackTipSplit();
@@ -1652,7 +1652,7 @@ EFAElement3D::checkNeighborFaceCut(unsigned int face_id, unsigned int edge_id, d
 
 void
 EFAElement3D::mapParametricCoordinateFrom2DTo3D(unsigned int face_id,
-		                                        std::vector<double> &xi_2d,
+                                                std::vector<double> &xi_2d,
                                                 std::vector<double> &xi_3d) const
 {
   // given the coords of a point in a 2D face, translate it to 3D parametric coords
