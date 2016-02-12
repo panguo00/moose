@@ -47,11 +47,6 @@ public:
   virtual void getFragmentFaces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const;
   virtual const EFAElement * getEFAElement() const;
   virtual unsigned int numCutPlanes() const;
-
-private:
-  double polyhedron_volume_3d(double coord[], int order_max, int face_num,
-                              int node[], int node_num, int order[]) const;
-  void i4vec_zero(int n, int a[]) const;
 };
 
 #endif

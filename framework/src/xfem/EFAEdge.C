@@ -287,14 +287,18 @@ unsigned int
 EFAEdge::getEmbeddedNodeIndex(EFANode * node) const
 {
   unsigned int index = 99999;
+  bool have_index = false;
   for (unsigned int i = 0; i < _embedded_nodes.size(); ++i)
   {
     if (_embedded_nodes[i] == node)
     {
+      have_index = true;
       index = i;
       break;
     }
   }
+  if (!have_index)
+    EFAError("In getEmbeddedNodeIndex, could not find index");
   return index;
 }
 
@@ -302,6 +306,7 @@ unsigned int
 EFAEdge::getEmbeddedNodeIndex(double position, EFANode* from_node) const
 {
   unsigned int index = 99999;
+  bool have_index = false;
   double tol = 1.e-4;
   if (hasIntersection())
   {
@@ -317,11 +322,14 @@ EFAEdge::getEmbeddedNodeIndex(double position, EFANode* from_node) const
     {
       if (std::abs(tmp_intersection_x - _intersection_x[i]) < tol)
       {
+        have_index = true;
         index = i;
         break;
       }
     }
   }
+  if (!have_index)
+    EFAError("In getEmbeddedNodeIndex, could not find index");
   return index;
 }
 

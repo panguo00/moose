@@ -12,6 +12,13 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
+/****************************************************************/
+/* This file also contains modified functions from libMesh and  */
+/* the geometry library of John Burkardt                        */
+/* http://people.sc.fsu.edu/~jburkardt/                         */
+/* These libraries are both distributed under the LGPL          */
+/****************************************************************/
+
 #include "XFEMFuncs.h"
 
 #include "MooseError.h"
@@ -399,22 +406,12 @@ int plane_normal_line_exp_int_3d(double pp[3], double normal[3], double p1[3], d
 //
 //  Make sure the line is not degenerate.
   if (line_exp_is_degenerate_nd(DIM_NUM, p1, p2))
-  {
-    std::cerr << "\n";
-    std::cerr << "PLANE_NORMAL_LINE_EXP_INT_3D - Fatal error!\n";
-    std::cerr << "  The line is degenerate.\n";
-    exit ( 1 );
-  }
+    mooseError("PLANE_NORMAL_LINE_EXP_INT_3D - Fatal error!  The line is degenerate.");
 //
 //  Make sure the plane normal vector is a unit vector.
   temp = r8vec_norm(DIM_NUM, normal);
   if (temp == 0.0)
-  {
-    std::cerr << "\n";
-    std::cerr << "PLANE_NORMAL_LINE_EXP_INT_3D - Fatal error!\n";
-    std::cerr << "  The normal vector of the plane is degenerate.\n";
-    exit ( 1 );
-  }
+    mooseError("PLANE_NORMAL_LINE_EXP_INT_3D - Fatal error!  The normal vector of the plane is degenerate.");
 
   for (unsigned int i = 0; i < DIM_NUM; ++i)
     normal[i] = normal[i]/temp;
@@ -463,6 +460,140 @@ int plane_normal_line_exp_int_3d(double pp[3], double normal[3], double p1[3], d
 
   return ival;
 # undef DIM_NUM
+}
+
+double polyhedron_volume_3d(double coord[], int order_max, int face_num,
+                                    int node[], int /*node_num*/, int order[])
+//****************************************************************************80
+//
+//  Purpose:
+//
+//    POLYHEDRON_VOLUME_3D computes the volume of a polyhedron in 3D.
+//
+//  Licensing:
+//
+//    This code is distributed under the GNU LGPL license.
+//
+//  Modified:
+//
+//    21 August 2003
+//
+//  Author:
+//
+//    John Burkardt
+//
+//  Parameters:
+//
+//    Input, double COORD[NODE_NUM*3], the 3D coordinates of the vertices.
+//    The vertices may be listed in any order.
+//
+//    Input, int ORDER_MAX, the maximum number of vertices that make
+//    up a face of the polyhedron.
+//
+//    Input, int FACE_NUM, the number of faces of the polyhedron.
+//
+//    Input, int NODE[FACE_NUM*ORDER_MAX].  Face I is defined by
+//    the vertices NODE(I,1) through NODE(I,ORDER(I)).  These vertices
+//    are listed in neighboring order.
+//
+//    Input, int NODE_NUM, the number of points stored in COORD.
+//
+//    Input, int ORDER[FACE_NUM], the number of vertices making up
+//    each face.
+//
+//    Output, double POLYHEDRON_VOLUME_3D, the volume of the polyhedron.
+//
+{
+# define DIM_NUM 3
+
+  int face;
+  int n1;
+  int n2;
+  int n3;
+  double term;
+  int v;
+  double volume;
+  double x1;
+  double x2;
+  double x3;
+  double y1;
+  double y2;
+  double y3;
+  double z1;
+  double z2;
+  double z3;
+//
+  volume = 0.0;
+//
+//  Triangulate each face.
+//
+  for ( face = 0; face < face_num; face++ )
+  {
+    n3 = node[order[face]-1+face*order_max];
+    x3 = coord[0+n3*3];
+    y3 = coord[1+n3*3];
+    z3 = coord[2+n3*3];
+
+    for ( v = 0; v < order[face] - 2; v++ )
+    {
+      n1 = node[v+face*order_max];
+      x1 = coord[0+n1*3];
+      y1 = coord[1+n1*3];
+      z1 = coord[2+n1*3];
+
+      n2 = node[v+1+face*order_max];
+      x2 = coord[0+n2*3];
+      y2 = coord[1+n2*3];
+      z2 = coord[2+n2*3];
+
+      term = x1 * y2 * z3 - x1 * y3 * z2
+           + x2 * y3 * z1 - x2 * y1 * z3
+           + x3 * y1 * z2 - x3 * y2 * z1;
+
+      volume = volume + term;
+    }
+
+  }
+
+  volume = volume / 6.0;
+
+  return volume;
+# undef DIM_NUM
+}
+
+void i4vec_zero ( int n, int a[] )
+//****************************************************************************80
+//
+//  Purpose:
+//
+//    I4VEC_ZERO zeroes an I4VEC.
+//
+//  Licensing:
+//
+//    This code is distributed under the GNU LGPL license.
+//
+//  Modified:
+//
+//    01 August 2005
+//
+//  Author:
+//
+//    John Burkardt
+//
+//  Parameters:
+//
+//    Input, int N, the number of entries in the vector.
+//
+//    Output, int A[N], a vector of zeroes.
+//
+{
+  int i;
+
+  for ( i = 0; i < n; i++ )
+  {
+    a[i] = 0;
+  }
+  return;
 }
 
 void normalizePoint(Point & p)

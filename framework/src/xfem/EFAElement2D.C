@@ -519,7 +519,8 @@ EFAElement2D::getCrackTipSplitElementID() const
       }
     }
   }
-  return 9999;
+  EFAError("In getCrackTipSplitElementID could not find element id");
+  return 0;
 }
 
 bool
@@ -1271,7 +1272,7 @@ EFAElement2D::getPhantomNodeOnEdge(unsigned int edge_id) const
       }
       if (!node_in_frag)
         phantom_nodes.insert(_edges[edge_id]->getNode(j));
-    } // j
+    }
   }
   return phantom_nodes;
 }
@@ -1294,7 +1295,7 @@ EFAElement2D::getFragmentEdgeID(unsigned int elem_edge_id, unsigned int &frag_ed
         frag_edge_found = true;
         break;
       }
-    } // j
+    }
   }
   return frag_edge_found;
 }
@@ -1384,14 +1385,14 @@ EFAElement2D::getTipEdgeID() const
         {
           if (_edges[i]->containsEdge(*_fragments[0]->getEdge(j)))
             num_frag_edges += 1;
-        } // j
+        }
         if (num_frag_edges == 2) // element edge contains two fragment edges
         {
           tip_edge_id = i;
           break;
         }
       }
-    } // i
+    }
   }
   return tip_edge_id;
 }
@@ -1618,7 +1619,7 @@ EFAElement2D::addFragmentEdgeCut(unsigned int frag_edge_id, double position,
         _interior_nodes.push_back(new EFAFaceNode(local_embedded, xi, eta));
       }
       else
-        EFAError("elem: "<<_id<<" cannot get the para coords of two end embedded nodes");
+        EFAError("elem: "<<_id<<" cannot get the parametric coords of two end embedded nodes");
     }
     // no need to add intersection for neighbor fragment - if this fragment has a
     // neighbor fragment, the neighbor has already been treated in addEdgeIntersection;

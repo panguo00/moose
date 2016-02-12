@@ -12,6 +12,13 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
+/****************************************************************/
+/* This file also contains modified functions from libMesh and  */
+/* the geometry library of John Burkardt                        */
+/* http://people.sc.fsu.edu/~jburkardt/                         */
+/* These libraries are both distributed under the LGPL          */
+/****************************************************************/
+
 #ifndef XFEMFUNCS_H
 #define XFEMFUNCS_H
 
@@ -41,6 +48,11 @@ double r8vec_dot_product(int n, double a1[], double a2[]);
 bool line_exp_is_degenerate_nd(int dim_num, double p1[], double p2[]);
 
 int plane_normal_line_exp_int_3d(double pp[3], double normal[3], double p1[3], double p2[3], double pint[3]);
+
+double polyhedron_volume_3d(double coord[], int order_max, int face_num,
+                            int node[], int node_num, int order[]);
+
+void i4vec_zero(int n, int a[]);
 
 void normalizePoint(Point & p);
 
