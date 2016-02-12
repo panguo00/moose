@@ -52,9 +52,7 @@ public:
 
 private:
 
-  void computeMomentFittingWeights(unsigned int nen, unsigned int nqp, std::vector<Point> &elem_nodes,
-                     std::vector<std::vector<Real> > &wsg);
-  void getPhysicalQuadraturePoints(unsigned int nen, std::vector<std::vector<Real> > &tsg);
+  void getPhysicalQuadraturePoints(std::vector<std::vector<Real> > &tsg);
   void solveMomentFitting(unsigned int nen, unsigned int nqp, std::vector<Point> &elem_nodes,
                 std::vector<std::vector<Real> > &tsg, std::vector<std::vector<Real> > &wsg);
 

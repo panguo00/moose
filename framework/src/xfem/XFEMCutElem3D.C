@@ -76,15 +76,15 @@ XFEMCutElem3D::computePhysicalVolumeFraction()
   int node_num = frag_nodes.size();
 
   int order_max = 0;
-  int order[face_num];
-  for (unsigned int i = 0; i < face_num; ++i)
+  int *order = new int[face_num];
+  for (int i = 0; i < face_num; ++i)
   {
-    if (frag_face_indices[i].size() > order_max)
+    if (frag_face_indices[i].size() > (unsigned int) order_max)
       order_max = frag_face_indices[i].size();
     order[i] = frag_face_indices[i].size();
   }
 
-  double coord[3*node_num];
+  double *coord = new double[3*node_num];
   for (unsigned int i = 0; i < frag_nodes.size(); ++i)
   {
     Point p = getNodeCoordinates(frag_nodes[i]);
@@ -93,15 +93,19 @@ XFEMCutElem3D::computePhysicalVolumeFraction()
     coord[3*i + 2] = p(2);
   }
 
-  int node[face_num*order_max];
+  int *node = new int[face_num*order_max];
   i4vec_zero(face_num*order_max, node);
-  for (unsigned int i = 0; i < face_num; ++i)
+  for (int i = 0; i < face_num; ++i)
     for (unsigned int j = 0; j < frag_face_indices[i].size(); ++j)
       node[order_max*i + j] = frag_face_indices[i][j];
 
   // compute fragment volume and volume fraction
   frag_vol = polyhedron_volume_3d(coord, order_max, face_num, node, node_num, order);
   _physical_volfrac = frag_vol/_elem_volume;
+
+  delete [] order;
+  delete [] coord;
+  delete [] node;
 }
 
 void
@@ -185,16 +189,17 @@ XFEMCutElem3D::getCutPlaneNormal(unsigned int plane_id, MeshBase* displaced_mesh
 }
 
 void
-XFEMCutElem3D::getCrackTipOriginAndDirection(unsigned tip_id, Point & origin, Point & direction) const
+XFEMCutElem3D::getCrackTipOriginAndDirection(unsigned /*tip_id*/, Point & /*origin*/, Point & /*direction*/) const
 {
-    //TODO: not implemented for 3D
+  //TODO: not implemented for 3D
+  mooseError("getCrackTipOriginAndDirection not yet implemented for XFEMCutElem3D");
 }
 
 void
-XFEMCutElem3D::getFragmentFaces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh) const
+XFEMCutElem3D::getFragmentFaces(std::vector<std::vector<Point> > &/*frag_faces*/, MeshBase* /*displaced_mesh*/) const
 {
-  // TODO: need to finish this in the future
-  mooseError("not available for XFEMCutElem3D for now");
+  //TODO: not implemented for 3D
+  mooseError("getFragmentFaces not yet implemented for XFEMCutElem3D");
 }
 
 const EFAElement*
@@ -216,7 +221,7 @@ XFEMCutElem3D::numCutPlanes() const
 // ****** private geometry toolkit ******
 double
 XFEMCutElem3D::polyhedron_volume_3d(double coord[], int order_max, int face_num,
-                                    int node[], int node_num, int order[]) const
+                                    int node[], int /*node_num*/, int order[]) const
 //****************************************************************************80
 //
 //  Purpose:

@@ -91,7 +91,7 @@ XFEMGeometricCut2D::cutElementByGeometry(const Elem* elem, std::vector<cutEdge> 
 }
 
 bool
-XFEMGeometricCut2D::cutElementByGeometry(const Elem* elem, std::vector<cutFace> & cutFaces, Real time)
+XFEMGeometricCut2D::cutElementByGeometry(const Elem* /*elem*/, std::vector<cutFace> & /*cutFaces*/, Real /*time*/)
 {
   mooseError("invalid method for 2D mesh cutting");
   return false;
@@ -159,8 +159,8 @@ XFEMGeometricCut2D::cutFragmentByGeometry(std::vector<std::vector<Point> > & fra
 }
 
 bool
-XFEMGeometricCut2D::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces,
-                                            std::vector<cutFace> & cutFaces, Real time)
+XFEMGeometricCut2D::cutFragmentByGeometry(std::vector<std::vector<Point> > & /*frag_faces*/,
+                                            std::vector<cutFace> & /*cutFaces*/, Real /*time*/)
 {
   mooseError("invalid method for 2D mesh cutting");
   return false;

@@ -331,7 +331,7 @@ double r8vec_norm(int n, double a[])
 {
 //    John Burkardt geometry.cpp
   double v = 0.0;
-  for (unsigned int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i)
     v = v + a[i] * a[i];
   v = std::sqrt(v);
   return v;
@@ -340,7 +340,7 @@ double r8vec_norm(int n, double a[])
 void r8vec_copy(int n, double a1[], double a2[])
 {
 //    John Burkardt geometry.cpp
-  for (unsigned int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i)
     a2[i] = a1[i];
   return;
 }
@@ -348,7 +348,7 @@ void r8vec_copy(int n, double a1[], double a2[])
 bool r8vec_eq (int n, double a1[], double a2[])
 {
 //    John Burkardt geometry.cpp
-  for (unsigned int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i)
     if ( a1[i] != a2[i] )
       return false;
   return true;
@@ -358,7 +358,7 @@ double r8vec_dot_product(int n, double a1[], double a2[])
 {
 //    John Burkardt geometry.cpp
   double value = 0.0;
-  for (unsigned int i = 0; i < n; ++i)
+  for (int i = 0; i < n; ++i)
     value += a1[i] * a2[i];
   return value;
 }

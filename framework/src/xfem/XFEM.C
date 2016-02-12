@@ -239,7 +239,7 @@ XFEM::update(Real time)
   return mesh_changed;
 }
 
-void XFEM::initSolution(NonlinearSystem & nl, AuxiliarySystem & aux)
+void XFEM::initSolution(NonlinearSystem & nl, AuxiliarySystem & /*aux*/)
 {
   const std::vector<MooseVariable *> & nl_vars = nl.getVariables(0); //TODO pass in real thread id?
 
@@ -817,8 +817,9 @@ XFEM::markCutFacesByGeometry(Real time)
     for (unsigned int i = 0; i < _geometric_cuts.size(); ++i)
     {
       _geometric_cuts[i]->cutElementByGeometry(elem, elemCutFaces, time);
-      if (CEMElem->numFragments() > 0)
-        _geometric_cuts[i]->cutFragmentByGeometry(frag_faces, fragCutFaces, time);
+// TODO: This would be done for branching, which is not yet supported in 3D
+//      if (CEMElem->numFragments() > 0)
+//        _geometric_cuts[i]->cutFragmentByGeometry(frag_faces, fragCutFaces, time);
     }
 
     for (unsigned int i = 0; i < elemCutFaces.size(); ++i) // mark element faces

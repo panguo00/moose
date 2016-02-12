@@ -181,7 +181,6 @@ EFAFragment3D::combine_tip_faces()
   if (!_host_elem)
     EFAError("In combine_tip_faces() the frag must have host_elem");
 
-  bool has_tip_faces = false;
   for (unsigned int i = 0; i < _host_elem->numFaces(); ++i)
   {
     std::vector<unsigned int> frag_tip_face_id;

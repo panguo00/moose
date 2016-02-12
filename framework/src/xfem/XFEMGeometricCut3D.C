@@ -27,9 +27,9 @@ XFEMGeometricCut3D::~XFEMGeometricCut3D()
 {}
 
 bool
-XFEMGeometricCut3D::cutElementByGeometry(const Elem* elem,
-                                         std::vector<cutEdge> & cutEdges,
-                                         Real time)
+XFEMGeometricCut3D::cutElementByGeometry(const Elem* /*elem*/,
+                                         std::vector<cutEdge> & /*cutEdges*/,
+                                         Real /*time*/)
 {
   mooseError("invalid method for 3D mesh cutting");
   return false;
@@ -38,7 +38,8 @@ XFEMGeometricCut3D::cutElementByGeometry(const Elem* elem,
 bool
 XFEMGeometricCut3D::cutElementByGeometry(const Elem* elem,
                                          std::vector<cutFace> & cutFaces,
-                                         Real time)
+                                         Real /*time*/)
+//TODO: Time evolving cuts not yet supported in 3D (hence the lack of use of the time variable)
 {
   bool cut_elem = false;
 
@@ -103,9 +104,9 @@ XFEMGeometricCut3D::cutElementByGeometry(const Elem* elem,
 }
 
 bool
-XFEMGeometricCut3D::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_edges,
-                                          std::vector<cutEdge> & cutEdges,
-                                          Real time)
+XFEMGeometricCut3D::cutFragmentByGeometry(std::vector<std::vector<Point> > & /*frag_edges*/,
+                                          std::vector<cutEdge> & /*cutEdges*/,
+                                          Real /*time*/)
 {
   mooseError("invalid method for 3D mesh cutting");
   return false;
@@ -113,10 +114,12 @@ XFEMGeometricCut3D::cutFragmentByGeometry(std::vector<std::vector<Point> > & fra
 
 
 bool
-XFEMGeometricCut3D::cutFragmentByGeometry(std::vector<std::vector<Point> > & frag_faces,
-                                          std::vector<cutFace> & cutFaces,
-                                          Real time)
+XFEMGeometricCut3D::cutFragmentByGeometry(std::vector<std::vector<Point> > & /*frag_faces*/,
+                                          std::vector<cutFace> & /*cutFaces*/,
+                                          Real /*time*/)
 {
+  //TODO: Need this for branching in 3D
+  mooseError("cutFragmentByGeometry not yet implemented for 3D mesh cutting");
   return false;
 }
 

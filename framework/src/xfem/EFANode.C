@@ -20,7 +20,7 @@ EFANode::EFANode(unsigned int nid, N_CATEGORY ncat, EFANode* nparent):
   _category(ncat),
   _id(nid),
   _parent(nparent)
-{};
+{}
 
 std::string
 EFANode::idCatString()

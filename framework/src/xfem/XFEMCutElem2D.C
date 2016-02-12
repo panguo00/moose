@@ -66,8 +66,7 @@ XFEMCutElem2D::getNodeCoordinates(EFANode* CEMnode, MeshBase* displaced_mesh) co
 void
 XFEMCutElem2D::computePhysicalVolumeFraction()
 {
-  Real frag_area = 0.0;
-  Real el_area = 0.0;
+  Real frag_vol = 0.0;
 
   //Calculate area of entire element and fragment using the formula:
   // A = 1/2 sum_{i=0}^{n-1} (x_i y_{i+1} - x_{i+1} y{i})
@@ -76,9 +75,9 @@ XFEMCutElem2D::computePhysicalVolumeFraction()
   {
     Point edge_p1 = getNodeCoordinates(_efa_elem2d.getFragmentEdge(0,i)->getNode(0));
     Point edge_p2 = getNodeCoordinates(_efa_elem2d.getFragmentEdge(0,i)->getNode(1));
-    frag_area += 0.5*(edge_p1(0)-edge_p2(0))*(edge_p1(1)+edge_p2(1));
+    frag_vol += 0.5*(edge_p1(0)-edge_p2(0))*(edge_p1(1)+edge_p2(1));
   }
-  _physical_volfrac = frag_area/_elem_volume;
+  _physical_volfrac = frag_vol/_elem_volume;
 }
 
 void
@@ -93,7 +92,9 @@ XFEMCutElem2D::computeMomentFittingWeights()
 
   if (_efa_elem2d.isPartial() && _n_qpoints <= 6) // ONLY work for <= 6 q_points
   {
-    computeMomentFittingWeights(_n_nodes, _n_qpoints, elem_nodes, wsg);
+    std::vector<std::vector<Real> > tsg;
+    getPhysicalQuadraturePoints(tsg); // get tsg - QPs within partial element
+    solveMomentFitting(_n_nodes, _n_qpoints, elem_nodes, tsg, wsg); // get wsg - QPs from moment-fitting
     _new_weights.resize(wsg.size(), 1.0);
     for (unsigned int i = 0; i < wsg.size(); ++i)
       _new_weights[i] = wsg[i][2]; // weight multiplier
@@ -221,20 +222,8 @@ XFEMCutElem2D::numCutPlanes() const
   return counter;
 }
 
-// ****** moment-fitting private methods ******
 void
-XFEMCutElem2D::computeMomentFittingWeights(unsigned int nen,
-                                           unsigned int nqp,
-                                           std::vector<Point> &elem_nodes,
-                                           std::vector<std::vector<Real> > &wsg)
-{
-  std::vector<std::vector<Real> > tsg;
-  getPhysicalQuadraturePoints(nen, tsg); // get tsg - QPs within partial element
-  solveMomentFitting(nen, nqp, elem_nodes, tsg, wsg); // get wsg - QPs from moment-fitting
-}
-
-void
-XFEMCutElem2D::getPhysicalQuadraturePoints(unsigned int nen, std::vector<std::vector<Real> > &tsg)
+XFEMCutElem2D::getPhysicalQuadraturePoints(std::vector<std::vector<Real> > &tsg)
 {
   // Get the coords for parial element nodes
   EFAFragment2D* frag = _efa_elem2d.getFragment(0);
