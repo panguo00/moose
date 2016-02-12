@@ -224,7 +224,6 @@ DisplacedProblem::addAuxScalarVariable(const std::string & var_name, Order order
 void
 DisplacedProblem::prepare(const Elem * elem, THREAD_ID tid)
 {
-  _assembly[tid]->setXFEMWeights(_mproblem.getXFEMWeights(elem->id()),elem);
   _assembly[tid]->reinit(elem);
   _displaced_nl.prepare(tid);
   _displaced_aux.prepare(tid);

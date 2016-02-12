@@ -30,6 +30,7 @@ class MooseMesh;
 class ArbitraryQuadrature;
 class SystemBase;
 class MooseVariable;
+class XFEM;
 
 // libMesh forward declarations
 namespace libMesh
@@ -462,16 +463,9 @@ public:
   void addCachedJacobianContributions(SparseMatrix<Number> & jacobian);
 
   /**
-   * Set XFEM integration weights
-   * @param xfem_weights Vector of weight multipliers (sized by number of qps)
-   * @param elem         The element for which these weights apply
-  */
-  void setXFEMWeights(MooseArray<Real> & xfem_weights, const Elem* elem);
-
-  /**
-   * Clear the map of XFEM weights
-  */
-  void clearXFEMWeights();
+   * Set the pointer to the XFEM controller object
+   */
+  void setXFEM(XFEM * xfem) { _xfem = xfem; }
 
 protected:
   /**
@@ -533,6 +527,9 @@ protected:
 
   unsigned int _mesh_dimension;
 
+  /// The XFEM controller
+  XFEM * _xfem;
+
   /// The "volume" fe object that matches the current elem
   std::map<FEType, FEBase *> _current_fe;
   /// The "face" fe object that matches the current elem
@@ -558,8 +555,6 @@ protected:
   MooseArray<Point> _current_q_points;
   /// The current list of transformed jacobian weights
   MooseArray<Real> _current_JxW;
-  /// The XFEM integration weights
-  std::map<dof_id_type, MooseArray<Real> > _xfem_weights;
   /// The coordinate system
   Moose::CoordinateSystemType _coord_type;
   /// The current coordinate transformation coefficients

@@ -22,6 +22,7 @@
 #include "MooseMesh.h"
 #include "MooseVariable.h"
 #include "MooseVariableScalar.h"
+#include "XFEM.h"
 
 // libMesh
 #include "libmesh/quadrature_gauss.h"
@@ -39,6 +40,7 @@ Assembly::Assembly(SystemBase & sys, CouplingMatrix * & cm, THREAD_ID tid) :
     _tid(tid),
     _mesh(sys.mesh()),
     _mesh_dimension(_mesh.dimension()),
+    _xfem(NULL),
     _current_qrule(NULL),
     _current_qrule_volume(NULL),
     _current_qrule_arbitrary(NULL),
@@ -422,7 +424,8 @@ Assembly::reinitFE(const Elem * elem)
   if (do_caching)
     efesd->_invalidated = false;
 
-  modifyWeightsDueToXFEM(elem);
+  if (_xfem != NULL)
+    modifyWeightsDueToXFEM(elem);
 }
 
 void
@@ -1551,35 +1554,20 @@ Assembly::clearCachedJacobianContributions()
 }
 
 void
-Assembly::setXFEMWeights(MooseArray<Real> & xfem_weights, const Elem * elem)
-{
-  _xfem_weights[elem->id()].resize(xfem_weights.size());
-
-  for(unsigned i = 0; i < xfem_weights.size(); i++)
-    _xfem_weights[elem->id()][i] = xfem_weights[i];
-}
-
-void
-Assembly::clearXFEMWeights()
-{
-  std::map<dof_id_type, MooseArray<Real> > ::iterator it  = _xfem_weights.begin();
-  std::map<dof_id_type, MooseArray<Real> > ::iterator end  = _xfem_weights.end();
-
-  for (;it != end; ++it)
-    (it->second).clear();
-  _xfem_weights.clear();
-}
-
-void
 Assembly::modifyWeightsDueToXFEM(const Elem *elem)
 {
+  mooseAssert(_xfem != NULL, "This function should be called if xfem is inactive");
+
   if (_current_qrule == _current_qrule_arbitrary)
     return;
 
-  if((_xfem_weights.find(elem->id()) != _xfem_weights.end()))
+  MooseArray<Real> xfem_weight_multipliers;
+  if (_xfem->getXFEMWeights(xfem_weight_multipliers, elem, _current_qrule))
   {
-    mooseAssert(_xfem_weights[elem->id()].size()==_current_JxW.size(),"wrong number of entries in xfem_weights");
-    for(unsigned i = 0; i < _xfem_weights[elem->id()].size(); i++)
-      _current_JxW[i] = _current_JxW[i] * _xfem_weights[elem->id()][i];
+    mooseAssert(xfem_weight_multipliers.size() == _current_JxW.size(),"Size of weight multipliers in xfem doesn't match number of quadrature points");
+    for(unsigned i = 0; i < xfem_weight_multipliers.size(); i++)
+    {
+      _current_JxW[i] = _current_JxW[i] * xfem_weight_multipliers[i];
+    }
   }
 }

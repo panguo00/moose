@@ -171,8 +171,8 @@ XFEM::storeCrackTipOriginAndDirection()
       Point origin(0,0,0);
       Point direction(0,0,0);
 
-      std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-      it = _cut_elem_map.find(_mesh->elem(cts_id));
+      std::map<unique_id_type, XFEMCutElem*>::const_iterator it;
+      it = _cut_elem_map.find(_mesh->elem(cts_id)->unique_id());
       if (it != _cut_elem_map.end())
       {
         const XFEMCutElem *xfce = it->second;
@@ -319,7 +319,7 @@ void XFEM::buildEFAMesh()
   for ( elem_it = _mesh->elements_begin(); elem_it != elem_end; ++elem_it)
   {
     Elem *elem = *elem_it;
-    std::map<const Elem*, XFEMCutElem*>::iterator cemit = _cut_elem_map.find(elem);
+    std::map<unique_id_type, XFEMCutElem*>::iterator cemit = _cut_elem_map.find(elem->unique_id());
     if (cemit != _cut_elem_map.end())
     {
       XFEMCutElem *xfce = cemit->second;
@@ -856,10 +856,10 @@ XFEM::markCutFacesByState()
 
 bool
 XFEM::initCutIntersectionEdge(Point cut_origin,
-		                      RealVectorValue cut_normal,
+                              RealVectorValue cut_normal,
                               Point & edge_p1,
-							  Point & edge_p2,
-							  Real & dist)
+                              Point & edge_p2,
+                              Real & dist)
 {
   dist = 0.0;
   bool does_intersect = false;
@@ -1018,7 +1018,7 @@ XFEM::cutMeshWithEFA()
         mooseError("EFAelem is not of EFAelement3D type");
       xfce = new XFEMCutElem3D(libmesh_elem, new_efa_elem3d, _material_data[0]->nQPoints());
     }
-    _cut_elem_map.insert(std::pair<Elem*,XFEMCutElem*>(libmesh_elem, xfce));
+    _cut_elem_map.insert(std::pair<unique_id_type,XFEMCutElem*>(libmesh_elem->unique_id(), xfce));
     efa_id_to_new_elem.insert(std::make_pair(efa_child_id, libmesh_elem));
 
     if (_mesh2)
@@ -1073,7 +1073,7 @@ XFEM::cutMeshWithEFA()
     Elem *elem_to_delete = _mesh->elem(DeleteElements[i]->id());
 
     //delete the XFEMCutElem object for any elements that are to be deleted
-    std::map<const Elem*, XFEMCutElem*>::iterator cemit = _cut_elem_map.find(elem_to_delete);
+    std::map<unique_id_type, XFEMCutElem*>::iterator cemit = _cut_elem_map.find(elem_to_delete->unique_id());
     if (cemit != _cut_elem_map.end())
     {
       delete cemit->second;
@@ -1092,7 +1092,6 @@ XFEM::cutMeshWithEFA()
       elem_to_delete2->nullify_neighbors();
       _mesh2->boundary_info->remove(elem_to_delete2);
       _mesh2->delete_elem(elem_to_delete2);
-      _console<<"XFEM2 deleted elem "<<elem_to_delete2->id()+1<<std::endl;
     }
   }
 
@@ -1121,9 +1120,9 @@ XFEM::cutMeshWithEFA()
 
 Point
 XFEM::getEFANodeCoords(EFANode* CEMnode,
-		               EFAElement* CEMElem,
+                       EFAElement* CEMElem,
                        const Elem *elem,
-					   MeshBase* displaced_mesh) const
+                       MeshBase* displaced_mesh) const
 {
   Point node_coor(0.0,0.0,0.0);
   std::vector<EFANode*> master_nodes;
@@ -1155,8 +1154,8 @@ Real
 XFEM::getPhysicalVolumeFraction(const Elem* elem) const
 {
   Real phys_volfrac = 1.0;
-  std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-  it = _cut_elem_map.find(elem);
+  std::map<unique_id_type, XFEMCutElem*>::const_iterator it;
+  it = _cut_elem_map.find(elem->unique_id());
   if (it != _cut_elem_map.end())
   {
     XFEMCutElem *xfce = it->second;
@@ -1170,62 +1169,15 @@ XFEM::getPhysicalVolumeFraction(const Elem* elem) const
   return phys_volfrac;
 }
 
-void
-XFEM::getWeightMultipliers(const Elem* elem, const std::vector<Point> &qp_points, const std::vector<Real> &qp_weights, std::vector<Real> &weight_multipliers) const
-{
-  weight_multipliers.clear();
-  weight_multipliers.resize(qp_points.size());
-  std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-  it = _cut_elem_map.find(elem);
-  if (it != _cut_elem_map.end())
-  {
-    XFEMCutElem *xfce = it->second;
-    xfce->setQuadraturePointsAndWeights(qp_points,qp_weights);
-    xfce->computeMomentFittingWeights();
-    for (unsigned int i=0; i<qp_points.size(); ++i)
-      weight_multipliers[i] = xfce->getMomentFittingWeight(i);
-  }
-  else
-    for (unsigned int i=0; i<qp_points.size(); ++i)
-      weight_multipliers[i] = 1.0;
-}
-
-Real
-XFEM::isQpPhysical(const Elem* elem, const Point & p) const
-{
-  // get the flag indicating if a QP is inside the physical domain of a partial element
-  Real flag = 1.0; // default value - qp inside physical domain
-  std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-  it = _cut_elem_map.find(elem);
-  if (it != _cut_elem_map.end())
-  {
-    XFEMCutElem *xfce = it->second;
-    unsigned int n_cut_planes = xfce->numCutPlanes();
-    for (unsigned int plane_id = 0; plane_id < n_cut_planes; ++plane_id)
-    {
-      Point origin = xfce->getCutPlaneOrigin(plane_id);
-      Point normal = xfce->getCutPlaneNormal(plane_id);
-      Point origin2qp = p - origin;
-      normalizePoint(origin2qp);
-      if (origin2qp*normal > 0.0)
-      {
-        flag = 0.0; // QP outside pysical domain
-        break;
-      }
-    } // plane_id
-  }
-  return flag;
-}
-
 Real
 XFEM::getCutPlane(const Elem* elem,
-		          const XFEM_CUTPLANE_QUANTITY quantity,
+                  const XFEM_CUTPLANE_QUANTITY quantity,
                   unsigned int plane_id) const
 {
   Real comp=0.0;
   Point planedata(0.0,0.0,0.0);
-  std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-  it = _cut_elem_map.find(elem);
+  std::map<unique_id_type, XFEMCutElem*>::const_iterator it;
+  it = _cut_elem_map.find(elem->unique_id());
   if (it != _cut_elem_map.end())
   {
     const XFEMCutElem *xfce = it->second;
@@ -1258,14 +1210,15 @@ XFEM::isElemAtCrackTip(const Elem* elem) const
 }
 
 bool
-XFEM::isElemCut(const Elem* elem) const
+XFEM::isElemCut(const Elem* elem, XFEMCutElem *&xfce) const
 {
+  xfce = NULL;
   bool is_cut = false;
-  std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-  it = _cut_elem_map.find(elem);
+  std::map<unique_id_type, XFEMCutElem*>::const_iterator it;
+  it = _cut_elem_map.find(elem->unique_id());
   if (it != _cut_elem_map.end())
   {
-    const XFEMCutElem *xfce = it->second;
+    xfce = it->second;
     const EFAElement* EFAelem = xfce->getEFAElement();
     if (EFAelem->isPartial()) // exclude the full crack tip elements
       is_cut = true;
@@ -1273,11 +1226,18 @@ XFEM::isElemCut(const Elem* elem) const
   return is_cut;
 }
 
+bool
+XFEM::isElemCut(const Elem* elem) const
+{
+  XFEMCutElem *xfce = NULL;
+  return isElemCut(elem,xfce);
+}
+
 void
 XFEM::getFragmentFaces(const Elem* elem, std::vector<std::vector<Point> > &frag_faces, bool displaced_mesh) const
 {
-  std::map<const Elem*, XFEMCutElem*>::const_iterator it;
-  it = _cut_elem_map.find(elem);
+  std::map<unique_id_type, XFEMCutElem*>::const_iterator it;
+  it = _cut_elem_map.find(elem->unique_id());
   if (it != _cut_elem_map.end())
   {
     const XFEMCutElem *xfce = it->second;
@@ -1290,8 +1250,8 @@ XFEM::getFragmentFaces(const Elem* elem, std::vector<std::vector<Point> > &frag_
 
 void
 XFEM::getFragmentEdges(const Elem* elem,
-		               EFAElement2D* CEMElem,
-					   std::vector<std::vector<Point> > &frag_edges) const
+                       EFAElement2D* CEMElem,
+                       std::vector<std::vector<Point> > &frag_edges) const
 {
   // N.B. CEMElem here has global EFAnode
   frag_edges.clear();
@@ -1311,8 +1271,8 @@ XFEM::getFragmentEdges(const Elem* elem,
 
 void
 XFEM::getFragmentFaces(const Elem* elem,
-		               EFAElement3D* CEMElem,
-					   std::vector<std::vector<Point> > &frag_faces) const
+                       EFAElement3D* CEMElem,
+                       std::vector<std::vector<Point> > &frag_faces) const
 {
   // N.B. CEMElem here has global EFAnode
   frag_faces.clear();
@@ -1377,4 +1337,18 @@ XFEM::setCrackGrowthMethod(bool use_crack_growth_increment, Real crack_growth_in
 {
   _use_crack_growth_increment = use_crack_growth_increment;
   _crack_growth_increment = crack_growth_increment;
+}
+
+bool
+XFEM::getXFEMWeights(MooseArray<Real> &weights, const Elem * elem, QBase * qrule)
+{
+  bool have_weights = false;
+  XFEMCutElem *xfce = NULL;
+  if (isElemCut(elem,xfce))
+  {
+    mooseAssert(xfce != NULL,"Must have valid XFEMCutElem object here");
+    xfce->getWeightMultipliers(weights, qrule, getXFEMQRule());
+    have_weights = true;
+  }
+  return have_weights;
 }

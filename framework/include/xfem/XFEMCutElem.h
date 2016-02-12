@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "MooseTypes.h"
+#include "XFEM.h"
 
 using namespace libMesh;
 
@@ -26,6 +27,7 @@ namespace libMesh
   class MeshBase;
   class Elem;
   class Node;
+  class QBase;
 }
 class EFANode;
 class EFAElement;
@@ -46,6 +48,7 @@ protected:
   std::vector<Real> _qp_weights;
   Real _elem_volume;
   Real _physical_volfrac;
+  bool _have_weights;
   std::vector<Real> _new_weights; // quadrature weights from moment fitting
   virtual Point getNodeCoordinates(EFANode* node, MeshBase* displaced_mesh = NULL) const = 0;
 
@@ -62,5 +65,8 @@ public:
   virtual void getFragmentFaces(std::vector<std::vector<Point> > &frag_faces, MeshBase* displaced_mesh=NULL) const = 0;
   virtual const EFAElement * getEFAElement() const = 0;
   virtual unsigned int numCutPlanes() const = 0;
+  void getWeightMultipliers(MooseArray<Real> & weights, QBase * qrule, XFEM_QRULE xfem_qrule);
+  void computeXFEMWeights(QBase * qrule, XFEM_QRULE xfem_qrule);
+  bool isPointPhysical(const Point & p) const;
 };
 #endif

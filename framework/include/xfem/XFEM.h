@@ -16,10 +16,12 @@
 #define XFEM_H
 
 #include "ElementFragmentAlgorithm.h"
-
 #include "ConsoleStreamInterface.h"
 #include "MooseTypes.h"
+#include "MooseVariableBase.h"
+
 #include "libmesh/vector_value.h"
+#include "libmesh/quadrature.h"
 
 enum XFEM_CUTPLANE_QUANTITY
 {
@@ -49,6 +51,11 @@ class MooseApp;
 class AuxiliarySystem;
 class NonlinearSystem;
 class MaterialData;
+
+namespace libMesh
+{
+  class QBase;
+}
 
 /**
  * This is the \p XFEM class.  This class implements
@@ -104,31 +111,30 @@ public:
   bool markCutFacesByGeometry(Real time);
   bool markCutFacesByState();
   bool initCutIntersectionEdge(Point cut_origin,
-		                       RealVectorValue cut_normal,
+                               RealVectorValue cut_normal,
                                Point &edge_p1,
-							   Point &edge_p2,
-							   Real &dist);
+                               Point &edge_p2,
+                               Real &dist);
   bool cutMeshWithEFA();
   Point getEFANodeCoords(EFANode* CEMnode,
-		                 EFAElement* CEMElem,
+                         EFAElement* CEMElem,
                          const Elem *elem,
-						 MeshBase* displaced_mesh = NULL) const;
+                         MeshBase* displaced_mesh = NULL) const;
 
   /**
    * Get the volume fraction of an element that is physical
    */
   Real getPhysicalVolumeFraction(const Elem* elem) const;
-  void getWeightMultipliers(const Elem* elem, const std::vector<Point> &qp_points, const std::vector<Real> &qp_weights, std::vector<Real> &weight_multipliers) const;
-  Real isQpPhysical(const Elem* elem, const Point & p) const;
 
   /**
    * Get specified component of normal or origin for cut plane for a given element
    */
   Real getCutPlane(const Elem* elem,
-		           const XFEM_CUTPLANE_QUANTITY quantity,
+                   const XFEM_CUTPLANE_QUANTITY quantity,
                    unsigned int plane_id) const;
 
   bool isElemAtCrackTip(const Elem* elem) const;
+  bool isElemCut(const Elem* elem, XFEMCutElem *&xfce) const;
   bool isElemCut(const Elem* elem) const;
   void getFragmentFaces(const Elem* elem, std::vector<std::vector<Point> > &frag_faces,
                       bool displaced_mesh = false) const;
@@ -157,14 +163,15 @@ public:
   XFEM_QRULE & getXFEMQRule();
   void setXFEMQRule(std::string & xfem_qrule);
   void setCrackGrowthMethod(bool use_crack_growth_increment, Real crack_growth_increment);
+  bool getXFEMWeights(MooseArray<Real> &weights, const Elem * elem, QBase * qrule);
 
 private:
 
   void getFragmentEdges(const Elem* elem,
-		                EFAElement2D* CEMElem,
+                        EFAElement2D* CEMElem,
                         std::vector<std::vector<Point> > &frag_edges) const;
   void getFragmentFaces(const Elem* elem,
-		                EFAElement3D* CEMElem,
+                        EFAElement3D* CEMElem,
                         std::vector<std::vector<Point> > &frag_faces) const;
 
 private:
@@ -188,7 +195,7 @@ private:
   MeshBase* _mesh2;
   std::vector<XFEMGeometricCut *> _geometric_cuts;
 
-  std::map<const Elem*, XFEMCutElem*> _cut_elem_map;
+  std::map<unique_id_type, XFEMCutElem*> _cut_elem_map;
   std::set<const Elem*> _crack_tip_elems;
 
   std::map<const Elem*, std::vector<Point> > _elem_crack_origin_direction_map;
