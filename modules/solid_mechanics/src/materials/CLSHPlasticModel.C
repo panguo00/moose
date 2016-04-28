@@ -12,7 +12,7 @@
 template<>
 InputParameters validParams<CLSHPlasticModel>()
 {
-   InputParameters params = validParams<ConstitutiveModel>();
+   InputParameters params = validParams<ReturnMappingModel>();
    params.addRequiredParam<Real>("yield_stress", "The point at which plastic strain begins accumulating");
    params.addRequiredParam<Real>("hardening_constant", "Hardening slope");
    params.addRequiredParam<Real>("c_alpha", "creep constant");

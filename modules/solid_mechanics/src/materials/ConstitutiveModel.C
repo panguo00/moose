@@ -13,11 +13,6 @@ InputParameters validParams<ConstitutiveModel>()
 {
   InputParameters params = validParams<Material>();
 
-  // Sub-Newton Iteration control parameters
-  params.addParam<unsigned int>("max_its", 30, "Maximum number of sub-newton iterations");
-  params.addParam<bool>("output_iteration_info", false, "Set true to output sub-newton iteration information");
-  params.addParam<Real>("relative_tolerance", 1e-5, "Relative convergence tolerance for sub-newtion iteration");
-  params.addParam<Real>("absolute_tolerance", 1e-20, "Absolute convergence tolerance for sub-newtion iteration");
   params.addCoupledVar("temp", "Coupled Temperature");
 
   params.addParam<Real>("thermal_expansion", "The thermal expansion coefficient.");

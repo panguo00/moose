@@ -13,12 +13,12 @@ InputParameters validParams<ReturnMappingModel>()
 {
   InputParameters params = validParams<ConstitutiveModel>();
 
-  // Sub-Newton Iteration control parameters
-  params.addParam<unsigned int>("max_its", 30, "Maximum number of sub-newton iterations");
-  params.addParam<bool>("output_iteration_info", false, "Set true to output sub-newton iteration information");
-   params.addParam<bool>("output_iteration_info_on_error", false, "Set true to output sub-newton iteration information when a step fails");
-  params.addParam<Real>("relative_tolerance", 1e-5, "Relative convergence tolerance for sub-newtion iteration");
-  params.addParam<Real>("absolute_tolerance", 1e-20, "Absolute convergence tolerance for sub-newtion iteration");
+  // Return mapping iteration control parameters
+  params.addParam<unsigned int>("max_its", 30, "Maximum number of return mapping iterations");
+  params.addParam<bool>("output_iteration_info", false, "Set true to output return mapping iteration information");
+   params.addParam<bool>("output_iteration_info_on_error", false, "Set true to output return mapping iteration information when a step fails");
+  params.addParam<Real>("relative_tolerance", 1e-12, "Relative convergence tolerance for return mapping iteration");
+  params.addParam<Real>("absolute_tolerance", 1e-15, "Absolute convergence tolerance for return mapping iteration");
 
   return params;
 }
@@ -33,6 +33,10 @@ ReturnMappingModel::ReturnMappingModel(const InputParameters & parameters) :
     _absolute_tolerance(parameters.get<Real>("absolute_tolerance")),
     _effective_strain_increment(0)
 {
+  if (_relative_tolerance > 1e-12)
+    mooseWarning("relative_tolerance was set to: " << _relative_tolerance << " for model: " << _name << " Using values greater than the default tolerance (1e-12) is not recommended.");
+  if (_absolute_tolerance > 1e-15)
+    mooseWarning("absolute_tolerance was set to: " << _absolute_tolerance << " for model: " << _name << " Using values greater than the default tolerance (1e-15) is not recommended.");
 }
 
 
@@ -78,34 +82,97 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
 
   computeStressInitialize(qp, effective_trial_stress, elasticityTensor);
 
-  // Use Newton sub-iteration to determine inelastic strain increment
+  // Use Newton iterations to determine inelastic strain increment
 
-  Real scalar = 0;
+  Real scalar = 0.0;
+  Real scalar_old = 0.0;
+  Real scalar_increment = 0.0;
+  Real scalar_upper_bound = std::numeric_limits<Real>::max();
+  Real scalar_lower_bound = 0.0;
   unsigned int it = 0;
-  Real residual = 10;
+  Real residual = 0.0;
+  Real residual_old = 0.0;
   Real norm_residual = 10;
   Real first_norm_residual = 10;
+  Real init_resid_sign = 1.0;
 
   std::stringstream iter_output;
 
   while (it < _max_its &&
         norm_residual > _absolute_tolerance &&
-        (norm_residual/first_norm_residual) > _relative_tolerance)
+        (norm_residual / first_norm_residual) > _relative_tolerance)
   {
     iterationInitialize(qp, scalar);
-
     residual = computeResidual(qp, effective_trial_stress, scalar);
+    if (it == 0)
+    {
+      if (residual < 0.0)
+        init_resid_sign = -1.0;
+    }
+    else
+    {
+      // Update upper/lower bounds as applicable
+      if (residual*init_resid_sign < 0.0 &&
+          scalar < scalar_upper_bound)
+        scalar_upper_bound = scalar;
+      else if (residual*init_resid_sign > 0.0 &&
+               scalar > scalar_lower_bound)
+        scalar_lower_bound = scalar;
+      if (scalar_upper_bound < scalar_lower_bound)
+        mooseError("scalar_upper_bound < scalar_lower_bound in return mapping iteration. This is likely an issue with the derived material model");
+
+      // Line Search
+      bool modified_increment = false;
+      if (residual_old - residual != 0.0)
+      {
+        Real alpha = residual_old / (residual_old - residual);
+        if (alpha > 1.0)
+          alpha = 1.0;
+        else if (alpha < 0.0)
+          alpha = 0.0;
+        modified_increment = true;
+        scalar_increment *= alpha;
+      }
+
+      // Check to see whether trial scalar_increment is outside bounds, and set it to bisection point of bounds if it is
+      if (scalar_old + scalar_increment > scalar_upper_bound ||
+          scalar_old + scalar_increment < scalar_lower_bound)
+      {
+        scalar_increment = (scalar_upper_bound + scalar_lower_bound) / 2.0 - scalar_old;
+        modified_increment = true;
+
+        //If the difference between the upper and lower bounds is too close to machine epsilon, break
+        if (scalar_lower_bound > 0 &&
+            (scalar_upper_bound - scalar_lower_bound) / (PETSC_MACHINE_EPSILON * scalar_lower_bound) < 5.0)
+          break;
+      }
+
+      // Update the trial scalar and recompute residual if the line search or bounds checking modified the increment
+      if (modified_increment)
+      {
+        scalar = scalar_old + scalar_increment;
+        iterationInitialize(qp, scalar);
+        residual = computeResidual(qp, effective_trial_stress, scalar);
+        if (residual * init_resid_sign < 0.0 &&
+            scalar < scalar_upper_bound)
+          scalar_upper_bound = scalar;
+        else if (residual * init_resid_sign > 0.0 &&
+                 scalar > scalar_lower_bound)
+          scalar_lower_bound = scalar;
+        if (scalar_upper_bound < scalar_lower_bound)
+          mooseError("scalar_upper_bound < scalar_lower_bound in return mapping iteration. This is likely an issue with the derived material model");
+      }
+    }
+
     norm_residual = std::abs(residual);
     if (it == 0)
     {
       first_norm_residual = norm_residual;
       if (first_norm_residual == 0)
-      {
         first_norm_residual = 1;
-      }
     }
 
-    scalar -= residual / computeDerivative(qp, effective_trial_stress, scalar);
+    scalar_increment = -residual / computeDerivative(qp, effective_trial_stress, scalar);
 
     if (_output_iteration_info == true ||
         _output_iteration_info_on_error == true)
@@ -114,7 +181,8 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
         << " it="       << it
         << " trl_strs=" << effective_trial_stress
         << " scalar="   << scalar
-        << " rel_res="  << norm_residual/first_norm_residual
+        << " residual="  << residual
+        << " rel_res="  << norm_residual / first_norm_residual
         << " rel_tol="  << _relative_tolerance
         << " abs_res="  << norm_residual
         << " abs_tol="  << _absolute_tolerance
@@ -122,6 +190,9 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
     }
 
     iterationFinalize(qp, scalar);
+    residual_old = residual;
+    scalar_old = scalar;
+    scalar = scalar_old + scalar_increment;
 
     ++it;
   }

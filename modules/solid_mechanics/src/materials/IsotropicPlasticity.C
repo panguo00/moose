@@ -102,9 +102,9 @@ IsotropicPlasticity::computeResidual(unsigned qp, Real effectiveTrialStress, Rea
   if (_yield_condition > 0)
   {
     _hardening_slope = computeHardening(qp, scalar);
+    _hardening_variable[qp] = _hardening_variable_old[qp] + (_hardening_slope * scalar);
     // The order here is important.  The final term can be small, and we don't want it lost to roundoff.
     residual = (effectiveTrialStress - _hardening_variable[qp] - _yield_stress) - (3 * _shear_modulus * scalar);
-    _hardening_variable[qp] = _hardening_variable_old[qp] + (_hardening_slope * scalar);
   }
   return residual;
 }
@@ -125,9 +125,7 @@ IsotropicPlasticity::iterationFinalize(unsigned qp, Real scalar)
 {
   _hardening_variable[qp] = _hardening_variable_old[qp] + (_hardening_slope * scalar);
   if (_scalar_plastic_strain)
-  {
     (*_scalar_plastic_strain)[qp] = (*_scalar_plastic_strain_old)[qp] + scalar;
-  }
 }
 
 Real
