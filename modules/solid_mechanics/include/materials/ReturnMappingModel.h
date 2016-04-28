@@ -59,12 +59,30 @@ protected:
   const bool _output_iteration_info_on_error;
   const Real _relative_tolerance;
   const Real _absolute_tolerance;
+  const Real _epsilon_acceptable_tolerance;
   Real _effective_strain_increment;
 
   MaterialProperty<Real> & _effective_inelastic_strain;
   MaterialProperty<Real> & _effective_inelastic_strain_old;
 
 private:
+  bool converged(const Real & residual, const Real & reference);
+
+  void output_iter_info(std::stringstream & iter_output,
+                        const unsigned int & it,
+                        const Real & effective_trial_stress,
+                        const Real & scalar,
+                        const Real & residual);
+
+  void update_bounds(const Real & scalar,
+                     const Real & residual,
+                     const Real & init_resid_sign,
+                     Real & scalar_upper_bound,
+                     Real & scalar_lower_bound,
+                     Real & resid_upper_bound,
+                     Real & resid_lower_bound,
+                     std::stringstream & iter_output,
+                     bool bounded);
 };
 
 template <>

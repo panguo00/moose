@@ -15,17 +15,18 @@ validParams<ReturnMappingModel>()
 {
   InputParameters params = validParams<ConstitutiveModel>();
 
-  // Sub-Newton Iteration control parameters
-  params.addParam<unsigned int>("max_its", 30, "Maximum number of sub-newton iterations");
+  // Return mapping iteration control parameters
+  params.addParam<unsigned int>("max_its", 100, "Maximum number of return mapping iterations");
   params.addParam<bool>(
-      "output_iteration_info", false, "Set true to output sub-newton iteration information");
-  params.addParam<bool>("output_iteration_info_on_error",
-                        false,
-                        "Set true to output sub-newton iteration information when a step fails");
+      "output_iteration_info", false, "Set true to output return mapping iteration information");
+  params.addParam<bool>(
+      "output_iteration_info_on_error",
+      false,
+      "Set true to output return mapping iteration information when a step fails");
   params.addParam<Real>(
-      "relative_tolerance", 1e-5, "Relative convergence tolerance for sub-newtion iteration");
+      "relative_tolerance", 1e-12, "Relative convergence tolerance for return mapping iteration");
   params.addParam<Real>(
-      "absolute_tolerance", 1e-20, "Absolute convergence tolerance for sub-newtion iteration");
+      "absolute_tolerance", 1e-15, "Absolute convergence tolerance for return mapping iteration");
 
   return params;
 }
@@ -38,12 +39,29 @@ ReturnMappingModel::ReturnMappingModel(const InputParameters & parameters,
     _output_iteration_info_on_error(getParam<bool>("output_iteration_info_on_error")),
     _relative_tolerance(parameters.get<Real>("relative_tolerance")),
     _absolute_tolerance(parameters.get<Real>("absolute_tolerance")),
+    _epsilon_acceptable_tolerance(1e-18),
     _effective_strain_increment(0),
     _effective_inelastic_strain(
         declareProperty<Real>("effective_" + inelastic_strain_name + "_strain")),
     _effective_inelastic_strain_old(
         declarePropertyOld<Real>("effective_" + inelastic_strain_name + "_strain"))
 {
+  if (_relative_tolerance > 1e-12)
+    mooseWarning("relative_tolerance was set to: "
+                 << _relative_tolerance
+                 << " for model: "
+                 << _name
+                 << " Using values greater than the default tolerance (1e-12) is not recommended.");
+  if (_absolute_tolerance > 1e-15)
+    mooseWarning("absolute_tolerance was set to: "
+                 << _absolute_tolerance
+                 << " for model: "
+                 << _name
+                 << " Using values greater than the default tolerance (1e-15) is not recommended.");
+  if (_max_its < 100)
+    mooseWarning(
+        "max_its was set to: " << _max_its << " for model: " << _name
+                               << " Using values less than the default (100) is not recommended.");
 }
 
 void
@@ -106,77 +124,162 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/,
 
   computeStressInitialize(qp, effective_trial_stress, elasticityTensor);
 
-  // Use Newton sub-iteration to determine inelastic strain increment
+  // Use Newton iterations to determine inelastic strain increment
 
-  Real scalar = 0;
+  Real scalar = 0.0;
+  Real scalar_old = 0.0;
+  Real scalar_increment = 0.0;
+  Real scalar_upper_bound = std::numeric_limits<Real>::max();
+  Real scalar_lower_bound = 0.0;
+  Real resid_upper_bound = 0.0;
+  Real resid_lower_bound = 0.0;
   unsigned int it = 0;
-  Real residual = 10;
-  Real norm_residual = 10;
-  Real first_norm_residual = 10;
+  Real residual_old = 0.0;
 
   std::string iter_output;
 
-  while (it < _max_its && norm_residual > _absolute_tolerance &&
-         (norm_residual / first_norm_residual) > _relative_tolerance)
-  {
-    iterationInitialize(qp, scalar);
+  iterationInitialize(qp, scalar);
+  Real residual = computeResidual(qp, effective_trial_stress, scalar);
+  iterationFinalize(qp, scalar);
+  Real init_resid_sign = (residual < 0.0 ? -1.0 : 1.0);
 
-    residual = computeResidual(qp, effective_trial_stress, scalar);
-    norm_residual = std::abs(residual);
-    if (it == 0)
+  output_iter_info(iter_output, it, effective_trial_stress, scalar, residual);
+
+  if (effective_trial_stress != 0.0)
+  {
+    while (it < _max_its && !converged(residual, effective_trial_stress))
     {
-      first_norm_residual = norm_residual;
-      if (first_norm_residual == 0)
+      ++it;
+      residual_old = residual;
+      scalar_old = scalar;
+
+      scalar_increment = -residual / computeDerivative(qp, effective_trial_stress, scalar);
+      scalar = scalar_old + scalar_increment;
+
+      iterationInitialize(qp, scalar);
+      residual = computeResidual(qp, effective_trial_stress, scalar);
+      iterationFinalize(qp, scalar);
+
+      update_bounds(scalar,
+                    residual,
+                    init_resid_sign,
+                    scalar_upper_bound,
+                    scalar_lower_bound,
+                    resid_upper_bound,
+                    resid_lower_bound,
+                    iter_output,
+                    false);
+
+      if (converged(residual, effective_trial_stress))
       {
-        first_norm_residual = 1;
+        output_iter_info(iter_output, it, effective_trial_stress, scalar, residual);
+        break;
       }
+      else
+      {
+        // Line Search
+        bool modified_increment = false;
+        if (residual_old - residual != 0.0)
+        {
+          Real alpha = residual_old / (residual_old - residual);
+          if (alpha > 1.0) // upper bound for alpha
+            alpha = 1.0;
+          else if (alpha < 1e-2) // lower bound for alpha
+            alpha = 1e-2;
+          if (alpha != 1.0)
+          {
+            modified_increment = true;
+            scalar_increment *= alpha;
+            if (_output_iteration_info == true || _output_iteration_info_on_error == true)
+              iter_output << "  Line search alpha = " << alpha
+                          << " increment = " << scalar_increment << std::endl;
+          }
+        }
+
+        bool bounded = false;
+        // Check to see whether trial scalar_increment is outside the bounds, and set it to a point
+        // within the bounds if it is
+        if (scalar_old + scalar_increment >= scalar_upper_bound ||
+            scalar_old + scalar_increment <= scalar_lower_bound)
+        {
+          if (scalar_upper_bound != std::numeric_limits<Real>::max() && scalar_lower_bound != 0.0)
+          {
+            // Real frac = resid_upper_bound / (resid_upper_bound - resid_lower_bound);
+            Real frac = 0.5;
+            scalar_increment =
+                (1.0 - frac) * scalar_lower_bound + frac * scalar_upper_bound - scalar_old;
+            // scalar_increment = (scalar_upper_bound + scalar_lower_bound) / 2.0 - scalar_old;
+            modified_increment = true;
+            bounded = true;
+            if (_output_iteration_info == true || _output_iteration_info_on_error == true)
+              iter_output << "  Trial scalar_increment exceeded bounds.  Setting between "
+                             "lower/upper bounds. frac: "
+                          << frac << std::endl;
+          }
+        }
+
+        // Update the trial scalar and recompute residual if the line search or bounds checking
+        // modified the increment
+        if (modified_increment)
+        {
+          scalar = scalar_old + scalar_increment;
+          iterationInitialize(qp, scalar);
+          residual = computeResidual(qp, effective_trial_stress, scalar);
+          iterationFinalize(qp, scalar);
+
+          update_bounds(scalar,
+                        residual,
+                        init_resid_sign,
+                        scalar_upper_bound,
+                        scalar_lower_bound,
+                        resid_upper_bound,
+                        resid_lower_bound,
+                        iter_output,
+                        bounded);
+        }
+
+        // If the difference between the upper and lower bounds is too close to machine epsilon
+        // or the scalar increment is too close to machine epsilon, break
+        //        if ((std::abs(residual) <  _epsilon_acceptable_tolerance) &&
+        //            ((scalar_lower_bound > 0.0 &&
+        //              (scalar_upper_bound - scalar_lower_bound) / (PETSC_MACHINE_EPSILON *
+        //              scalar_lower_bound) <= 10.0) ||
+        //             (residual != 0.0 &&
+        //              scalar_old != 0.0 &&
+        //              std::abs(scalar_increment) < 10.0 * PETSC_MACHINE_EPSILON * scalar_old)))
+        //          break;
+      }
+
+      output_iter_info(iter_output, it, effective_trial_stress, scalar, residual);
     }
 
-    scalar -= residual / computeDerivative(qp, effective_trial_stress, scalar);
+    if (_output_iteration_info)
+      _console << iter_output.str();
 
-    if (_output_iteration_info == true || _output_iteration_info_on_error == true)
+    if (residual != residual)
     {
-      iter_output =
-          "In the element " + Moose::stringify(_current_elem->id()) + +" and the qp point " +
-          Moose::stringify(qp) + ": \n" + +" iteration = " + Moose::stringify(it) + "\n" +
-          +" effective trial stress = " + Moose::stringify(effective_trial_stress) + "\n" +
-          +" scalar effective inelastic strain = " + Moose::stringify(scalar) + "\n" +
-          +" relative residual = " + Moose::stringify(norm_residual / first_norm_residual) + "\n" +
-          +" relative tolerance = " + Moose::stringify(_relative_tolerance) + "\n" +
-          +" absolute residual = " + Moose::stringify(norm_residual) + "\n" +
-          +" absolute tolerance = " + Moose::stringify(_absolute_tolerance) + "\n";
+      if (_output_iteration_info_on_error)
+        Moose::err << iter_output.str();
+      mooseError("Encountered nan in material: "
+                 << _name
+                 << ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
     }
-    iterationFinalize(qp, scalar);
-    ++it;
-  }
 
-  if (_output_iteration_info)
-    _console << iter_output;
-
-  if (it == _max_its && norm_residual > _absolute_tolerance &&
-      (norm_residual / first_norm_residual) > _relative_tolerance)
-  {
-    if (_output_iteration_info_on_error)
+    if (it == _max_its && !converged(residual, effective_trial_stress))
     {
-      Moose::err << iter_output;
+      if (_output_iteration_info_on_error)
+        Moose::err << iter_output.str();
+      mooseError("Exceeded maximum iterations in ReturnMappingModel solve for material: "
+                 << _name
+                 << ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
     }
-    mooseError("Exceeded maximum iterations in ReturnMappingModel solve for material: ",
-               _name,
-               ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
+
+    // compute inelastic and elastic strain increments
+    inelastic_strain_increment = dev_trial_stress * (1.5 * scalar / effective_trial_stress);
+    strain_increment -= inelastic_strain_increment;
   }
-
-  // compute inelastic and elastic strain increments (avoid potential divide by zero - how should
-  // this be done)?
-  if (effective_trial_stress < 0.01)
-  {
-    effective_trial_stress = 0.01;
-  }
-
-  inelastic_strain_increment = dev_trial_stress;
-  inelastic_strain_increment *= (1.5 * scalar / effective_trial_stress);
-
-  strain_increment -= inelastic_strain_increment;
-  _effective_inelastic_strain[qp] = _effective_inelastic_strain_old[qp] + scalar;
+  else
+    inelastic_strain_increment.zero();
 
   // compute stress increment
   stress_new = elasticityTensor * strain_increment;
@@ -185,4 +288,90 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/,
   stress_new += stress_old;
 
   computeStressFinalize(qp, inelastic_strain_increment);
+}
+
+bool
+ReturnMappingModel::converged(const Real & residual, const Real & reference)
+{
+  return (std::abs(residual) <= _absolute_tolerance ||
+          (std::abs(residual) / reference) <= _relative_tolerance);
+}
+
+void
+ReturnMappingModel::output_iter_info(std::stringstream & iter_output,
+                                     const unsigned int & it,
+                                     const Real & effective_trial_stress,
+                                     const Real & scalar,
+                                     const Real & residual)
+{
+  if (_output_iteration_info == true || _output_iteration_info_on_error == true)
+  {
+    iter_output << " it=" << it << " trl_strs=" << effective_trial_stress << " scalar=" << scalar
+                << " residual=" << residual
+                << " rel_res=" << std::abs(residual) / effective_trial_stress
+                << " rel_tol=" << _relative_tolerance << " abs_res=" << std::abs(residual)
+                << " abs_tol=" << _absolute_tolerance << std::endl;
+  }
+}
+
+void
+ReturnMappingModel::update_bounds(const Real & scalar,
+                                  const Real & residual,
+                                  const Real & init_resid_sign,
+                                  Real & scalar_upper_bound,
+                                  Real & scalar_lower_bound,
+                                  Real & resid_upper_bound,
+                                  Real & resid_lower_bound,
+                                  std::stringstream & iter_output,
+                                  bool bounded)
+{
+  // Update upper/lower bounds as applicable
+  if (residual * init_resid_sign < 0.0 && scalar < scalar_upper_bound)
+  {
+    scalar_upper_bound = scalar;
+    resid_upper_bound = residual;
+    if (scalar_upper_bound < scalar_lower_bound)
+    {
+      scalar_upper_bound = scalar_lower_bound;
+      resid_upper_bound = resid_lower_bound;
+      scalar_lower_bound = 0.0;
+      resid_lower_bound = 0.0;
+      if (_output_iteration_info == true || _output_iteration_info_on_error == true)
+        iter_output << "  Corrected for scalar_upper_bound < scalar_lower_bound" << std::endl;
+    }
+  }
+  // Don't permit setting scalar_lower_bound > scalar_upper_bound (but do permit the reverse).
+  // This ensures that if we encounter multiple roots, we pick the lowest one.
+  else if (residual * init_resid_sign > 0.0 && scalar > scalar_lower_bound &&
+           scalar < scalar_upper_bound)
+  {
+    scalar_lower_bound = scalar;
+    resid_lower_bound = residual;
+  }
+
+  if ((scalar_lower_bound > 0 &&
+       (scalar_upper_bound - scalar_lower_bound) / (PETSC_MACHINE_EPSILON * scalar_lower_bound) <=
+           10.0))
+  {
+    // Reset lower/upper bounds.  They're too close together and solution hasn't converged, so they
+    // must be bad.
+    scalar_lower_bound = 0.0;
+    resid_lower_bound = 0.0;
+    scalar_upper_bound = std::numeric_limits<Real>::max();
+    resid_upper_bound = 0.0;
+    if (_output_iteration_info == true || _output_iteration_info_on_error == true)
+      iter_output << "  Reset lower/upper bounds because they're too close together" << std::endl;
+  }
+  else if (bounded && (std::abs(residual) > 0.9 * std::abs(resid_lower_bound) ||
+                       std::abs(residual) > 0.9 * std::abs(resid_upper_bound)))
+  {
+    // Reset lower/upper bounds.  They're too close together and solution hasn't converged, so they
+    // must be bad.
+    scalar_lower_bound = 0.0;
+    resid_lower_bound = 0.0;
+    scalar_upper_bound = std::numeric_limits<Real>::max();
+    resid_upper_bound = 0.0;
+    iter_output << "  Reset lower/upper bounds because residual didn't decrease enough"
+                << std::endl;
+  }
 }
