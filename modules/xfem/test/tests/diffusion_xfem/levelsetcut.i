@@ -18,13 +18,13 @@
 [XFEM]
   qrule = volfrac
   output_cut_plane = true
+  heal_every_time = true
 []
 
 [UserObjects]
   [./level_set_cut_uo]
     type = LevelSetCutUserObject
     level_set_var = ls
-    #execute_on = 'nonlinear'
   [../]
 []
 
@@ -56,9 +56,20 @@
   [../]
   [./ls_func]
     type = ParsedFunction
+    #value = 'sqrt((x-0.)*(x-0.) + (y-0.)*(y-0.))-0.11*t'
     value = 'x-0.5'
   [../]
 []
+
+# [Constraints]
+#   [./u_constraint]
+#     type = XFEMSingleVariableConstraint
+#     use_displaced_mesh = false
+#     variable = u
+#     use_penalty = true
+#     alpha = 1e5
+#   [../]
+# []
 
 [Kernels]
   [./diff]
@@ -99,7 +110,7 @@
 
   start_time = 0.0
   dt = 1
-  end_time = 1.0
+  end_time = 5.0
   max_xfem_update = 1
 []
 

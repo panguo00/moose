@@ -97,12 +97,12 @@ public:
   /**
    * Method to update the mesh due to modified cut planes
    */
-  virtual bool update(Real time, NonlinearSystemBase & nl, AuxiliarySystem & aux);
+  virtual bool update(Real time, NonlinearSystemBase & nl, AuxiliarySystem & aux) override;
 
   /**
    * Initialize the solution on newly created nodes
    */
-  virtual void initSolution(NonlinearSystemBase & nl, AuxiliarySystem & aux);
+  virtual void initSolution(NonlinearSystemBase & nl, AuxiliarySystem & aux) override;
 
   void buildEFAMesh();
   bool shouldHealMesh(Real time);
@@ -115,6 +115,7 @@ public:
       Point cut_origin, RealVectorValue cut_normal, Point & edge_p1, Point & edge_p2, Real & dist);
   bool cutMeshWithEFA(NonlinearSystemBase & nl, AuxiliarySystem & aux);
   bool healMesh();
+  virtual bool updateHeal(Real time) override;
   Point getEFANodeCoords(EFANode * CEMnode,
                          EFAElement * CEMElem,
                          const Elem * elem,
@@ -167,12 +168,12 @@ public:
   virtual bool getXFEMWeights(MooseArray<Real> & weights,
                               const Elem * elem,
                               QBase * qrule,
-                              const MooseArray<Point> & q_points);
+                              const MooseArray<Point> & q_points) override;
   virtual bool getXFEMFaceWeights(MooseArray<Real> & weights,
                                   const Elem * elem,
                                   QBase * qrule,
                                   const MooseArray<Point> & q_points,
-                                  unsigned int side);
+                                  unsigned int side) override;
   virtual const ElementPairLocator::ElementPairList * getXFEMCutElemPairs() const
   {
     return &_sibling_elems;
