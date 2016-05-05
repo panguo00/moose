@@ -38,6 +38,8 @@ InputParameters validParams<XFEMAction>()
   params.addParam<bool>("output_cut_plane",false,"Output the XFEM cut plane and volume fraction");
   params.addParam<bool>("use_crack_growth_increment", false, "Use fixed crack growth increment");
   params.addParam<Real>("crack_growth_increment", 0.1, "Crack growth increment");
+  params.addParam<std::vector<Real> >("heal_times", "Times when previous cuts are healed");
+  params.addParam<bool>("heal_every_time", false, "Heal previous cuts at every time step");
   return params;
 }
 
@@ -78,6 +80,12 @@ XFEMAction::act()
     xfem->setXFEMQRule(_xfem_qrule);
 
     xfem->setCrackGrowthMethod(_xfem_use_crack_growth_increment, _xfem_crack_growth_increment);
+
+    xfem->setHealEveryTime(getParam<bool>("heal_every_time"));
+
+    std::vector<Real> heal_times = getParam<std::vector<Real> >("heal_times");
+    for (unsigned int i = 0; i < heal_times.size(); ++i)
+      xfem->addHealTime(heal_times[i]);
 
     MooseSharedPointer<XFEMElementPairLocator> new_xfem_epl (new XFEMElementPairLocator(xfem, 0));
     _problem->geomSearchData().addElementPairLocator(0, new_xfem_epl);

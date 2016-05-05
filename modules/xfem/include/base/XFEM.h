@@ -63,6 +63,9 @@ public:
 
   void addGeometricCut(XFEMGeometricCut* geometric_cut);
 
+  void addHealTime(Real heal_time) { _heal_times.push_back(heal_time); }
+  void setHealEveryTime(bool heal_every_time) { _heal_every_time = heal_every_time; }
+
   void addStateMarkedElem(unsigned int elem_id, RealVectorValue & normal);
   void addStateMarkedElem(unsigned int elem_id, RealVectorValue & normal, unsigned int marked_side);
   void addStateMarkedFrag(unsigned int elem_id, RealVectorValue & normal);
@@ -82,6 +85,7 @@ public:
   Node * getNodeFromUniqueID(unique_id_type uid);
 
   void buildEFAMesh();
+  bool shouldHealMesh(Real time);
   bool markCuts(Real time);
   bool markCutEdgesByGeometry(Real time);
   bool markCutEdgesByState(Real time);
@@ -92,6 +96,7 @@ public:
                                Point &edge_p1,
                                Point &edge_p2,
                                Real &dist);
+  bool healMesh();
   bool cutMeshWithEFA();
   Point getEFANodeCoords(EFANode* CEMnode,
                          EFAElement* CEMElem,
@@ -191,6 +196,9 @@ private:
   std::map<unique_id_type, unique_id_type> _new_node_to_parent_node;
 
   ElementFragmentAlgorithm _efa_mesh;
+
+  bool _heal_every_time;
+  std::vector<Real> _heal_times;
 };
 
 #endif // XFEM_H

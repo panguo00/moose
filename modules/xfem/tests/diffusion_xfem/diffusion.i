@@ -16,7 +16,9 @@
 []
 
 [XFEM]
-  cut_data = '0.5 1.0 0.5 0.5 0 0'
+  cut_data = '0.5 1.0 0.5 0.5 0 0
+              0.75 1.0 0.75 0.5 3 3'
+  heal_times = 2
   qrule = volfrac
   output_cut_plane = true
 []
@@ -30,7 +32,7 @@
   [./u_left]
     type = PiecewiseLinear
     x = '0   2'
-    y = '0  0.1'
+    y = '0.1  0.1'
   [../]
 []
 
@@ -72,7 +74,9 @@
 
   start_time = 0.0
   dt = 1.0
-  end_time = 2.0
+  end_time = 3.0
+  max_xfem_update = 0
+  update_xfem_at_timestep_begin = true
 []
 
 [Outputs]

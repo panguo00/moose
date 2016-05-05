@@ -84,6 +84,7 @@ InputParameters validParams<Transient>()
 
   params.addParam<bool>("verbose", false, "Print detailed diagnostics on timestep calculation");
   params.addParam<unsigned int>("max_xfem_update", std::numeric_limits<unsigned int>::max(), "Maximum number of times to update XFEM crack topology in a step due to evolving cracks");
+  params.addParam<bool>("update_xfem_at_timestep_begin", false, "Should XFEM update the mesh at the beginning of the timestep");
 
   return params;
 }
@@ -105,6 +106,7 @@ Transient::Transient(const InputParameters & parameters) :
     _xfem_repeat_step(false),
     _xfem_update_count(0),
     _max_xfem_update(getParam<unsigned int>("max_xfem_update")),
+    _update_xfem_at_timestep_begin(getParam<bool>("update_xfem_at_timestep_begin")),
     _end_time(getParam<Real>("end_time")),
     _dtmin(getParam<Real>("dtmin")),
     _dtmax(getParam<Real>("dtmax")),
@@ -390,6 +392,10 @@ Transient::solveStep(Real input_dt)
 
   if (!_multiapps_converged)
     return;
+
+  if ( _problem.haveXFEM() &&
+       _update_xfem_at_timestep_begin)
+    _problem.updateMeshXFEM();
 
   preSolve();
   _time_stepper->preSolve();
