@@ -14,7 +14,7 @@ InputParameters validParams<ReturnMappingModel>()
   InputParameters params = validParams<ConstitutiveModel>();
 
   // Return mapping iteration control parameters
-  params.addParam<unsigned int>("max_its", 30, "Maximum number of return mapping iterations");
+  params.addParam<unsigned int>("max_its", 100, "Maximum number of return mapping iterations");
   params.addParam<bool>("output_iteration_info", false, "Set true to output return mapping iteration information");
    params.addParam<bool>("output_iteration_info_on_error", false, "Set true to output return mapping iteration information when a step fails");
   params.addParam<Real>("relative_tolerance", 1e-12, "Relative convergence tolerance for return mapping iteration");
@@ -119,32 +119,37 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
                scalar > scalar_lower_bound)
         scalar_lower_bound = scalar;
       if (scalar_upper_bound < scalar_lower_bound)
-        mooseError("scalar_upper_bound < scalar_lower_bound in return mapping iteration. This is likely an issue with the derived material model");
+      {
+        Real tmp = scalar_upper_bound;
+        scalar_lower_bound = scalar_upper_bound;
+        scalar_upper_bound = tmp;
+      }
 
       // Line Search
       bool modified_increment = false;
       if (residual_old - residual != 0.0)
       {
         Real alpha = residual_old / (residual_old - residual);
-        if (alpha > 1.0)
-          alpha = 1.0;
-        else if (alpha < 0.0)
-          alpha = 0.0;
+        if (alpha > 1.5) //upper bound for alpha
+          alpha = 1.5;
+        else if (alpha < 0.1) //lower bound for alpha
+          alpha = 0.1;
         modified_increment = true;
         scalar_increment *= alpha;
+        iter_output << "line search alpha = "<< alpha << " inc = "<<scalar_increment<< std::endl;
+        iter_output << "eps_factor = "<<scalar_increment/(PETSC_MACHINE_EPSILON*scalar_old)<<std::endl;
       }
 
       // Check to see whether trial scalar_increment is outside bounds, and set it to bisection point of bounds if it is
-      if (scalar_old + scalar_increment > scalar_upper_bound ||
-          scalar_old + scalar_increment < scalar_lower_bound)
+      if (scalar_old + scalar_increment >= scalar_upper_bound ||
+          scalar_old + scalar_increment <= scalar_lower_bound)
       {
-        scalar_increment = (scalar_upper_bound + scalar_lower_bound) / 2.0 - scalar_old;
+        if (scalar_upper_bound == std::numeric_limits<Real>::max())
+          scalar_increment = scalar_lower_bound * 2.0  - scalar_old; // Double the current lower bound as a guess for the upper bound
+        else
+          scalar_increment = (scalar_upper_bound + scalar_lower_bound) / 2.0 - scalar_old;
         modified_increment = true;
-
-        //If the difference between the upper and lower bounds is too close to machine epsilon, break
-        if (scalar_lower_bound > 0 &&
-            (scalar_upper_bound - scalar_lower_bound) / (PETSC_MACHINE_EPSILON * scalar_lower_bound) < 5.0)
-          break;
+        iter_output << "bisected"<< std::endl;
       }
 
       // Update the trial scalar and recompute residual if the line search or bounds checking modified the increment
@@ -160,7 +165,11 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
                  scalar > scalar_lower_bound)
           scalar_lower_bound = scalar;
         if (scalar_upper_bound < scalar_lower_bound)
-          mooseError("scalar_upper_bound < scalar_lower_bound in return mapping iteration. This is likely an issue with the derived material model");
+        {
+          Real tmp = scalar_upper_bound;
+          scalar_lower_bound = scalar_upper_bound;
+          scalar_upper_bound = tmp;
+        }
       }
     }
 
@@ -171,6 +180,12 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
       if (first_norm_residual == 0)
         first_norm_residual = 1;
     }
+
+
+    //If the difference between the upper and lower bounds is too close to machine epsilon, break
+    if (scalar_lower_bound > 0 &&
+        (scalar_upper_bound - scalar_lower_bound) / (PETSC_MACHINE_EPSILON * scalar_lower_bound) < 2.0)
+      break;
 
     scalar_increment = -residual / computeDerivative(qp, effective_trial_stress, scalar);
 
@@ -186,6 +201,10 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
         << " rel_tol="  << _relative_tolerance
         << " abs_res="  << norm_residual
         << " abs_tol="  << _absolute_tolerance
+        << " slb="      << scalar_lower_bound
+        << " sub="      << scalar_upper_bound
+        << " sbdiff="   << scalar_upper_bound - scalar_lower_bound
+        << " eps_fact="   << (scalar_upper_bound - scalar_lower_bound)/(PETSC_MACHINE_EPSILON*scalar_upper_bound)
         << std::endl;
     }
 
@@ -200,6 +219,14 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/, unsigned qp,
   if (_output_iteration_info)
     _console << iter_output.str();
 
+  if (residual != residual)
+  {
+    if (_output_iteration_info_on_error)
+    {
+      Moose::err << iter_output.str();
+    }
+    mooseError("Encountered nan in material: " << _name << ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
+  }
 
   if (it == _max_its &&
      norm_residual > _absolute_tolerance &&
