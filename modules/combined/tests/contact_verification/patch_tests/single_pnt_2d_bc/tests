@@ -1,0 +1,33 @@
+[Tests]
+  [./frictionless_kin_h0_v0p]
+    type = 'CSVDiff'
+    input = 'single_point_2d.i'
+    csvdiff = 'single_point_2d_out_frictionless_kin_h0_v0p.csv'
+    cli_args = 'Mesh/file=single_point_2d_h0_v0.e BCs/topy/value=-0.002001 Executioner/nl_rel_tol=1e-8 Executioner/nl_abs_tol=1e-8 Contact/leftright/model=frictionless Contact/leftright/formulation=kinematic Outputs/file_base=single_point_2d_out_frictionless_kin_h0_v0p'
+    rel_err = 1e-5
+    abs_zero = 1e-8
+    max_parallel = 1
+    superlu = true
+  [../]
+  [./frictionless_kin_h0_v0d]
+    type = 'CSVDiff'
+    input = 'single_point_2d.i'
+    csvdiff = 'single_point_2d_out_frictionless_kin_h0_v0d.csv'
+    cli_args = 'Mesh/file=single_point_2d_h0_v0.e BCs/topy/type=DirichletBC BCs/topy/value=-0.002001 Executioner/nl_rel_tol=1e-9 Executioner/nl_abs_tol=1e-11 Contact/leftright/model=frictionless Contact/leftright/formulation=kinematic Outputs/file_base=single_point_2d_out_frictionless_kin_h0_v0d'
+    rel_err = 1e-5
+    abs_zero = 1e-8
+    max_parallel = 1
+    superlu = true
+  [../]
+  [./frictionless_kin_h0_v0d_2stp]
+    type = 'CSVDiff'
+    input = 'single_point_2d.i'
+    csvdiff = 'single_point_2d_out_frictionless_kin_h0_v0d_2stp.csv'
+    cli_args = 'Mesh/file=single_point_2d_h0_v0.e BCs/topy/type=DirichletBC BCs/topy/value=-0.002001 Executioner/nl_rel_tol=1e-9 Executioner/nl_abs_tol=1e-11 Executioner/end_time=0.2
+    Contact/leftright/model=frictionless Contact/leftright/formulation=kinematic Outputs/file_base=single_point_2d_out_frictionless_kin_h0_v0d_2stp'
+    rel_err = 1e-5
+    abs_zero = 1e-8
+    max_parallel = 1
+    superlu = true
+  [../]
+[]
