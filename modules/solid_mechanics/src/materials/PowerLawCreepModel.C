@@ -70,11 +70,16 @@ PowerLawCreepModel::computeStressFinalize(unsigned qp, const SymmTensor & plasti
 }
 
 Real
-PowerLawCreepModel::computeResidual(unsigned /*qp*/, Real effectiveTrialStress, Real scalar)
+PowerLawCreepModel::computeResidual(const unsigned int /*qp*/,
+                                    const Real effectiveTrialStress,
+                                    const Real scalar,
+                                    Real & reference_residual)
 {
-  return _coefficient * std::pow(effectiveTrialStress - 3 * _shear_modulus * scalar, _n_exponent) *
-             _exponential * _expTime -
-         scalar / _dt;
+  Real creep_rate = _coefficient *
+                    std::pow(effectiveTrialStress - 3.0 * _shear_modulus * scalar, _n_exponent) *
+                    _exponential * _expTime;
+  reference_residual = (creep_rate > scalar / _dt ? creep_rate : scalar / _dt);
+  return creep_rate - scalar / _dt;
 }
 
 Real

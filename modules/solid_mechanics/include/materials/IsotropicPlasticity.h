@@ -28,7 +28,10 @@ protected:
                                        const SymmElasticityTensor & elasticityTensor);
   virtual void computeStressFinalize(unsigned qp, const SymmTensor & plasticStrainIncrement);
 
-  virtual Real computeResidual(unsigned qp, Real effectiveTrialStress, Real scalar);
+  virtual Real computeResidual(const unsigned int qp,
+                               const Real effectiveTrialStress,
+                               const Real scalar,
+                               Real & reference_residual);
   virtual Real computeDerivative(unsigned qp, Real effectiveTrialStress, Real scalar);
   virtual void iterationFinalize(unsigned qp, Real scalar);
 
