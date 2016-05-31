@@ -18,7 +18,7 @@ template<>
 InputParameters validParams<ContactAction>()
 {
   MooseEnum orders("CONSTANT FIRST SECOND THIRD FOURTH", "FIRST");
-  MooseEnum formulation("DEFAULT KINEMATIC PENALTY AUGMENTED_LAGRANGE", "DEFAULT");
+  MooseEnum formulation("DEFAULT KINEMATIC PENALTY AUGMENTED_LAGRANGE HYBRID", "DEFAULT");
   MooseEnum system("DiracKernel Constraint", "DiracKernel");
 
   InputParameters params = validParams<Action>();
