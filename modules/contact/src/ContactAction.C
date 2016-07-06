@@ -61,7 +61,9 @@ validParams<ContactAction>()
   params.addParam<MooseEnum>("system",
                              system,
                              "System to use for constraint enforcement.  Options are: " +
-                                 system.getRawNames());
+                                 system.getRawNames() + " The 'DiracKernel' option is deprecated, "
+                                                        "so only the 'Constraint' option should be "
+                                                        "used");
   params.addParam<bool>("normalize_penalty",
                         false,
                         "Whether to normalize the penalty parameter with the nodal area.");
@@ -94,6 +96,10 @@ ContactAction::ContactAction(const InputParameters & params)
     if (_model != "coulomb")
       mooseError("The 'tangential_penalty' formulation can only be used with the 'coulomb' model");
   }
+  if (_system == "DiracKernel")
+    mooseDeprecated("The 'DiracKernel' system is deprecated. Add 'system = Constraint' to your "
+                    "Contact block to use the Constraint system for mechanical contact "
+                    "enforcement.");
 }
 
 void

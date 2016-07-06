@@ -71,8 +71,8 @@ ContactApp__registerObjects(Factory & factory)
 void
 ContactApp::registerObjects(Factory & factory)
 {
-  registerDiracKernel(ContactMaster);
-  registerDiracKernel(SlaveConstraint);
+  registerDeprecatedObject(ContactMaster);
+  registerDeprecatedObject(SlaveConstraint);
   registerConstraint(OneDContactConstraint);
   registerConstraint(MultiDContactConstraint);
   registerConstraint(GluedContactConstraint);
