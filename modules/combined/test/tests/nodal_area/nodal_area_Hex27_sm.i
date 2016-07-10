@@ -93,6 +93,7 @@
     slave = 2
     penalty = 1e8
     tangential_tolerance = 1e-4
+    system = Constraint
   [../]
 []
 
@@ -121,8 +122,8 @@
 
   line_search = 'none'
 
-  nl_abs_tol = 1e-7
-  nl_rel_tol = 1e-6
+  nl_abs_tol = 1e-8
+  nl_rel_tol = 1e-7
 
   l_tol = 1e-4
   l_max_its = 40
@@ -131,10 +132,6 @@
   dt = 1.0
   end_time = 1.0
   num_steps = 100
-
-  [./Quadrature]
-    order = THIRD
-  [../]
 []
 
 [Postprocessors]

@@ -327,5 +327,6 @@
     tangential_tolerance = 1e-3
     friction_coefficient = 0.2
     penalty = 1e+9
+    system = Constraint
   [../]
 []

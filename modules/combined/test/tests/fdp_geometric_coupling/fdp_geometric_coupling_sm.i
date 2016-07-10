@@ -83,7 +83,8 @@
   [./dummy_name]
     master = 2
     slave = 3
-    penalty = 1e8
+    penalty = 1e6
+    system = Constraint
   [../]
 []
 

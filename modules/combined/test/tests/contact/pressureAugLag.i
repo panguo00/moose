@@ -39,6 +39,7 @@
     penalty = 1e7
     formulation = augmented_lagrange
     tangential_tolerance = 1e-3
+    system = Constraint
   [../]
 []
 
