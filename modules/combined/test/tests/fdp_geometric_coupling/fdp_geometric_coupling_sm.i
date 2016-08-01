@@ -157,9 +157,9 @@
 
   l_max_its = 5
   nl_max_its = 3
-  dt = 5.0e-1
-  num_steps = 2
-[]
+  dt = 1.0e-1
+  num_steps = 5
+[] # Executioner
 
 [Outputs]
   exodus = true
