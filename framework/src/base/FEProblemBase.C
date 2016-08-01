@@ -1455,24 +1455,36 @@ FEProblemBase::reinitNeighborPhys(const Elem * neighbor,
                                   const std::vector<Point> & physical_points,
                                   THREAD_ID tid)
 {
+  Moose::perf_log.push("fep reinitNeighborPhys", "Execution");
+  Moose::perf_log.push("fep reinitNeighborPhys1", "Execution");
   // Reinits shape the functions at the physical points
   _assembly[tid]->reinitNeighborAtPhysical(neighbor, neighbor_side, physical_points);
+  Moose::perf_log.pop("fep reinitNeighborPhys1", "Execution");
 
+  Moose::perf_log.push("fep reinitNeighborPhys2", "Execution");
   // Sets the neighbor dof indices
   _nl->prepareNeighbor(tid);
   _aux->prepareNeighbor(tid);
+  Moose::perf_log.pop("fep reinitNeighborPhys2", "Execution");
 
+  Moose::perf_log.push("fep reinitNeighborPhys3", "Execution");
   // Resizes Re and Ke
   _assembly[tid]->prepareNeighbor();
+  Moose::perf_log.pop("fep reinitNeighborPhys3", "Execution");
 
+  Moose::perf_log.push("fep reinitNeighborPhys4", "Execution");
   // Compute the values of each variable at the points
   _nl->reinitNeighborFace(neighbor, neighbor_side, 0, tid);
   _aux->reinitNeighborFace(neighbor, neighbor_side, 0, tid);
+  Moose::perf_log.pop("fep reinitNeighborPhys4", "Execution");
 
+  Moose::perf_log.push("fep reinitNeighborPhys5", "Execution");
   // Do the same for the displaced problem
   if (_displaced_problem != NULL)
     _displaced_problem->reinitNeighborPhys(
         _displaced_mesh->elemPtr(neighbor->id()), neighbor_side, physical_points, tid);
+  Moose::perf_log.pop("fep reinitNeighborPhys5", "Execution");
+  Moose::perf_log.pop("fep reinitNeighborPhys", "Execution");
 }
 
 void

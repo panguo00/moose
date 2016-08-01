@@ -874,6 +874,7 @@ NonlinearSystemBase::constraintResiduals(NumericVector<Number> & residual, bool 
 
     if (_constraints.hasActiveNodeFaceConstraints(slave_boundary, displaced))
     {
+      Moose::perf_log.push("nfc residuals", "Execution");
       const auto & constraints =
           _constraints.getActiveNodeFaceConstraints(slave_boundary, displaced);
 
@@ -886,8 +887,12 @@ NonlinearSystemBase::constraintResiduals(NumericVector<Number> & residual, bool 
         {
           if (pen_loc._penetration_info[slave_node_num])
           {
+            Moose::perf_log.push("nfc residuals1", "Execution");
+            Moose::perf_log.push("nfc residuals1a", "Execution");
             PenetrationInfo & info = *pen_loc._penetration_info[slave_node_num];
+            Moose::perf_log.pop("nfc residuals1a", "Execution");
 
+            Moose::perf_log.push("nfc residuals1b", "Execution");
             const Elem * master_elem = info._elem;
             unsigned int master_side = info._side_num;
 
@@ -895,10 +900,14 @@ NonlinearSystemBase::constraintResiduals(NumericVector<Number> & residual, bool 
 
             // This reinits the variables that exist on the slave node
             _fe_problem.reinitNodeFace(&slave_node, slave_boundary, 0);
+            Moose::perf_log.pop("nfc residuals1b", "Execution");
 
             // This will set aside residual and jacobian space for the variables that have dofs on
             // the slave node
+            Moose::perf_log.push("nfc residuals1c", "Execution");
             _fe_problem.prepareAssembly(0);
+            Moose::perf_log.pop("nfc residuals1c", "Execution");
+            Moose::perf_log.push("nfc residuals1d", "Execution");
 
             std::vector<Point> points;
             points.push_back(info._closest_point);
@@ -906,7 +915,12 @@ NonlinearSystemBase::constraintResiduals(NumericVector<Number> & residual, bool 
             // reinit variables on the master element's face at the contact point
             _fe_problem.setNeighborSubdomainID(master_elem, 0);
             _fe_problem.reinitNeighborPhys(master_elem, master_side, points, 0);
+            // BWS:
+            //_fe_problem.reinitNeighborPhys(master_elem, points, 0);
+            Moose::perf_log.pop("nfc residuals1d", "Execution");
+            Moose::perf_log.pop("nfc residuals1", "Execution");
 
+            Moose::perf_log.push("nfc residuals2", "Execution");
             for (const auto & nfc : constraints)
               if (nfc->shouldApply())
               {
@@ -922,9 +936,11 @@ NonlinearSystemBase::constraintResiduals(NumericVector<Number> & residual, bool 
                   _fe_problem.cacheResidual(0);
                 _fe_problem.cacheResidualNeighbor(0);
               }
+            Moose::perf_log.pop("nfc residuals2", "Execution");
           }
         }
       }
+      Moose::perf_log.pop("nfc residuals", "Execution");
     }
     if (_assemble_constraints_separately)
     {

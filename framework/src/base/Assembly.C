@@ -590,6 +590,7 @@ Assembly::reinitFENeighbor(const Elem * neighbor, const std::vector<Point> & ref
 void
 Assembly::reinitNeighbor(const Elem * neighbor, const std::vector<Point> & reference_points)
 {
+  Moose::perf_log.push("rn", "Execution");
   unsigned int neighbor_dim = neighbor->dim();
 
   ArbitraryQuadrature * neighbor_rule = _holder_qrule_neighbor[neighbor_dim];
@@ -608,7 +609,10 @@ Assembly::reinitNeighbor(const Elem * neighbor, const std::vector<Point> & refer
     QBase * qrule = _holder_qrule_volume[dim];
 
     fe->attach_quadrature_rule(qrule);
+    Moose::perf_log.push("rn2f", "Execution");
+    // BWS: this is the bottleneck:
     fe->reinit(neighbor);
+    Moose::perf_log.pop("rn2f", "Execution");
 
     // set the coord transformation
     _coord_neighbor.resize(qrule->n_points());
@@ -845,6 +849,7 @@ Assembly::reinitNeighborAtPhysical(const Elem * neighbor,
                                    unsigned int neighbor_side,
                                    const std::vector<Point> & physical_points)
 {
+  Moose::perf_log.push("rnap", "Execution");
   delete _current_neighbor_side_elem;
   _current_neighbor_side_elem = neighbor->build_side_ptr(neighbor_side).release();
 
@@ -866,6 +871,7 @@ Assembly::reinitNeighborAtPhysical(const Elem * neighbor,
 
   // Save off the physical points
   _current_physical_points = physical_points;
+  Moose::perf_log.push("rnap", "Execution");
 }
 
 void

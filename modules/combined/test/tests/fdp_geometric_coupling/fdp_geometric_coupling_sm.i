@@ -163,4 +163,10 @@
 
 [Outputs]
   exodus = true
-[]
+  [./console]
+    type = Console
+    perf_log = true
+    output_linear = true
+    max_rows = 25
+  [../]
+[] # Outputs
