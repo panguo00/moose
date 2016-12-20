@@ -54,6 +54,7 @@
 #include "StressDivergenceRSpherical.h"
 #include "RateDepSmearCrackModel.h"
 #include "RateDepSmearIsoCrackModel.h"
+#include "SIFICEigenstrainModel.h"
 
 
 template<>
@@ -123,6 +124,7 @@ SolidMechanicsApp::registerObjects(Factory & factory)
   registerMaterial(SolidModel);
   registerMaterial(RateDepSmearCrackModel);
   registerMaterial(RateDepSmearIsoCrackModel);
+  registerMaterial(SIFICEigenstrainModel);
 
   registerKernel(HomogenizationKernel);
   registerKernel(SolidMechImplicitEuler);
