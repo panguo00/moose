@@ -39,7 +39,6 @@ ReturnMappingModel::ReturnMappingModel(const InputParameters & parameters,
     _output_iteration_info_on_error(getParam<bool>("output_iteration_info_on_error")),
     _relative_tolerance(parameters.get<Real>("relative_tolerance")),
     _absolute_tolerance(parameters.get<Real>("absolute_tolerance")),
-    _epsilon_acceptable_tolerance(1e-18),
     _effective_strain_increment(0),
     _effective_inelastic_strain(
         declareProperty<Real>("effective_" + inelastic_strain_name + "_strain")),
@@ -47,21 +46,21 @@ ReturnMappingModel::ReturnMappingModel(const InputParameters & parameters,
         declarePropertyOld<Real>("effective_" + inelastic_strain_name + "_strain"))
 {
   if (_relative_tolerance > 1e-12)
-    mooseWarning("relative_tolerance was set to: "
-                 << _relative_tolerance
-                 << " for model: "
-                 << _name
-                 << " Using values greater than the default tolerance (1e-12) is not recommended.");
+    mooseWarning("relative_tolerance was set to: ",
+                 _relative_tolerance,
+                 " for model: ",
+                 _name,
+                 " Using values greater than the default tolerance (1e-12) is not recommended.");
   if (_absolute_tolerance > 1e-15)
-    mooseWarning("absolute_tolerance was set to: "
-                 << _absolute_tolerance
-                 << " for model: "
-                 << _name
-                 << " Using values greater than the default tolerance (1e-18) is not recommended.");
+    mooseWarning("absolute_tolerance was set to: ",
+                 _absolute_tolerance,
+                 " for model: ",
+                 _name,
+                 " Using values greater than the default tolerance (1e-18) is not recommended.");
   if (_max_its < 100)
     mooseWarning(
-        "max_its was set to: " << _max_its << " for model: " << _name
-                               << " Using values less than the default (100) is not recommended.");
+        "max_its was set to: " , _max_its , " for model: " , _name,
+                               " Using values less than the default (100) is not recommended.");
 }
 
 void
@@ -137,7 +136,7 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/,
   Real residual_old = 0.0;
   Real reference_residual = 0.0;
 
-  std::string iter_output;
+  std::stringstream iter_output;
 
   iterationInitialize(qp, scalar);
   Real residual = computeResidual(qp, effective_trial_stress, scalar, reference_residual);
@@ -274,18 +273,18 @@ ReturnMappingModel::computeStress(const Elem & /*current_elem*/,
     {
       if (_output_iteration_info_on_error)
         Moose::err << iter_output.str();
-      mooseError("Encountered nan in material: "
-                 << _name
-                 << ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
+      mooseError("Encountered nan in material: ",
+                 _name,
+                 ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
     }
 
     if (it == _max_its && !converged(residual, reference_residual))
     {
       if (_output_iteration_info_on_error)
         Moose::err << iter_output.str();
-      mooseError("Exceeded maximum iterations in ReturnMappingModel solve for material: "
-                 << _name
-                 << ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
+      mooseError("Exceeded maximum iterations in ReturnMappingModel solve for material: ",
+                 _name,
+                 ".  Rerun with  'output_iteration_info_on_error = true' for more information.");
     }
 
     // compute inelastic and elastic strain increments
