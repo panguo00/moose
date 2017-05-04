@@ -75,18 +75,19 @@ PowerLawCreepModel::computeResidual(const unsigned int /*qp*/,
                                     const Real scalar,
                                     Real & reference_residual)
 {
+  const Real stress_delta = effectiveTrialStress - 3.0 * _shear_modulus * scalar;
   Real creep_rate = _coefficient *
-                    std::pow(effectiveTrialStress - 3.0 * _shear_modulus * scalar, _n_exponent) *
+                    std::pow(stress_delta, _n_exponent) *
                     _exponential * _expTime;
-  reference_residual = (creep_rate > scalar / _dt ? creep_rate : scalar / _dt);
-  return creep_rate - scalar / _dt;
+  reference_residual = stress_delta / (3.0 * _shear_modulus);
+  return creep_rate * _dt - scalar;
 }
 
 Real
 PowerLawCreepModel::computeDerivative(unsigned /*qp*/, Real effectiveTrialStress, Real scalar)
 {
-  return -3 * _coefficient * _shear_modulus * _n_exponent *
-             std::pow(effectiveTrialStress - 3 * _shear_modulus * scalar, _n_exponent - 1) *
-             _exponential * _expTime -
-         1 / _dt;
+  return -3.0 * _coefficient * _shear_modulus * _n_exponent *
+             std::pow(effectiveTrialStress - 3.0 * _shear_modulus * scalar, _n_exponent - 1.0) *
+             _exponential * _expTime * _dt -
+         1.0;
 }

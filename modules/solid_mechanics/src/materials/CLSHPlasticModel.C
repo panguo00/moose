@@ -72,13 +72,13 @@ CLSHPlasticModel::computeResidual(const unsigned int qp,
   Real residual = 0.0;
   if (_yield_condition > 0)
   {
-    Real xflow = _c_beta * (effectiveTrialStress - (3. * _shear_modulus * scalar) -
-                            _hardening_variable[qp] - _yield_stress);
+    const Real xflow = _c_beta * (effectiveTrialStress - (3. * _shear_modulus * scalar) -
+                                  _hardening_variable[qp] - _yield_stress);
     Real xphi = _c_alpha * std::sinh(xflow);
     _xphidp = -3. * _shear_modulus * _c_alpha * _c_beta * std::cosh(xflow);
     _xphir = -_c_alpha * _c_beta * std::cosh(xflow);
-    residual = xphi - scalar / _dt;
-    reference_residual = (xphi > scalar / _dt ? xphi : scalar / _dt);
+    residual = xphi * _dt - scalar;
+    reference_residual = xflow / _c_beta / (3.0 * _shear_modulus);
   }
   else
     reference_residual = 1.0;
@@ -97,7 +97,7 @@ CLSHPlasticModel::computeDerivative(unsigned /*qp*/, Real /*effectiveTrialStress
 {
   Real derivative = 1.0;
   if (_yield_condition > 0)
-    derivative = _xphidp + _hardening_constant * _xphir - 1.0 / _dt;
+    derivative = _xphidp * _dt + _hardening_constant * _xphir * _dt - 1.0;
   return derivative;
 }
 

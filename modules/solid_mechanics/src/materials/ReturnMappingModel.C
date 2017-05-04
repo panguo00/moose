@@ -322,6 +322,7 @@ ReturnMappingModel::output_iter_info(std::stringstream & iter_output,
   {
     iter_output << " it=" << it << " trl_strs=" << effective_trial_stress << " scalar=" << scalar
                 << " residual=" << residual
+                << " ref_res=" << reference_residual
                 << " rel_res=" << std::abs(residual) / reference_residual
                 << " rel_tol=" << _relative_tolerance << " abs_res=" << std::abs(residual)
                 << " abs_tol=" << _absolute_tolerance << std::endl;
@@ -376,16 +377,15 @@ ReturnMappingModel::update_bounds(const Real & scalar,
     if (_output_iteration_info == true || _output_iteration_info_on_error == true)
       iter_output << "  Reset lower/upper bounds because they're too close together" << std::endl;
   }
-  else if (bounded && (std::abs(residual) > 0.9 * std::abs(resid_lower_bound) ||
-                       std::abs(residual) > 0.9 * std::abs(resid_upper_bound)))
-  {
-    // Reset lower/upper bounds.  They're too close together and solution hasn't converged, so they
-    // must be bad.
-    scalar_lower_bound = 0.0;
-    resid_lower_bound = 0.0;
-    scalar_upper_bound = std::numeric_limits<Real>::max();
-    resid_upper_bound = 0.0;
-    iter_output << "  Reset lower/upper bounds because residual didn't decrease enough"
-                << std::endl;
-  }
+//  else if (bounded && (std::abs(residual) > 0.9 * std::abs(resid_lower_bound) ||
+//                       std::abs(residual) > 0.9 * std::abs(resid_upper_bound)))
+//  {
+//    // Reset lower/upper bounds. The residual didn't decrease enough.
+//    scalar_lower_bound = 0.0;
+//    resid_lower_bound = 0.0;
+//    scalar_upper_bound = std::numeric_limits<Real>::max();
+//    resid_upper_bound = 0.0;
+//    iter_output << "  Reset lower/upper bounds because residual didn't decrease enough"
+//                << std::endl;
+//  }
 }

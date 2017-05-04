@@ -108,7 +108,7 @@ IsotropicPlasticity::computeResidual(const unsigned int qp,
     // roundoff.
     residual = (effectiveTrialStress - _hardening_variable[qp] - _yield_stress) -
                (3.0 * _shear_modulus * scalar);
-    reference_residual = effectiveTrialStress;
+    reference_residual = _hardening_variable[qp] + _yield_stress;
   }
   else
     reference_residual = 1.0;
