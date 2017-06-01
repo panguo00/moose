@@ -60,9 +60,11 @@ RadialReturnStressUpdate::updateState(RankTwoTensor & strain_increment,
                                       const RankTwoTensor & /*stress_old*/,
                                       const RankFourTensor & elasticity_tensor,
                                       const RankTwoTensor & elastic_strain_old,
-                                      bool /*compute_full_tangent_operator*/,
+                                      bool compute_full_tangent_operator,
                                       RankFourTensor & tangent_operator)
 {
+  RankTwoTensor flow_direction;
+
   // compute the deviatoric trial stress and trial strain from the current intermediate
   // configuration
   RankTwoTensor deviatoric_trial_stress = stress_new.deviatoric();
@@ -82,8 +84,11 @@ RadialReturnStressUpdate::updateState(RankTwoTensor & strain_increment,
   returnMappingSolve(effective_trial_stress, scalar_effective_inelastic_strain, _console);
 
   if (scalar_effective_inelastic_strain != 0.0)
-    inelastic_strain_increment = deviatoric_trial_stress *
-                                 (1.5 * scalar_effective_inelastic_strain / effective_trial_stress);
+  {
+    flow_direction = deviatoric_trial_stress *
+                                 (1.5 / effective_trial_stress);
+    inelastic_strain_increment = scalar_effective_inelastic_strain * flow_direction;
+  }
   else
     inelastic_strain_increment.zero();
 
@@ -98,11 +103,14 @@ RadialReturnStressUpdate::updateState(RankTwoTensor & strain_increment,
 
   computeStressFinalize(inelastic_strain_increment);
 
-  /**
-   * Note!  The tangent operator for this class, and derived class is
-   * currently just the elasticity tensor, irrespective of compute_full_tangent_operator
-   */
   tangent_operator = elasticity_tensor;
+
+  if (compute_full_tangent_operator && scalar_effective_inelastic_strain != 0.0)
+  {
+    Real derivative = 0.0;
+    tangent_operator -= (1.0 / (flow_direction.transpose().doubleContraction(elasticity_tensor * flow_direction) - derivative)) * elasticity_tensor * flow_direction.doubleContraction(flow_direction.transpose()) * elasticity_tensor;
+  }
+
 }
 
 Real

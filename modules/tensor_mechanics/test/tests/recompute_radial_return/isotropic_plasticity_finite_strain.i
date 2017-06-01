@@ -39,6 +39,7 @@
     strain = FINITE
     add_variables = true
     generate_output = 'stress_yy plastic_strain_xx plastic_strain_yy plastic_strain_zz'
+    use_finite_deform_jacobian = true
   [../]
 []
 
@@ -84,7 +85,15 @@
     type = ComputeMultipleInelasticStress
     tangent_operator = elastic
     inelastic_models = 'isotropic_plasticity'
+    tangent_operator = nonlinear
   [../]
+[]
+
+[Preconditining]
+  [smp]
+    type = SMP
+    full = true
+  []
 []
 
 [Executioner]
@@ -93,8 +102,8 @@
   solve_type = 'PJFNK'
 
   petsc_options = '-snes_ksp_ew'
-  petsc_options_iname = '-ksp_gmres_restart'
-  petsc_options_value = '101'
+  petsc_options_iname = '-pc_type -ksp_gmres_restart'
+  petsc_options_value = 'lu 101'
 
   line_search = 'none'
 
