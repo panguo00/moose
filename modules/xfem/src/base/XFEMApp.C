@@ -17,6 +17,7 @@
 #include "XFEMMarkerAux.h"
 #include "XFEMMarkerUserObject.h"
 #include "XFEMMaterialTensorMarkerUserObject.h"
+#include "XFEMTMMaterialTensorMarkerUserObject.h"
 #include "XFEMAction.h"
 #include "XFEMSingleVariableConstraint.h"
 #include "XFEMPressure.h"
@@ -84,6 +85,7 @@ XFEMApp::registerObjects(Factory & factory)
   // UserObjects
   registerUserObject(XFEMMarkerUserObject);
   registerUserObject(XFEMMaterialTensorMarkerUserObject);
+  registerUserObject(XFEMTMMaterialTensorMarkerUserObject);
 
   // Geometric Cut User Objects
   registerUserObject(LineSegmentCutUserObject);
