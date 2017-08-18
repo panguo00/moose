@@ -165,6 +165,8 @@
 #include "PresetDisplacement.h"
 #include "PresetAcceleration.h"
 
+#include "WeibullRandomIC.h"
+
 #include "CrystalPlasticitySlipRateGSS.h"
 #include "CrystalPlasticitySlipResistanceGSS.h"
 #include "CrystalPlasticityStateVariable.h"
@@ -369,6 +371,8 @@ TensorMechanicsApp::registerObjects(Factory & factory)
   registerBoundaryCondition(DisplacementAboutAxis);
   registerBoundaryCondition(PresetDisplacement);
   registerBoundaryCondition(PresetAcceleration);
+
+  registerInitialCondition(WeibullRandomIC);
 
   registerPostprocessor(CavityPressurePostprocessor);
   registerPostprocessor(Mass);
