@@ -53,7 +53,10 @@ public:
    */
   GeometricCutUserObject(const InputParameters & parameters);
 
-  virtual bool active(Real time) const = 0;
+  virtual void initialize() override;
+  virtual void execute() override;
+  virtual void threadJoin(const UserObject & y) override;
+  virtual void finalize() override;
 
   virtual bool cutElementByGeometry(const Elem * elem,
                                     std::vector<CutEdge> & cut_edges,
@@ -69,10 +72,9 @@ public:
                                      std::vector<CutFace> & cut_faces,
                                      Real time) const = 0;
 
-  Real cutFraction(unsigned int cut_num, Real time) const;
-
 protected:
-  std::vector<std::pair<Real, Real>> _cut_time_ranges;
+  MooseSharedPointer<XFEM> _xfem;
+
 };
 
 #endif // GEOMETRICCUTUSEROBJECT_H

@@ -19,18 +19,19 @@ template <>
 InputParameters
 validParams<GeometricCut2DUserObject>()
 {
-  // Get input parameters from parent class
   InputParameters params = validParams<GeometricCutUserObject>();
-
-  // Class description
+  params.addParam<Real>("time_start_cut", 0.0, "Start time of geometric cut propagation");
+  params.addParam<Real>("time_end_cut", 0.0, "End time of geometric cut propagation");
   params.addClassDescription("Base class for 2D XFEM Geometric Cut UserObjects");
-  // Return the parameters
   return params;
 }
 
 GeometricCut2DUserObject::GeometricCut2DUserObject(const InputParameters & parameters)
-  : GeometricCutUserObject(parameters), _cut_line_endpoints()
+  : GeometricCutUserObject(parameters), _cut_line_endpoints(),
+  _cut_time_ranges()
 {
+  _cut_time_ranges.push_back(
+      std::make_pair(getParam<Real>("time_start_cut"), getParam<Real>("time_end_cut")));
 }
 
 bool
@@ -206,4 +207,20 @@ Real
 GeometricCut2DUserObject::crossProduct2D(const Point & point_a, const Point & point_b) const
 {
   return (point_a(0) * point_b(1) - point_b(0) * point_a(1));
+}
+
+Real
+GeometricCutUserObject::cutFraction(unsigned int cut_num, Real time) const
+{
+  Real fraction = 0.0;
+
+  if (time >= _cut_time_ranges[cut_num].first)
+  {
+    if (time >= _cut_time_ranges[cut_num].second)
+      fraction = 1.0;
+    else
+      fraction = (time - _cut_time_ranges[cut_num].first) /
+                 (_cut_time_ranges[cut_num].second - _cut_time_ranges[cut_num].first);
+  }
+  return fraction;
 }

@@ -15,7 +15,6 @@
 #include "XFEMVolFracAux.h"
 #include "XFEMCutPlaneAux.h"
 #include "XFEMMarkerAux.h"
-#include "XFEMMarkerUserObject.h"
 #include "XFEMMaterialTensorMarkerUserObject.h"
 #include "XFEMRankTwoTensorMarkerUserObject.h"
 #include "XFEMAction.h"
@@ -91,7 +90,6 @@ XFEMApp::registerObjects(Factory & factory)
   registerConstraint(XFEMSingleVariableConstraint);
 
   // UserObjects
-  registerUserObject(XFEMMarkerUserObject);
   registerUserObject(XFEMMaterialTensorMarkerUserObject);
   registerUserObject(XFEMRankTwoTensorMarkerUserObject);
 

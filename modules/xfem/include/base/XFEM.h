@@ -170,6 +170,10 @@ public:
                                      std::vector<Real> & quad_wts) const;
   bool has_secondary_cut() { return _has_secondary_cut; }
 
+  EFAElement2D * getEFAElem2D(const Elem * elem);
+
+  EFAElement3D * getEFAElem3D(const Elem * elem);
+
 private:
   void getFragmentEdges(const Elem * elem,
                         EFAElement2D * CEMElem,

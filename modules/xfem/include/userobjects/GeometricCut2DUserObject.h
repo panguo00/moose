@@ -48,6 +48,10 @@ protected:
                                    Real & segment_intersection_fraction) const;
 
   Real crossProduct2D(const Point & point_a, const Point & point_b) const;
+
+  Real cutFraction(unsigned int cut_num, Real time) const;
+
+  std::vector<std::pair<Real, Real>> _cut_time_ranges;
 };
 
 #endif // GEOMETRICCUT2DUSEROBJECT_H

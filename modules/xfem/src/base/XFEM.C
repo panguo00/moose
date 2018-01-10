@@ -360,11 +360,7 @@ XFEM::markCutEdgesByGeometry(Real time)
       std::vector<CutNode> elem_cut_nodes;
       std::vector<CutEdge> frag_cut_edges;
       std::vector<std::vector<Point>> frag_edges;
-      EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-      EFAElement2D * CEMElem = dynamic_cast<EFAElement2D *>(EFAelem);
-
-      if (!CEMElem)
-        mooseError("EFAelem is not of EFAelement2D type");
+      EFAElement2D * CEMElem = getEFAElem2D(elem);
 
       // continue if elem has been already cut twice - IMPORTANT
       if (CEMElem->isFinalCut())
@@ -569,15 +565,11 @@ XFEM::markCutEdgesByState(Real time)
   {
     const Elem * elem = pmeit->first;
     RealVectorValue normal = pmeit->second;
-    EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-    EFAElement2D * CEMElem = dynamic_cast<EFAElement2D *>(EFAelem);
+    EFAElement2D * CEMElem = getEFAElem2D(elem);
 
     Real volfrac_elem = getPhysicalVolumeFraction(elem);
     if (volfrac_elem < 0.25)
       continue;
-
-    if (!CEMElem)
-      mooseError("EFAelem is not of EFAelement2D type");
 
     // continue if elem is already cut twice - IMPORTANT
     if (CEMElem->isFinalCut())
@@ -778,11 +770,7 @@ XFEM::markCutEdgesByState(Real time)
         {
           const Elem * elem = *elem_it;
           std::vector<CutEdgeForCrackGrowthIncr> elem_cut_edges;
-          EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-          EFAElement2D * CEMElem = dynamic_cast<EFAElement2D *>(EFAelem);
-
-          if (!CEMElem)
-            mooseError("EFAelem is not of EFAelement2D type");
+          EFAElement2D * CEMElem = getEFAElem2D(elem);
 
           // continue if elem has been already cut twice - IMPORTANT
           if (CEMElem->isFinalCut())
@@ -857,10 +845,7 @@ XFEM::markCutFacesByGeometry(Real time)
       std::vector<CutFace> elem_cut_faces;
       std::vector<CutFace> frag_cut_faces;
       std::vector<std::vector<Point>> frag_faces;
-      EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
-      EFAElement3D * CEMElem = dynamic_cast<EFAElement3D *>(EFAelem);
-      if (!CEMElem)
-        mooseError("EFAelem is not of EFAelement3D type");
+      EFAElement3D * CEMElem = getEFAElem3D(elem);
 
       // continue if elem has been already cut twice - IMPORTANT
       if (CEMElem->isFinalCut())
@@ -1515,6 +1500,30 @@ XFEM::getFragmentFaces(const Elem * elem,
   }
 }
 
+EFAElement2D *
+XFEM::getEFAElem2D(const Elem * elem)
+{
+  EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
+  EFAElement2D * EFAelem2D = dynamic_cast<EFAElement2D *>(EFAelem);
+
+  if (!EFAelem2D)
+    mooseError("EFAelem is not of EFAelement2D type");
+
+  return EFAelem2D;
+}
+
+EFAElement3D *
+XFEM::getEFAElem3D(const Elem * elem)
+{
+  EFAElement * EFAelem = _efa_mesh.getElemByID(elem->id());
+  EFAElement3D * EFAelem3D = dynamic_cast<EFAElement3D *>(EFAelem);
+
+  if (!EFAelem3D)
+    mooseError("EFAelem is not of EFAelement3D type");
+
+  return EFAelem3D;
+}
+
 void
 XFEM::getFragmentEdges(const Elem * elem,
                        EFAElement2D * CEMElem,
@@ -1525,7 +1534,7 @@ XFEM::getFragmentEdges(const Elem * elem,
   if (CEMElem->numFragments() > 0)
   {
     if (CEMElem->numFragments() > 1)
-      mooseError("element ", elem->id(), " has more than one fragments at this point");
+      mooseError("element ", elem->id(), " has more than one fragment at this point");
     for (unsigned int i = 0; i < CEMElem->getFragment(0)->numEdges(); ++i)
     {
       std::vector<Point> p_line(2, Point(0.0, 0.0, 0.0));
@@ -1546,7 +1555,7 @@ XFEM::getFragmentFaces(const Elem * elem,
   if (CEMElem->numFragments() > 0)
   {
     if (CEMElem->numFragments() > 1)
-      mooseError("element ", elem->id(), " has more than one fragments at this point");
+      mooseError("element ", elem->id(), " has more than one fragment at this point");
     for (unsigned int i = 0; i < CEMElem->getFragment(0)->numFaces(); ++i)
     {
       unsigned int num_face_nodes = CEMElem->getFragmentFace(0, i)->numNodes();
