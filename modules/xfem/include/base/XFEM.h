@@ -103,7 +103,7 @@ public:
   bool markCuts(Real time);
   bool markCutEdgesByGeometry();
   bool markCutEdgesByState(Real time);
-  bool markCutFacesByGeometry(Real time);
+  bool markCutFacesByGeometry();
   bool markCutFacesByState();
   bool initCutIntersectionEdge(
       Point cut_origin, RealVectorValue cut_normal, Point & edge_p1, Point & edge_p2, Real & dist);

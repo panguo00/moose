@@ -90,6 +90,7 @@ public:
 protected:
   MooseSharedPointer<XFEM> _xfem;
   std::map<const Elem *, Xfem::GeomMarkedElemInfo2D> _marked_elems_2d;
+  std::map<const Elem *, Xfem::GeomMarkedElemInfo3D> _marked_elems_3d;
 };
 
 #endif // GEOMETRICCUTUSEROBJECT_H
