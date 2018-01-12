@@ -17,6 +17,10 @@
 
 using namespace libMesh;
 
+class XFEM;
+
+namespace Xfem
+{
 struct CutEdge
 {
   unsigned int id1;
@@ -37,6 +41,17 @@ struct CutFace
   std::vector<unsigned int> face_edge;
   std::vector<Real> position;
 };
+
+struct GeomMarkedElemInfo2D
+{
+  std::vector<CutEdge> elem_cut_edges;
+  std::vector<CutNode> elem_cut_nodes;
+  std::vector<CutEdge> frag_cut_edges;
+  std::vector<std::vector<Point>> frag_edges;
+};
+//TODO add 3d version
+
+} // namespace Xfem
 
 // Forward declarations
 class GeometricCutUserObject;
@@ -59,22 +74,22 @@ public:
   virtual void finalize() override;
 
   virtual bool cutElementByGeometry(const Elem * elem,
-                                    std::vector<CutEdge> & cut_edges,
-                                    std::vector<CutNode> & cut_nodes,
+                                    std::vector<Xfem::CutEdge> & cut_edges,
+                                    std::vector<Xfem::CutNode> & cut_nodes,
                                     Real time) const = 0;
   virtual bool
-  cutElementByGeometry(const Elem * elem, std::vector<CutFace> & cut_faces, Real time) const = 0;
+  cutElementByGeometry(const Elem * elem, std::vector<Xfem::CutFace> & cut_faces, Real time) const = 0;
 
   virtual bool cutFragmentByGeometry(std::vector<std::vector<Point>> & frag_edges,
-                                     std::vector<CutEdge> & cut_edges,
+                                     std::vector<Xfem::CutEdge> & cut_edges,
                                      Real time) const = 0;
   virtual bool cutFragmentByGeometry(std::vector<std::vector<Point>> & frag_faces,
-                                     std::vector<CutFace> & cut_faces,
+                                     std::vector<Xfem::CutFace> & cut_faces,
                                      Real time) const = 0;
 
 protected:
   MooseSharedPointer<XFEM> _xfem;
-
+  std::map<const Elem *, Xfem::GeomMarkedElemInfo2D> _marked_elems_2d;
 };
 
 #endif // GEOMETRICCUTUSEROBJECT_H

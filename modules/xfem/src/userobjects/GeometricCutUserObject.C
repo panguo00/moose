@@ -9,6 +9,8 @@
 
 // MOOSE includes
 #include "MooseError.h"
+#include "XFEM.h"
+#include "EFAElement2D.h"
 
 template <>
 InputParameters
@@ -33,7 +35,7 @@ GeometricCutUserObject::GeometricCutUserObject(const InputParameters & parameter
 void
 GeometricCutUserObject::initialize()
 {
-  _marked_elems.clear();
+  _marked_elems_2d.clear();
 }
 
 void
@@ -41,26 +43,34 @@ GeometricCutUserObject::execute()
 {
   if (_current_elem->dim() == 2)
   {
-    std::vector<CutEdge> elem_cut_edges;
-    std::vector<CutNode> elem_cut_nodes;
-    std::vector<CutEdge> frag_cut_edges;
+    std::vector<Xfem::CutEdge> elem_cut_edges;
+    std::vector<Xfem::CutNode> elem_cut_nodes;
+    std::vector<Xfem::CutEdge> frag_cut_edges;
     std::vector<std::vector<Point>> frag_edges;
 
-    EFAElement2D * EFAElem = getEFAElem2D(elem);
+    EFAElement2D * EFAElem = _xfem->getEFAElem2D(_current_elem);
 
     // Don't cut again if elem has been already cut twice
-    if (EFAElem->isFinalCut())
-      continue;
-
-    // get fragment edges
-    getFragmentEdges(elem, EFAElem, frag_edges);
-
-    // mark cut edges for the element and its fragment
-    for (unsigned int i = 0; i < active_geometric_cuts.size(); ++i)
+    if (!EFAElem->isFinalCut())
     {
-      active_geometric_cuts[i]->cutElementByGeometry(elem, elem_cut_edges, elem_cut_nodes, time);
+      // get fragment edges
+      _xfem->getFragmentEdges(_current_elem, EFAElem, frag_edges);
+
+      // mark cut edges for the element and its fragment
+      bool cut = cutElementByGeometry(_current_elem, elem_cut_edges, elem_cut_nodes, _t);
       if (EFAElem->numFragments() > 0)
-	active_geometric_cuts[i]->cutFragmentByGeometry(frag_edges, frag_cut_edges, time);
+        cut |= cutFragmentByGeometry(frag_edges, frag_cut_edges, _t);
+
+      if (cut)
+      {
+        mooseAssert(_marked_elems_2d.find(_current_elem) != _marked_elems_2d.end(),
+                    "Element already marked for crack growth");
+        auto & me = _marked_elems_2d[_current_elem];
+        me.elem_cut_edges = elem_cut_edges;
+        me.elem_cut_nodes = elem_cut_nodes;
+        me.frag_cut_edges = frag_cut_edges;
+        me.frag_edges = frag_edges;
+      }
     }
   }
 }
@@ -70,48 +80,33 @@ GeometricCutUserObject::threadJoin(const UserObject & y)
 {
   const GeometricCutUserObject & gcuo = dynamic_cast<const GeometricCutUserObject &>(y);
 
-  for (std::map<unsigned int, RealVectorValue>::const_iterator mit = gcuo._marked_elems.begin();
-       mit != gcuo._marked_elems.end();
-       ++mit)
+  for (const auto & it : gcuo._marked_elems_2d)
   {
-    _marked_elems[mit->first] = mit->second; // TODO do error checking for duplicates here too
-  }
-
-  for (std::set<unsigned int>::const_iterator mit = gcuo._marked_frags.begin();
-       mit != gcuo._marked_frags.end();
-       ++mit)
-  {
-    _marked_frags.insert(*mit); // TODO do error checking for duplicates here too
-  }
-
-  for (std::map<unsigned int, unsigned int>::const_iterator mit = gcuo._marked_elem_sides.begin();
-       mit != gcuo._marked_elem_sides.end();
-       ++mit)
-  {
-    _marked_elem_sides[mit->first] = mit->second; // TODO do error checking for duplicates here too
+    mooseAssert(_marked_elems_2d.find(it.first) != _marked_elems_2d.end(),
+                "Element already marked for crack growth");
+    _marked_elems_2d[it.first] = it.second;
   }
 }
 
 void
 GeometricCutUserObject::finalize()
 {
-  _communicator.set_union(_marked_elems);
-  _communicator.set_union(_marked_frags);
-  _communicator.set_union(_marked_elem_sides);
-
-  _xfem->clearStateMarkedElems();
-  std::map<unsigned int, RealVectorValue>::iterator mit;
-  for (mit = _marked_elems.begin(); mit != _marked_elems.end(); ++mit)
+  std::map<const Elem *, Xfem::CutEdge> elem_cut_edges_map;
+  for (auto & it : _marked_elems_2d)
   {
-    if (_marked_elem_sides.find(mit->first) != _marked_elem_sides.end())
-      _xfem->addStateMarkedElem(mit->first, mit->second, _marked_elem_sides[mit->first]);
-    else if (_marked_frags.find(mit->first) != _marked_frags.end())
-      _xfem->addStateMarkedFrag(mit->first, mit->second);
-    else
-      _xfem->addStateMarkedElem(mit->first, mit->second);
+    elem_cut_edges_map[it.first] = it.second.elem_cut_edges;
   }
 
-  _marked_elems.clear();
-  _marked_frags.clear();
-  _marked_elem_sides.clear();
+
+
+//  _communicator.set_union(_marked_elems_2d);
+
+  //BWS TODO this works only if there is a single geometric cut object
+  // Actually -- I don't think we need this because XFEM does it.
+  //_xfem->clearGeomMarkedElems();
+
+  for (const auto & it : _marked_elems_2d)
+    _xfem->addGeomMarkedElem2D(it.first, it.second);
+
+  _marked_elems_2d.clear();
 }

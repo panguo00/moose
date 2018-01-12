@@ -39,6 +39,14 @@ enum XFEM_QRULE
   MOMENT_FITTING,
   DIRECT
 };
+
+//struct GeomMarkedElemInfo3D
+//{
+//  std::vector<CutEdge> elem_cut_edges;
+//  std::vector<CutNode> elem_cut_nodes;
+//  std::vector<CutEdge> frag_cut_edges;
+//  std::vector<std::vector<Point>> frag_edges;
+//}
 } // namespace Xfem
 
 class XFEMCutElem;
@@ -75,6 +83,11 @@ public:
 
   void clearStateMarkedElems();
 
+  void addGeomMarkedElem2D(const Elem * elem,
+			   const Xfem::GeomMarkedElemInfo2D geom_info);
+
+  void clearGeomMarkedElems();
+
   /**
    * Method to update the mesh due to modified cut planes
    */
@@ -88,7 +101,7 @@ public:
   void buildEFAMesh();
   bool shouldHealMesh(Real time);
   bool markCuts(Real time);
-  bool markCutEdgesByGeometry(Real time);
+  bool markCutEdgesByGeometry();
   bool markCutEdgesByState(Real time);
   bool markCutFacesByGeometry(Real time);
   bool markCutFacesByState();
@@ -174,7 +187,6 @@ public:
 
   EFAElement3D * getEFAElem3D(const Elem * elem);
 
-private:
   void getFragmentEdges(const Elem * elem,
                         EFAElement2D * CEMElem,
                         std::vector<std::vector<Point>> & frag_edges) const;
@@ -204,6 +216,9 @@ private:
   std::map<const Elem *, RealVectorValue> _state_marked_elems;
   std::set<const Elem *> _state_marked_frags;
   std::map<const Elem *, unsigned int> _state_marked_elem_sides;
+
+  std::map<const Elem *, Xfem::GeomMarkedElemInfo2D> _geom_marked_elems_2d;
+//  std::map<const Elem *, Xfem::GeomMarkedElemInfo3D> _geom_marked_elems_3d;
 
   ElementFragmentAlgorithm _efa_mesh;
 
