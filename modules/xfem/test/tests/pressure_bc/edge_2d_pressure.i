@@ -27,6 +27,7 @@
   [./line_seg_cut_uo]
     type = LineSegmentCutUserObject
     cut_data = '0.0 0.5 0.5 0.5'
+    execute_on = 'XFEM_MARK timestep_begin nonlinear'
   [../]
 []
 

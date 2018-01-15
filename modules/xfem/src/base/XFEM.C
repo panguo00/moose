@@ -8,6 +8,7 @@
 #include "XFEM.h"
 
 // XFEM includes
+#include "XFEMAppTypes.h"
 #include "XFEMCutElem2D.h"
 #include "XFEMCutElem3D.h"
 #include "XFEMFuncs.h"
@@ -154,16 +155,27 @@ XFEM::addGeomMarkedElem2D(const Elem * elem,
 {
   const auto & it = _geom_marked_elems_2d.find(elem);
   if (it != _geom_marked_elems_2d.end())
-    mooseError(" ERROR: element ", elem->id(), " already marked for crack growth.");
+    mooseError("Element ", elem->id(), " already marked for crack growth.");
 
   _geom_marked_elems_2d[elem] = geom_info;
+}
+
+void
+XFEM::addGeomMarkedElem3D(const Elem * elem,
+			  const Xfem::GeomMarkedElemInfo3D geom_info)
+{
+  const auto & it = _geom_marked_elems_3d.find(elem);
+  if (it != _geom_marked_elems_3d.end())
+    mooseError("Element ", elem->id(), " already marked for crack growth.");
+
+  _geom_marked_elems_3d[elem] = geom_info;
 }
 
 void
 XFEM::clearGeomMarkedElems()
 {
   _geom_marked_elems_2d.clear();
-//  _geom_marked_elems_3d.clear();
+  _geom_marked_elems_3d.clear();
 }
 
 void
@@ -208,6 +220,7 @@ XFEM::storeCrackTipOriginAndDirection()
 bool
 XFEM::update(Real time, NonlinearSystemBase & nl, AuxiliarySystem & aux)
 {
+  _fe_problem->execute(EXEC_XFEM_MARK);
   bool mesh_changed = false;
 
   buildEFAMesh();

@@ -49,7 +49,13 @@ struct GeomMarkedElemInfo2D
   std::vector<CutEdge> frag_cut_edges;
   std::vector<std::vector<Point>> frag_edges;
 };
-//TODO add 3d version
+
+struct GeomMarkedElemInfo3D
+{
+  std::vector<CutFace> elem_cut_faces;
+  std::vector<CutFace> frag_cut_faces;
+  std::vector<std::vector<Point>> frag_faces;
+};
 
 } // namespace Xfem
 
@@ -83,6 +89,7 @@ public:
   virtual bool cutFragmentByGeometry(std::vector<std::vector<Point>> & frag_edges,
                                      std::vector<Xfem::CutEdge> & cut_edges,
                                      Real time) const = 0;
+
   virtual bool cutFragmentByGeometry(std::vector<std::vector<Point>> & frag_faces,
                                      std::vector<Xfem::CutFace> & cut_faces,
                                      Real time) const = 0;

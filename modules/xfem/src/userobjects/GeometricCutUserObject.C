@@ -11,6 +11,7 @@
 #include "MooseError.h"
 #include "XFEM.h"
 #include "EFAElement2D.h"
+#include "EFAElement3D.h"
 
 template <>
 InputParameters
@@ -30,17 +31,21 @@ GeometricCutUserObject::GeometricCutUserObject(const InputParameters & parameter
   _xfem = MooseSharedNamespace::dynamic_pointer_cast<XFEM>(fe_problem->getXFEM());
   if (_xfem == NULL)
     mooseError("Problem casting to XFEM in XFEMMaterialStateMarkerBase");
+  std::cout<<"BWS ctor" << std::endl;
 }
 
 void
 GeometricCutUserObject::initialize()
 {
+  std::cout<<"BWS init" << std::endl;
   _marked_elems_2d.clear();
+  _marked_elems_3d.clear();
 }
 
 void
 GeometricCutUserObject::execute()
 {
+  std::cout<<"BWS elem: "<<_current_elem->id() << std::endl;
   if (_current_elem->dim() == 2)
   {
     std::vector<Xfem::CutEdge> elem_cut_edges;
@@ -129,83 +134,80 @@ void
 GeometricCutUserObject::finalize()
 {
 
-  // Long way of doing this:
-  // _communicator.set_union(_marked_elems_2d);
-  std::map<const Elem *, Xfem::CutEdge> elem_cut_edges_map;
-  std::map<const Elem *, Xfem::CutNode> elem_cut_nodes_map;
-  std::map<const Elem *, Xfem::CutEdge> frag_cut_edges_map;
-  std::map<std::vector<std::vector<Point>>> frag_edges_map;
-
-  for (auto & it : _marked_elems_2d)
-  {
-    elem_cut_edges_map[it.first] = it.second.elem_cut_edges;
-    elem_cut_nodes_map[it.first] = it.second.elem_cut_nodes;
-    frag_cut_edges_map[it.first] = it.second.frag_cut_edges;
-    frag_edges_map[it.first] = it.second.frag_edges;
-  }
-
-  _communicator.set_union(elem_cut_edges_map);
-  _communicator.set_union(elem_cut_nodes_map);
-  _communicator.set_union(frag_cut_edges_map);
-  _communicator.set_union(frag_edges_map);
-
-  for (auto & it : elem_cut_edges_map)
-  {
-    auto & me = _marked_elems_2d.find(it.first);
-    if (me == _marked_elems_2d.end())
-    {
-      mooseAssert(elem_cut_nodes_map.find(it.first) != elem_cut_nodes_map.end(),
-                  "Map should have entry for this elem");
-      mooseAssert(frag_cut_edges_map.find(it.first) != frag_cut_edges_map.end(),
-                  "Map should have entry for this elem");
-      mooseAssert(frag_edges_map.find(it.first) != frag_edges_map.end(),
-                  "Map should have entry for this elem");
-
-      me = _marked_elems_2d[it.first];
-      me.elem_cut_edges = elem_cut_edges_map[it.first].elem_cut_edges;
-      me.elem_cut_nodes = elem_cut_nodes_map[it.first].elem_cut_nodes;
-      me.frag_cut_edges = frag_cut_edges_map[it.first].frag_cut_edges;
-      me.frag_edges = frag_edges_map[it.first].frag_edges;
-    }
-  }
-
-  // Long way of doing this:
-  // _communicator.set_union(_marked_elems_3d);
-        me.elem_cut_faces = elem_cut_faces;
-        me.frag_cut_faces = frag_cut_faces;
-        me.frag_faces = frag_faces;
-
-  std::map<const Elem *, Xfem::CutEdge> elem_cut_faces_map;
-  std::map<const Elem *, Xfem::CutEdge> frag_cut_faces_map;
-  std::map<std::vector<std::vector<Point>>> frag_faces_map;
-
-  for (auto & it : _marked_elems_3d)
-  {
-    elem_cut_faces_map[it.first] = it.second.elem_cut_faces;
-    frag_cut_faces_map[it.first] = it.second.frag_cut_faces;
-    frag_faces_map[it.first] = it.second.frag_faces;
-  }
-
-  _communicator.set_union(elem_cut_faces_map);
-  _communicator.set_union(frag_cut_faces_map);
-  _communicator.set_union(frag_faces_map);
-
-  for (auto & it : elem_cut_faces_map)
-  {
-    auto & me = _marked_elems_3d.find(it.first);
-    if (me == _marked_elems_3d.end())
-    {
-      mooseAssert(frag_cut_faces_map.find(it.first) != frag_cut_faces_map.end(),
-                  "Map should have entry for this elem");
-      mooseAssert(frag_faces_map.find(it.first) != frag_faces_map.end(),
-                  "Map should have entry for this elem");
-
-      me = _marked_elems_3d[it.first];
-      me.elem_cut_faces = elem_cut_faces_map[it.first].elem_cut_faces;
-      me.frag_cut_faces = frag_cut_faces_map[it.first].frag_cut_faces;
-      me.frag_faces = frag_faces_map[it.first].frag_faces;
-    }
-  }
+//  // Long way of doing this:
+//  // _communicator.set_union(_marked_elems_2d);
+//  std::map<const Elem *, std::vector<Xfem::CutEdge>> elem_cut_edges_map;
+//  std::map<const Elem *, std::vector<Xfem::CutNode>> elem_cut_nodes_map;
+//  std::map<const Elem *, std::vector<Xfem::CutEdge>> frag_cut_edges_map;
+//  std::map<const Elem *, std::vector<std::vector<Point>>> frag_edges_map;
+//
+//  for (const auto & it : _marked_elems_2d)
+//  {
+//    elem_cut_edges_map[it.first] = it.second.elem_cut_edges;
+//    elem_cut_nodes_map[it.first] = it.second.elem_cut_nodes;
+//    frag_cut_edges_map[it.first] = it.second.frag_cut_edges;
+//    frag_edges_map[it.first] = it.second.frag_edges;
+//  }
+//
+////  _communicator.set_union(elem_cut_edges_map);
+////  _communicator.set_union(elem_cut_nodes_map);
+////  _communicator.set_union(frag_cut_edges_map);
+//  _communicator.set_union(frag_edges_map);
+//
+//  for (const auto & it : elem_cut_edges_map)
+//  {
+//    auto & me = _marked_elems_2d.find(it.first);
+//    if (me == _marked_elems_2d.end())
+//    {
+//      mooseAssert(elem_cut_nodes_map.find(it.first) != elem_cut_nodes_map.end(),
+//                  "Map should have entry for this elem");
+//      mooseAssert(frag_cut_edges_map.find(it.first) != frag_cut_edges_map.end(),
+//                  "Map should have entry for this elem");
+//      mooseAssert(frag_edges_map.find(it.first) != frag_edges_map.end(),
+//                  "Map should have entry for this elem");
+//
+//      me = _marked_elems_2d[it.first];
+//      me.elem_cut_edges = elem_cut_edges_map[it.first].elem_cut_edges;
+//      me.elem_cut_nodes = elem_cut_nodes_map[it.first].elem_cut_nodes;
+//      me.frag_cut_edges = frag_cut_edges_map[it.first].frag_cut_edges;
+//      me.frag_edges = frag_edges_map[it.first].frag_edges;
+//    }
+//  }
+//
+//  // Long way of doing this:
+//  // _communicator.set_union(_marked_elems_3d);
+//
+//  std::map<const Elem *, std::vector<Xfem::CutFace>> elem_cut_faces_map;
+//  std::map<const Elem *, std::vector<Xfem::CutFace>> frag_cut_faces_map;
+//  std::map<const Elem *, std::vector<std::vector<Point>>> frag_faces_map;
+//
+//  for (const auto & it : _marked_elems_3d)
+//  {
+//    elem_cut_faces_map[it.first] = it.second.elem_cut_faces;
+//    frag_cut_faces_map[it.first] = it.second.frag_cut_faces;
+//    frag_faces_map[it.first] = it.second.frag_faces;
+//  }
+//
+////  _communicator.set_union(elem_cut_faces_map);
+////  _communicator.set_union(frag_cut_faces_map);
+//  _communicator.set_union(frag_faces_map);
+//
+//  for (const auto & it : elem_cut_faces_map)
+//  {
+//    auto & me = _marked_elems_3d.find(it.first);
+//    if (me == _marked_elems_3d.end())
+//    {
+//      mooseAssert(frag_cut_faces_map.find(it.first) != frag_cut_faces_map.end(),
+//                  "Map should have entry for this elem");
+//      mooseAssert(frag_faces_map.find(it.first) != frag_faces_map.end(),
+//                  "Map should have entry for this elem");
+//
+//      me = _marked_elems_3d[it.first];
+//      me.elem_cut_faces = elem_cut_faces_map[it.first].elem_cut_faces;
+//      me.frag_cut_faces = frag_cut_faces_map[it.first].frag_cut_faces;
+//      me.frag_faces = frag_faces_map[it.first].frag_faces;
+//    }
+//  }
 
 
   //BWS TODO this works only if there is a single geometric cut object

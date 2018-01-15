@@ -39,14 +39,6 @@ enum XFEM_QRULE
   MOMENT_FITTING,
   DIRECT
 };
-
-//struct GeomMarkedElemInfo3D
-//{
-//  std::vector<CutEdge> elem_cut_edges;
-//  std::vector<CutNode> elem_cut_nodes;
-//  std::vector<CutEdge> frag_cut_edges;
-//  std::vector<std::vector<Point>> frag_edges;
-//}
 } // namespace Xfem
 
 class XFEMCutElem;
@@ -85,6 +77,9 @@ public:
 
   void addGeomMarkedElem2D(const Elem * elem,
 			   const Xfem::GeomMarkedElemInfo2D geom_info);
+
+  void addGeomMarkedElem3D(const Elem * elem,
+			   const Xfem::GeomMarkedElemInfo3D geom_info);
 
   void clearGeomMarkedElems();
 
@@ -218,7 +213,7 @@ private:
   std::map<const Elem *, unsigned int> _state_marked_elem_sides;
 
   std::map<const Elem *, Xfem::GeomMarkedElemInfo2D> _geom_marked_elems_2d;
-//  std::map<const Elem *, Xfem::GeomMarkedElemInfo3D> _geom_marked_elems_3d;
+  std::map<const Elem *, Xfem::GeomMarkedElemInfo3D> _geom_marked_elems_3d;
 
   ElementFragmentAlgorithm _efa_mesh;
 

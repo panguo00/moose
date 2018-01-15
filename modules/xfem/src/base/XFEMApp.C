@@ -6,6 +6,7 @@
 /****************************************************************/
 
 #include "XFEMApp.h"
+#include "XFEMAppTypes.h"
 #include "SolidMechanicsApp.h"
 #include "TensorMechanicsApp.h"
 #include "Moose.h"
@@ -139,4 +140,11 @@ XFEMApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
   registerAction(XFEMAction, "add_bc");
 
   registerSyntax("XFEMAction", "XFEM");
+}
+
+void
+XFEMApp::registerExecFlags()
+{
+  MooseApp::registerExecFlags();
+  registerExecFlag(EXEC_XFEM_MARK);
 }
