@@ -214,7 +214,7 @@ MechanicalContactConstraint::timestepSetup()
 {
   if (_component == 0)
   {
-    updateContactSet(true);
+    updateContactStatefulData(true);
     if (_formulation == CF_AUGMENTED_LAGRANGE)
       updateAugmentedLagrangianMultiplier(true);
 
@@ -228,7 +228,7 @@ MechanicalContactConstraint::jacobianSetup()
   if (_component == 0)
   {
     if (_update_contact_set)
-      updateContactSet();
+      updateContactStatefulData();
     _update_contact_set = true;
   }
 }
@@ -403,7 +403,7 @@ MechanicalContactConstraint::AugmentedLagrangianContactConverged()
 }
 
 void
-MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
+MechanicalContactConstraint::updateContactStatefulData(bool beginning_of_step)
 {
   for (auto & pinfo_pair : _penetration_locator._penetration_info)
   {
@@ -439,28 +439,6 @@ MechanicalContactConstraint::updateContactSet(bool beginning_of_step)
       pinfo->_starting_closest_point_ref = pinfo->_closest_point_ref;
     }
     pinfo->_incremental_slip_prev_iter = pinfo->_incremental_slip;
-
-    const Real contact_pressure = -(pinfo->_normal * pinfo->_contact_force) / nodalArea(*pinfo);
-    const Real distance = pinfo->_normal * (pinfo->_closest_point - _mesh.nodeRef(slave_node_num));
-
-    // Capture
-    if (!pinfo->isCaptured() &&
-        MooseUtils::absoluteFuzzyGreaterEqual(distance, 0.0, _capture_tolerance))
-    {
-      pinfo->capture();
-
-      // Increment the lock count every time the node comes back into contact from not being in
-      // contact.
-      if (_formulation == CF_KINEMATIC || _formulation == CF_TANGENTIAL_PENALTY)
-        ++pinfo->_locked_this_step;
-    }
-    // Release
-    else if (_model != CM_GLUED && pinfo->isCaptured() && _tension_release >= 0.0 &&
-             -contact_pressure >= _tension_release && pinfo->_locked_this_step < 2)
-    {
-      pinfo->release();
-      pinfo->_contact_force.zero();
-    }
   }
 }
 
@@ -481,7 +459,9 @@ MechanicalContactConstraint::shouldApply()
       // This computes the contact force once per constraint, rather than once per quad point
       // and for both master and slave cases.
       if (_component == 0)
-        computeContactForce(pinfo);
+      {
+        computeContactForce(pinfo, isNonlinearIteration());
+      }
     }
   }
 
@@ -489,7 +469,7 @@ MechanicalContactConstraint::shouldApply()
 }
 
 void
-MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
+MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo, bool update_contact_set)
 {
   const Node * node = pinfo->_node;
 
@@ -502,6 +482,30 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
   }
 
   RealVectorValue distance_vec(_mesh.nodeRef(node->id()) - pinfo->_closest_point);
+
+  const Real gap_size = -1.0 * pinfo->_normal * distance_vec;
+
+  // This is for preventing an increment of pinfo->_locked_this_step for nodes that are
+  // captured and released in this function
+  bool newly_captured = false;
+
+  // Capture nodes that are newly in contact
+  if (update_contact_set && 
+      !pinfo->isCaptured() &&
+      MooseUtils::absoluteFuzzyGreaterEqual(gap_size, 0.0, _capture_tolerance))
+  {
+    newly_captured = true;
+    pinfo->capture();
+
+    // Increment the lock count every time the node comes back into contact from not being in
+    // contact.
+    if (_formulation == CF_KINEMATIC || _formulation == CF_TANGENTIAL_PENALTY)
+      ++pinfo->_locked_this_step;
+  }
+
+  if (!pinfo->isCaptured())
+    return;
+
   const Real penalty = getPenalty(*pinfo);
   const Real penalty_slip = getTangentialPenalty(*pinfo);
 
@@ -734,6 +738,20 @@ MechanicalContactConstraint::computeContactForce(PenetrationInfo * pinfo)
     default:
       mooseError("Invalid or unavailable contact model");
       break;
+  }
+
+  // Release
+  if (update_contact_set)
+  {
+    const Real contact_pressure = -(pinfo->_normal * pinfo->_contact_force) / nodalArea(*pinfo);
+    if (_model != CM_GLUED && pinfo->isCaptured() && _tension_release >= 0.0 &&
+      -contact_pressure >= _tension_release && pinfo->_locked_this_step < 2)
+    {
+      if (newly_captured)
+        --pinfo->_locked_this_step;
+      pinfo->release();
+      pinfo->_contact_force.zero();
+    }
   }
 }
 

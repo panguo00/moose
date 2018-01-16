@@ -35,7 +35,7 @@ public:
 
   virtual void updateAugmentedLagrangianMultiplier(bool beginning_of_step = false);
 
-  virtual void updateContactSet(bool beginning_of_step = false);
+  virtual void updateContactStatefulData(bool beginning_of_step = false);
 
   virtual Real computeQpSlaveValue() override;
 
