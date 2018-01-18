@@ -663,6 +663,43 @@ DomainIntegralAction::act()
 
   else if (_current_task == "add_vector_postprocessor")
   {
+    if (_integrals.count(J_INTEGRAL) != 0)
+    {
+      std::string vpp_base_name;
+      if (_convert_J_to_K)
+        vpp_base_name = "K";
+      else
+        vpp_base_name = "J";
+      const std::string vpp_type_name("JIntegralVPP");
+      InputParameters params = _factory.getValidParams(vpp_type_name);
+      params.set<ExecFlagEnum>("execute_on") = EXEC_TIMESTEP_END;
+      params.set<UserObjectName>("crack_front_definition") = uo_name;
+      params.set<bool>("convert_J_to_K") = _convert_J_to_K;
+      if (_convert_J_to_K)
+      {
+        params.set<Real>("youngs_modulus") = _youngs_modulus;
+        params.set<Real>("poissons_ratio") = _poissons_ratio;
+      }
+      if (_has_symmetry_plane)
+        params.set<unsigned int>("symmetry_plane") = _symmetry_plane;
+      params.set<bool>("use_displaced_mesh") = _use_displaced_mesh;
+      for (unsigned int ring_index = 0; ring_index < _ring_vec.size(); ++ring_index)
+      {
+        params.set<unsigned int>("ring_index") = _ring_vec[ring_index];
+        if (_q_function_type == TOPOLOGY)
+          params.set<unsigned int>("ring_first") = _ring_first;
+        params.set<MooseEnum>("q_function_type") = _q_function_type;
+
+        std::ostringstream vpp_name_stream;
+        vpp_name_stream << vpp_base_name << "VPP_" << _ring_vec[ring_index];
+        _problem->addVectorPostprocessor(vpp_type_name, vpp_name_stream.str(), params);
+      }
+    }
+
+
+
+
+
     if (!_treat_as_2d)
     {
       for (std::set<INTEGRAL>::iterator sit = _integrals.begin(); sit != _integrals.end(); ++sit)

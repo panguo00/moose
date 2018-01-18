@@ -53,7 +53,6 @@ JIntegral::JIntegral(const InputParameters & parameters)
     _has_crack_front_point_index(isParamValid("crack_front_point_index")),
     _crack_front_point_index(
         _has_crack_front_point_index ? getParam<unsigned int>("crack_front_point_index") : 0),
-    _treat_as_2d(false),
     _Eshelby_tensor(getMaterialProperty<RankTwoTensor>("Eshelby_tensor")),
     _J_thermal_term_vec(hasMaterialProperty<RealVectorValue>("J_thermal_term_vec")
                             ? &getMaterialProperty<RealVectorValue>("J_thermal_term_vec")
@@ -72,8 +71,6 @@ JIntegral::JIntegral(const InputParameters & parameters)
 void
 JIntegral::initialSetup()
 {
-  _treat_as_2d = _crack_front_definition->treatAs2D();
-
   if (_convert_J_to_K && (!isParamValid("youngs_modulus") || !isParamValid("poissons_ratio")))
     mooseError("youngs_modulus and poissons_ratio must be specified if convert_J_to_K = true");
 }

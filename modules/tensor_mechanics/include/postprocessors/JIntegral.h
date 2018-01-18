@@ -37,7 +37,6 @@ protected:
   const CrackFrontDefinition * const _crack_front_definition;
   bool _has_crack_front_point_index;
   const unsigned int _crack_front_point_index;
-  bool _treat_as_2d;
   const MaterialProperty<RankTwoTensor> & _Eshelby_tensor;
   const MaterialProperty<RealVectorValue> * _J_thermal_term_vec;
   bool _convert_J_to_K;

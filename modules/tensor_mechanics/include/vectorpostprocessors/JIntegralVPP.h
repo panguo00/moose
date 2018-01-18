@@ -4,27 +4,27 @@
 /*          All contents are licensed under LGPL V2.1           */
 /*             See LICENSE for full restrictions                */
 /****************************************************************/
-#ifndef JINTEGRAL_H
-#define JINTEGRAL_H
+#ifndef JINTEGRALVPP_H
+#define JINTEGRALVPP_H
 
 #include "ElementVectorPostprocessor.h"
 #include "CrackFrontDefinition.h"
 
 // Forward Declarations
-class JIntegral;
+class JIntegralVPP;
 class RankTwoTensor;
 
 template <>
-InputParameters validParams<JIntegral>();
+InputParameters validParams<JIntegralVPP>();
 
 /**
  * This vectorpostprocessor computes the J-Integral
  *
  */
-class JIntegral : public ElementVectorPostprocessor
+class JIntegralVPP : public ElementVectorPostprocessor
 {
 public:
-  JIntegral(const InputParameters & parameters);
+  JIntegralVPP(const InputParameters & parameters);
 
   virtual void initialSetup() override;
   virtual void initialize() override;
@@ -33,11 +33,9 @@ public:
   virtual void threadJoin(const UserObject & y) override;
 
 protected:
-  Real computeQpIntegral(const unsigned int crack_front_point_index);
+  Real computeQpIntegral(const unsigned int crack_front_point_index, const Real scalar_q, const RealVectorValue & grad_of_scalar_q);
   const CrackFrontDefinition * const _crack_front_definition;
-  bool _has_crack_front_point_index;
-  const unsigned int _crack_front_point_index;
-  bool _treat_as_2d;
+  MooseEnum _position_type;
   const MaterialProperty<RankTwoTensor> & _Eshelby_tensor;
   const MaterialProperty<RealVectorValue> * _J_thermal_term_vec;
   bool _convert_J_to_K;
@@ -49,8 +47,13 @@ protected:
   std::vector<Real> _q_curr_elem;
   const std::vector<std::vector<Real>> * _phi_curr_elem;
   const std::vector<std::vector<RealGradient>> * _dphi_curr_elem;
+  unsigned int _qp;
 
+  VectorPostprocessorValue & _x;
+  VectorPostprocessorValue & _y;
+  VectorPostprocessorValue & _z;
+  VectorPostprocessorValue & _position;
   VectorPostprocessorValue & _j_integral;
 };
 
-#endif // JINTEGRAL3D_H
+#endif // JINTEGRALVPP_H
