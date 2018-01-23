@@ -7,6 +7,7 @@
 
 #include "JIntegralVPP.h"
 #include "RankTwoTensor.h"
+#include "Conversion.h"
 #include "libmesh/string_to_enum.h"
 #include "libmesh/quadrature.h"
 #include "libmesh/utility.h"
@@ -60,7 +61,7 @@ JIntegralVPP::JIntegralVPP(const InputParameters & parameters)
     _y(declareVector("y")),
     _z(declareVector("z")),
     _position(declareVector("id")),
-    _j_integral(declareVector("j_integral"))
+    _j_integral(declareVector((_convert_J_to_K ? "K_" : "J_") + Moose::stringify(_ring_index)))
 {
 }
 
@@ -136,11 +137,11 @@ JIntegralVPP::execute()
   fe->reinit(_current_elem);
 
   // calculate q for all nodes in this element
-  _q_curr_elem.clear();
   unsigned int ring_base = (_q_function_type == "TOPOLOGY") ? 0 : 1;
 
   for (unsigned int icfp = 0; icfp < _j_integral.size(); icfp++)
   {
+    _q_curr_elem.clear();
     for (unsigned int i = 0; i < _current_elem->n_nodes(); ++i)
     {
       Node * this_node = _current_elem->get_node(i);

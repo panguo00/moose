@@ -14,6 +14,7 @@
 #include "Parser.h"
 #include "CrackFrontDefinition.h"
 #include "MooseMesh.h"
+#include "Conversion.h"
 
 #include "libmesh/string_to_enum.h"
 
@@ -433,6 +434,57 @@ DomainIntegralAction::act()
 
   else if (_current_task == "add_postprocessor")
   {
+//    if (_integrals.count(J_INTEGRAL) != 0)
+//    {
+//      std::string pp_base_name;
+//      if (_convert_J_to_K)
+//        pp_base_name = "K";
+//      else
+//        pp_base_name = "J";
+//      const std::string pp_type_name("JIntegral");
+//      InputParameters params = _factory.getValidParams(pp_type_name);
+//      params.set<ExecFlagEnum>("execute_on") = EXEC_TIMESTEP_END;
+//      params.set<UserObjectName>("crack_front_definition") = uo_name;
+//      params.set<bool>("convert_J_to_K") = _convert_J_to_K;
+//      if (_convert_J_to_K)
+//      {
+//        params.set<Real>("youngs_modulus") = _youngs_modulus;
+//        params.set<Real>("poissons_ratio") = _poissons_ratio;
+//      }
+//      if (_has_symmetry_plane)
+//        params.set<unsigned int>("symmetry_plane") = _symmetry_plane;
+//      params.set<bool>("use_displaced_mesh") = _use_displaced_mesh;
+//      for (unsigned int ring_index = 0; ring_index < _ring_vec.size(); ++ring_index)
+//      {
+//        params.set<unsigned int>("ring_index") = _ring_vec[ring_index];
+//        if (_q_function_type == TOPOLOGY)
+//          params.set<unsigned int>("ring_first") = _ring_first;
+//        params.set<MooseEnum>("q_function_type") = _q_function_type;
+//
+//        if (_treat_as_2d)
+//        {
+//          std::ostringstream av_name_stream;
+//          av_name_stream << av_base_name << "_" << _ring_vec[ring_index];
+//          std::ostringstream pp_name_stream;
+//          pp_name_stream << pp_base_name << "_" << _ring_vec[ring_index];
+//          _problem->addPostprocessor(pp_type_name, pp_name_stream.str(), params);
+//        }
+//        else
+//        {
+//          for (unsigned int cfp_index = 0; cfp_index < num_crack_front_points; ++cfp_index)
+//          {
+//            std::ostringstream av_name_stream;
+//            av_name_stream << av_base_name << "_" << cfp_index + 1 << "_" << _ring_vec[ring_index];
+//            std::ostringstream pp_name_stream;
+//            pp_name_stream << pp_base_name << "_" << cfp_index + 1 << "_" << _ring_vec[ring_index];
+//            params.set<unsigned int>("crack_front_point_index") = cfp_index;
+//            _problem->addPostprocessor(pp_type_name, pp_name_stream.str(), params);
+//          }
+//        }
+//      }
+//    }
+
+
     if (_integrals.count(J_INTEGRAL) != 0)
     {
       std::string pp_base_name;
@@ -440,48 +492,36 @@ DomainIntegralAction::act()
         pp_base_name = "K";
       else
         pp_base_name = "J";
-      const std::string pp_type_name("JIntegral");
+      const std::string pp_type_name("VectorPostprocessorComponent");
       InputParameters params = _factory.getValidParams(pp_type_name);
-      params.set<ExecFlagEnum>("execute_on") = EXEC_TIMESTEP_END;
-      params.set<UserObjectName>("crack_front_definition") = uo_name;
-      params.set<bool>("convert_J_to_K") = _convert_J_to_K;
-      if (_convert_J_to_K)
-      {
-        params.set<Real>("youngs_modulus") = _youngs_modulus;
-        params.set<Real>("poissons_ratio") = _poissons_ratio;
-      }
-      if (_has_symmetry_plane)
-        params.set<unsigned int>("symmetry_plane") = _symmetry_plane;
-      params.set<bool>("use_displaced_mesh") = _use_displaced_mesh;
       for (unsigned int ring_index = 0; ring_index < _ring_vec.size(); ++ring_index)
-      {
-        params.set<unsigned int>("ring_index") = _ring_vec[ring_index];
-        if (_q_function_type == TOPOLOGY)
-          params.set<unsigned int>("ring_first") = _ring_first;
-        params.set<MooseEnum>("q_function_type") = _q_function_type;
 
+      {
         if (_treat_as_2d)
         {
-          std::ostringstream av_name_stream;
-          av_name_stream << av_base_name << "_" << _ring_vec[ring_index];
-          std::ostringstream pp_name_stream;
-          pp_name_stream << pp_base_name << "_" << _ring_vec[ring_index];
-          _problem->addPostprocessor(pp_type_name, pp_name_stream.str(), params);
+          params.set<VectorPostprocessorName>("vectorpostprocessor") = pp_base_name + "2dvpp" + "_" + Moose::stringify(_ring_vec[ring_index]);
+          std::string pp_name = pp_base_name + + "_" + Moose::stringify(_ring_vec[ring_index]);
+          params.set<unsigned int>("index") = 0;
+          params.set<std::string>("vector_name") = pp_base_name + "_" + Moose::stringify(_ring_vec[ring_index]);
+          _problem->addPostprocessor(pp_type_name, pp_name, params);
         }
         else
         {
           for (unsigned int cfp_index = 0; cfp_index < num_crack_front_points; ++cfp_index)
           {
-            std::ostringstream av_name_stream;
-            av_name_stream << av_base_name << "_" << cfp_index + 1 << "_" << _ring_vec[ring_index];
-            std::ostringstream pp_name_stream;
-            pp_name_stream << pp_base_name << "_" << cfp_index + 1 << "_" << _ring_vec[ring_index];
-            params.set<unsigned int>("crack_front_point_index") = cfp_index;
-            _problem->addPostprocessor(pp_type_name, pp_name_stream.str(), params);
+            params.set<VectorPostprocessorName>("vectorpostprocessor") = pp_base_name + "_" + Moose::stringify(_ring_vec[ring_index]);
+            std::string pp_name = pp_base_name + "_" + Moose::stringify(cfp_index + 1) + "_" + Moose::stringify(_ring_vec[ring_index]);
+            params.set<unsigned int>("index") = cfp_index;
+            params.set<std::string>("vector_name") = pp_base_name + "_" + Moose::stringify(_ring_vec[ring_index]);
+            _problem->addPostprocessor(pp_type_name, pp_name, params);
           }
         }
       }
     }
+
+
+
+
     if (_integrals.count(INTERACTION_INTEGRAL_KI) != 0 ||
         _integrals.count(INTERACTION_INTEGRAL_KII) != 0 ||
         _integrals.count(INTERACTION_INTEGRAL_KIII) != 0 ||
@@ -561,8 +601,6 @@ DomainIntegralAction::act()
 
           if (_treat_as_2d)
           {
-            std::ostringstream av_name_stream;
-            av_name_stream << av_base_name << "_" << _ring_vec[ring_index];
             std::ostringstream pp_name_stream;
             pp_name_stream << pp_base_name << "_" << _ring_vec[ring_index];
 
@@ -572,9 +610,6 @@ DomainIntegralAction::act()
           {
             for (unsigned int cfp_index = 0; cfp_index < num_crack_front_points; ++cfp_index)
             {
-              std::ostringstream av_name_stream;
-              av_name_stream << av_base_name << "_" << cfp_index + 1 << "_"
-                             << _ring_vec[ring_index];
               std::ostringstream pp_name_stream;
               pp_name_stream << pp_base_name << "_" << cfp_index + 1 << "_"
                              << _ring_vec[ring_index];
@@ -670,6 +705,8 @@ DomainIntegralAction::act()
         vpp_base_name = "K";
       else
         vpp_base_name = "J";
+      if (_treat_as_2d)
+        vpp_base_name += "2dvpp";
       const std::string vpp_type_name("JIntegralVPP");
       InputParameters params = _factory.getValidParams(vpp_type_name);
       params.set<ExecFlagEnum>("execute_on") = EXEC_TIMESTEP_END;
@@ -690,9 +727,8 @@ DomainIntegralAction::act()
           params.set<unsigned int>("ring_first") = _ring_first;
         params.set<MooseEnum>("q_function_type") = _q_function_type;
 
-        std::ostringstream vpp_name_stream;
-        vpp_name_stream << vpp_base_name << "VPP_" << _ring_vec[ring_index];
-        _problem->addVectorPostprocessor(vpp_type_name, vpp_name_stream.str(), params);
+        std::string vpp_name = vpp_base_name + "_" + Moose::stringify(_ring_vec[ring_index]);
+        _problem->addVectorPostprocessor(vpp_type_name, vpp_name, params);
       }
     }
 
@@ -708,11 +744,12 @@ DomainIntegralAction::act()
         switch (*sit)
         {
           case J_INTEGRAL:
-            if (_convert_J_to_K)
-              pp_base_name = "K";
-            else
-              pp_base_name = "J";
-            break;
+            continue;
+//            if (_convert_J_to_K)
+//              pp_base_name = "K";
+//            else
+//              pp_base_name = "J";
+//            break;
           case INTERACTION_INTEGRAL_KI:
             pp_base_name = "II_KI";
             break;
