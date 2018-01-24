@@ -16,6 +16,7 @@
 #include "XFEMVolFracAux.h"
 #include "XFEMCutPlaneAux.h"
 #include "XFEMMarkerAux.h"
+#include "LevelSetFromSurfacePoints.h"
 #include "XFEMMaterialTensorMarkerUserObject.h"
 #include "XFEMRankTwoTensorMarkerUserObject.h"
 #include "XFEMAction.h"
@@ -88,6 +89,7 @@ XFEMApp::registerObjects(Factory & factory)
   registerAux(XFEMVolFracAux);
   registerAux(XFEMCutPlaneAux);
   registerAux(XFEMMarkerAux);
+  registerAux(LevelSetFromSurfacePoints);
 
   // Constraints
   registerConstraint(XFEMSingleVariableConstraint);
