@@ -46,7 +46,6 @@ validParams<JIntegralVPP>()
 JIntegralVPP::JIntegralVPP(const InputParameters & parameters)
   : ElementVectorPostprocessor(parameters),
     _crack_front_definition(&getUserObject<CrackFrontDefinition>("crack_front_definition")),
-    _position_type(getParam<MooseEnum>("position_type")),
     _Eshelby_tensor(getMaterialProperty<RankTwoTensor>("Eshelby_tensor")),
     _J_thermal_term_vec(hasMaterialProperty<RealVectorValue>("J_thermal_term_vec")
                             ? &getMaterialProperty<RealVectorValue>("J_thermal_term_vec")
@@ -56,7 +55,8 @@ JIntegralVPP::JIntegralVPP(const InputParameters & parameters)
     _poissons_ratio(isParamValid("poissons_ratio") ? getParam<Real>("poissons_ratio") : 0),
     _youngs_modulus(isParamValid("youngs_modulus") ? getParam<Real>("youngs_modulus") : 0),
     _ring_index(getParam<unsigned int>("ring_index")),
-    _q_function_type(getParam<MooseEnum>("q_function_type")),
+    _q_function_type(getParam<MooseEnum>("q_function_type").getEnum<QMethod>()),
+    _position_type(getParam<MooseEnum>("position_type").getEnum<PositionType>()),
     _x(declareVector("x")),
     _y(declareVector("y")),
     _z(declareVector("z")),
@@ -137,7 +137,7 @@ JIntegralVPP::execute()
   fe->reinit(_current_elem);
 
   // calculate q for all nodes in this element
-  unsigned int ring_base = (_q_function_type == "TOPOLOGY") ? 0 : 1;
+  unsigned int ring_base = (_q_function_type == QMethod::Topology) ? 0 : 1;
 
   for (unsigned int icfp = 0; icfp < _j_integral.size(); icfp++)
   {
@@ -147,10 +147,10 @@ JIntegralVPP::execute()
       Node * this_node = _current_elem->get_node(i);
       Real q_this_node;
 
-      if (_q_function_type == "GEOMETRY")
+      if (_q_function_type == QMethod::Geometry)
         q_this_node = _crack_front_definition->DomainIntegralQFunction(
                                                                        icfp, _ring_index - ring_base, this_node);
-      else if (_q_function_type == "TOPOLOGY")
+      else if (_q_function_type == QMethod::Topology)
         q_this_node = _crack_front_definition->DomainIntegralTopologicalQFunction(
                                                                                   icfp, _ring_index - ring_base, this_node);
 
@@ -195,7 +195,7 @@ JIntegralVPP::finalize()
     _y[i] = (*cfp)(1);
     _z[i] = (*cfp)(2);
 
-    if (_position_type == "Angle")
+    if (_position_type == PositionType::Angle)
       _position[i] = _crack_front_definition->getAngleAlongFront(i);
     else
       _position[i] = _crack_front_definition->getDistanceAlongFront(i);

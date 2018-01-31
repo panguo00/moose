@@ -712,6 +712,7 @@ DomainIntegralAction::act()
       params.set<ExecFlagEnum>("execute_on") = EXEC_TIMESTEP_END;
       params.set<UserObjectName>("crack_front_definition") = uo_name;
       params.set<bool>("convert_J_to_K") = _convert_J_to_K;
+      params.set<MooseEnum>("position_type") = _position_type;
       if (_convert_J_to_K)
       {
         params.set<Real>("youngs_modulus") = _youngs_modulus;
