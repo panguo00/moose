@@ -12,6 +12,8 @@
 #include "libmesh/quadrature.h"
 #include "libmesh/utility.h"
 
+registerMooseObject("TensorMechanicsApp", JIntegralVPP);
+
 template <>
 InputParameters
 validParams<JIntegralVPP>()

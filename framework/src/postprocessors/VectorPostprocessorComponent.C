@@ -15,6 +15,8 @@
 #include "VectorPostprocessorComponent.h"
 #include "VectorPostprocessorInterface.h"
 
+registerMooseObject("MooseApp", VectorPostprocessorComponent);
+
 template <>
 InputParameters
 validParams<VectorPostprocessorComponent>()

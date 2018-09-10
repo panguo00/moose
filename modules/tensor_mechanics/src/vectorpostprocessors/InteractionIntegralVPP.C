@@ -14,6 +14,8 @@
 #include "DerivativeMaterialInterface.h"
 #include "libmesh/utility.h"
 
+registerMooseObject("TensorMechanicsApp", InteractionIntegralVPP);
+
 MooseEnum
 InteractionIntegralVPP::qFunctionType()
 {
