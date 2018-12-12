@@ -36,6 +36,9 @@ ComputeAxisymmetricRZSmallStrain::initialSetup()
   if (getBlockCoordSystem() != Moose::COORD_RZ)
     mooseError("The coordinate system must be set to RZ for Axisymmetric geometries.");
 
+  if (getBlockCoordSystem() == Moose::COORD_RZ && _fe_problem.getAxisymmetricRadialCoord() != 0)
+    mooseError("rz_coord_axis=Y is the only supported option for ComputeAxisymmetricRZSmallStrain");
+
   if (_out_of_plane_direction != 2)
     paramError("out_of_plane_direction",
                "The out-of-plane direction for axisymmetric systems is currently restricted to z");

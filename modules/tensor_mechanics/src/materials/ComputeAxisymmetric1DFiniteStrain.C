@@ -65,6 +65,10 @@ ComputeAxisymmetric1DFiniteStrain::initialSetup()
 
   if (getBlockCoordSystem() != Moose::COORD_RZ)
     mooseError("The coordinate system must be set to RZ for Axisymmetric geometries.");
+
+  if (getBlockCoordSystem() == Moose::COORD_RZ && _fe_problem.getAxisymmetricRadialCoord() != 0)
+    mooseError(
+        "rz_coord_axis=Y is the only supported option for ComputeAxisymmetric1DFiniteStrain");
 }
 
 Real

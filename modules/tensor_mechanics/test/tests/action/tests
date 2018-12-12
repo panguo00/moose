@@ -53,4 +53,14 @@
     design = 'syntax/Modules/TensorMechanics/Master/index.md'
     requirement = 'The TensorMechanics MasterAction shall error if an input file assigns the same TensorMechanics MasterAction block to mesh blocks with different coordinate systems.'
   [../]
+
+  [./rz_coord_axis_error]
+    type = RunException
+    input = 'two_coord.i'
+    cli_args = 'Problem/rz_coord_axis=X'
+    prereq = 'two_coord'
+    expect_err = 'rz_coord_axis=Y is the only supported option for axisymmetric TensorMechanics models'
+    design = 'syntax/Modules/TensorMechanics/Master/index.md'
+    requirement = 'The TensorMechanics MasterAction shall generate an error if used with Problem/rz_coord_axis set to anything other than Y'
+  [../]
 []

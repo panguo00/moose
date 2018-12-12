@@ -341,6 +341,10 @@ TensorMechanicsAction::actSubdomainChecks()
 
     if (_coord_system == Moose::COORD_RZ && _out_of_plane_direction != OutOfPlaneDirection::z)
       paramError("out_of_plane_direction", "must be set to z for axisymmetric simulations.");
+
+    if (_coord_system == Moose::COORD_RZ && _problem->getAxisymmetricRadialCoord() != 0)
+      mooseError(
+          "rz_coord_axis=Y is the only supported option for axisymmetric TensorMechanics models");
   }
 }
 
